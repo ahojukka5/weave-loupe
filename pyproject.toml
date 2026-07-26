@@ -1,0 +1,14 @@
+[project]
+name = "weave-loupe"
+version = "0.1.0"
+description = "Tools to help in Weave compiler development"
+readme = "README.md"
+authors = [
+    { name = "Jukka Aho", email = "ahojukka5@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
