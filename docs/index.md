@@ -15,6 +15,11 @@ weave-loupe
     portable bundles, metrics, diffs, HTML, LLM review
 ```
 
+Loupe retains raw compiler artifacts unchanged inside each bundle. Structural
+metrics, comparisons, HTML, normalized JSON, and model reviews are derived
+outputs that can be regenerated without asking the compiler to understand a
+presentation format.
+
 ## Guides
 
 - [Fibonacci walkthrough](fibonacci.md) — capture a real compilation, inspect
