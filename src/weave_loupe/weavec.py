@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Mapping, Sequence
 
 
 class WeavecError(RuntimeError):

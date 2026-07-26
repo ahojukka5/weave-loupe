@@ -7,9 +7,9 @@ import json
 import os
 import shutil
 import tempfile
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Mapping, Sequence
 from typing import Any, cast
 
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
