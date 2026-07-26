@@ -17,3 +17,7 @@ wheels/
 # Local Weave compiler smoke-test artifacts
 hello/
 weavec/
+
+# Loupe output
+*.loupe/
+*.loupe.zip
