@@ -1,0 +1,42 @@
+{
+  "compiler_exit_code": 0,
+  "diagnostics": {
+    "available": true,
+    "items": 0,
+    "severities": {}
+  },
+  "format": "weave-loupe-analysis-v1",
+  "llvm": {
+    "add": 4,
+    "alloca": 3,
+    "anonymous_ssa_lines": 0,
+    "basic_blocks": 10,
+    "br": 7,
+    "call": 1,
+    "functions": 2,
+    "icmp": 2,
+    "identity_adds": 2,
+    "instructions": 33,
+    "invoke": 0,
+    "load": 4,
+    "mul": 0,
+    "numeric_blocks": 0,
+    "phi": 3,
+    "poison_uses": 0,
+    "provenance_comments": 14,
+    "ret": 3,
+    "sdiv": 0,
+    "select": 0,
+    "store": 6,
+    "sub": 0,
+    "switch": 0,
+    "udiv": 0,
+    "undef_uses": 0
+  },
+  "trace": {
+    "actions": {},
+    "categories": {},
+    "events": 0,
+    "passes": {}
+  }
+}

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weave Loupe compiler report</title>
+<style>
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { max-width: 1100px; margin: 0 auto; padding: 2rem; line-height: 1.5; }
+h1, h2 { line-height: 1.15; }
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+.card, details {
+  border: 1px solid #8886;
+  border-radius: .6rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid #8885; padding: .35rem .5rem; text-align: left; }
+pre { overflow-x: auto; white-space: pre; tab-size: 2; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.bad { font-weight: 700; }
+</style>
+</head>
+<body>
+<h1>Weave Loupe compiler report</h1>
+<div class="summary">
+<div class="card">
+<h2>Compiler</h2>
+<p>Exit code: <strong>0</strong></p>
+</div>
+<div class="card">
+<h2>Trace</h2>
+<p>Events: <strong>
+0
+</strong></p>
+</div>
+<div class="card">
+<h2>LLVM</h2>
+<p>Instructions: <strong>33</strong></p>
+</div>
+</div>
+<h2>LLVM structural metrics</h2>
+<table><tbody><tr><th>functions</th><td>2</td></tr><tr><th>basic_blocks</th><td>10</td></tr><tr><th>instructions</th><td>33</td></tr><tr><th>alloca</th><td>3</td></tr><tr><th>load</th><td>4</td></tr><tr><th>store</th><td>6</td></tr><tr><th>call</th><td>1</td></tr><tr><th>invoke</th><td>0</td></tr><tr><th>phi</th><td>3</td></tr><tr><th>br</th><td>7</td></tr><tr><th>switch</th><td>0</td></tr><tr><th>ret</th><td>3</td></tr><tr><th>add</th><td>4</td></tr><tr><th>sub</th><td>0</td></tr><tr><th>mul</th><td>0</td></tr><tr><th>sdiv</th><td>0</td></tr><tr><th>udiv</th><td>0</td></tr><tr><th>icmp</th><td>2</td></tr><tr><th>select</th><td>0</td></tr><tr><th>identity_adds</th><td>2</td></tr><tr><th>anonymous_ssa_lines</th><td>0</td></tr><tr><th>numeric_blocks</th><td>0</td></tr><tr><th>undef_uses</th><td>0</td></tr><tr><th>poison_uses</th><td>0</td></tr><tr><th>provenance_comments</th><td>14</td></tr></tbody></table>
+<h2>Source inputs</h2>
+<details><summary>Source 0: examples/fibonacci_iterative.weave</summary><pre><code>; fibonacci_iterative.weave
+; Based on weavec test/performance/wir/0061_fibonacci_iterative.wir
+; Computes fib(10) iteratively and returns it as the process exit code.
+
+(program
+  (name &quot;fibonacci_iterative&quot;)
+  (version &quot;0.1&quot;)
+  (fn fib
+    (params (n i32))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (le_i32 n (const_i32 1)))
+        (then
+          (do
+            (return n)))
+        (else
+          (do)))
+      (let prev i32 (const_i32 0))
+      (let curr i32 (const_i32 1))
+      (let i i32 (const_i32 2))
+      (while
+        (condition
+          (le_i32 i n))
+        (do
+          (let next i32 (add_i32 prev curr))
+          (set prev curr)
+          (set curr next)
+          (set i (add_i32 i (const_i32 1)))))
+      (return curr)))
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (return (call_i32 fib (const_i32 10))))))
+</code></pre></details>
+<h2>Compiler artifacts</h2>
+<details><summary>WIR</summary><pre><code>(core-module
+  (core-version 2)
+  (decls
+; weavec-source-file-v1 0 &quot;examples/fibonacci_iterative.weave&quot;
+    ; weavec-source-span-v1 0 229 767
+(; weavec-source-span-v1 0 230 232
+fn ; weavec-source-span-v1 0 233 236
+fib ; weavec-source-span-v1 0 241 257
+(; weavec-source-span-v1 0 242 248
+params ; weavec-source-span-v1 0 249 256
+(; weavec-source-span-v1 0 250 251
+n ; weavec-source-span-v1 0 252 255
+i32)) ; weavec-source-span-v1 0 262 275
+(; weavec-source-span-v1 0 263 270
+returns ; weavec-source-span-v1 0 271 274
+i32) ; weavec-source-span-v1 0 280 766
+(do ; weavec-source-span-v1 0 290 432
+(; weavec-source-span-v1 0 291 293
+if ; weavec-source-span-v1 0 302 348
+(; weavec-source-span-v1 0 303 312
+condition ; weavec-source-span-v1 0 323 347
+(; weavec-source-span-v1 0 324 330
+le_i32 ; weavec-source-span-v1 0 331 332
+n ; weavec-source-span-v1 0 333 346
+(; weavec-source-span-v1 0 334 343
+const_i32 ; weavec-source-span-v1 0 344 345
+1))) ; weavec-source-span-v1 0 357 401
+(; weavec-source-span-v1 0 358 362
+then ; weavec-source-span-v1 0 373 400
+(do ; weavec-source-span-v1 0 389 399
+(; weavec-source-span-v1 0 390 396
+return ; weavec-source-span-v1 0 397 398
+n))) ; weavec-source-span-v1 0 410 431
+(; weavec-source-span-v1 0 411 415
+else ; weavec-source-span-v1 0 426 430
+(do))) ; weavec-source-span-v1 0 439 467
+(let ; weavec-source-span-v1 0 444 448
+prev i32 ; weavec-source-span-v1 0 453 466
+(; weavec-source-span-v1 0 454 463
+const_i32 ; weavec-source-span-v1 0 464 465
+0)) ; weavec-source-span-v1 0 474 502
+(let ; weavec-source-span-v1 0 479 483
+curr i32 ; weavec-source-span-v1 0 488 501
+(; weavec-source-span-v1 0 489 498
+const_i32 ; weavec-source-span-v1 0 499 500
+1)) ; weavec-source-span-v1 0 509 534
+(let ; weavec-source-span-v1 0 514 515
+i i32 ; weavec-source-span-v1 0 520 533
+(; weavec-source-span-v1 0 521 530
+const_i32 ; weavec-source-span-v1 0 531 532
+2)) ; weavec-source-span-v1 0 541 745
+(; weavec-source-span-v1 0 542 547
+while ; weavec-source-span-v1 0 556 590
+(; weavec-source-span-v1 0 557 566
+condition ; weavec-source-span-v1 0 577 589
+(; weavec-source-span-v1 0 578 584
+le_i32 ; weavec-source-span-v1 0 585 586
+i ; weavec-source-span-v1 0 587 588
+n)) ; weavec-source-span-v1 0 599 744
+(do ; weavec-source-span-v1 0 613 647
+(let ; weavec-source-span-v1 0 618 622
+next i32 ; weavec-source-span-v1 0 627 646
+(; weavec-source-span-v1 0 628 635
+add_i32 ; weavec-source-span-v1 0 636 640
+prev ; weavec-source-span-v1 0 641 645
+curr)) ; weavec-source-span-v1 0 658 673
+(; weavec-source-span-v1 0 659 662
+set ; weavec-source-span-v1 0 663 667
+prev ; weavec-source-span-v1 0 668 672
+curr) ; weavec-source-span-v1 0 684 699
+(; weavec-source-span-v1 0 685 688
+set ; weavec-source-span-v1 0 689 693
+curr ; weavec-source-span-v1 0 694 698
+next) ; weavec-source-span-v1 0 710 743
+(; weavec-source-span-v1 0 711 714
+set ; weavec-source-span-v1 0 715 716
+i ; weavec-source-span-v1 0 717 742
+(; weavec-source-span-v1 0 718 725
+add_i32 ; weavec-source-span-v1 0 726 727
+i ; weavec-source-span-v1 0 728 741
+(; weavec-source-span-v1 0 729 738
+const_i32 ; weavec-source-span-v1 0 739 740
+1))))) ; weavec-source-span-v1 0 752 765
+(; weavec-source-span-v1 0 753 759
+return ; weavec-source-span-v1 0 760 764
+curr)))
+; weavec-source-span-v1 0 770 867
+    (fn ; weavec-source-span-v1 0 777 781
+main ; weavec-source-span-v1 0 786 794
+(; weavec-source-span-v1 0 787 793
+params) ; weavec-source-span-v1 0 799 812
+(; weavec-source-span-v1 0 800 807
+returns ; weavec-source-span-v1 0 808 811
+i32) ; weavec-source-span-v1 0 817 866
+(do ; weavec-source-span-v1 0 827 865
+(; weavec-source-span-v1 0 828 834
+return ; weavec-source-span-v1 0 835 864
+(; weavec-source-span-v1 0 836 844
+call_i32 ; weavec-source-span-v1 0 845 848
+fib ; weavec-source-span-v1 0 849 863
+(; weavec-source-span-v1 0 850 859
+const_i32 ; weavec-source-span-v1 0 860 862
+10)))))
+  )
+)
+</code></pre></details><details><summary>LLVM IR with provenance</summary><pre><code>; generated by weavec
+; source: /tmp/weavec-build-NckLAg/program.wir
+; core-version: 2
+
+; weave.source kind=function index=0 bytes=770..867 wir-bytes=3259..3845 path=&quot;examples/fibonacci_iterative.weave&quot;
+; function: main
+; params: none
+; returns: i32
+define i32 @main() {
+entry:
+; weave.source kind=statement index=0 bytes=827..865 wir-bytes=3567..3843 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; return
+  %t0 = call i32 @fib(i32 10)
+  ret i32 %t0
+}
+
+; weave.source kind=function index=0 bytes=229..767 wir-bytes=142..3220 path=&quot;examples/fibonacci_iterative.weave&quot;
+; function: fib
+; params: i32
+; returns: i32
+define i32 @fib(i32 %n) {
+entry:
+  %prev.addr = alloca i32
+  %curr.addr = alloca i32
+  %i.addr = alloca i32
+; weave.source kind=statement index=0 bytes=290..432 wir-bytes=593..1281 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; if condition
+  %t0 = icmp sle i32 %n, 1
+  br i1 %t0, label %then, label %endif
+then:
+  ; then
+; weave.source kind=statement index=0 bytes=389..399 wir-bytes=1086..1164 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; return
+  ret i32 %n
+endif:
+; weave.source kind=statement index=0 bytes=439..467 wir-bytes=1316..1480 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; let prev
+  store i32 0, ptr %prev.addr
+; weave.source kind=statement index=0 bytes=474..502 wir-bytes=1515..1679 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; let curr
+  store i32 1, ptr %curr.addr
+; weave.source kind=statement index=0 bytes=509..534 wir-bytes=1714..1875 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; let i
+  store i32 2, ptr %i.addr
+; weave.source kind=statement index=0 bytes=541..745 wir-bytes=1910..3102 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; while condition
+  br label %while.pre1
+while.pre1:
+  %prev.init1 = load i32, ptr %prev.addr
+  %curr.init1 = load i32, ptr %curr.addr
+  %i.init1 = load i32, ptr %i.addr
+  br label %while.cond1
+while.cond1:
+  %prev.phi1 = phi i32 [%prev.init1, %while.pre1], [%prev.next1, %while.latch1]
+  %curr.phi1 = phi i32 [%curr.init1, %while.pre1], [%curr.next1, %while.latch1]
+  %i.phi1 = phi i32 [%i.init1, %while.pre1], [%i.next1, %while.latch1]
+  %t1 = icmp sle i32 %i.phi1, %n
+  br i1 %t1, label %while.body1, label %while.exit-merge1
+while.body1:
+  ; while body
+; weave.source kind=statement index=0 bytes=613..647 wir-bytes=2252..2456 path=&quot;examples/fibonacci_iterative.weave&quot;
+  %t2 = add i32 %prev.phi1, %curr.phi1
+  ; let next
+; weave.source kind=statement index=0 bytes=658..673 wir-bytes=2491..2608 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; set prev
+  %prev.next1 = add i32 %curr.phi1, 0
+; weave.source kind=statement index=0 bytes=684..699 wir-bytes=2643..2760 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; set curr
+  %curr.next1 = add i32 %t2, 0
+; weave.source kind=statement index=0 bytes=710..743 wir-bytes=2795..3100 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; set i
+  %i.next1 = add i32 %i.phi1, 1
+  br label %while.latch1
+while.latch1:
+  br label %while.cond1
+while.exit-merge1:
+  ; sync loop-carried locals to stack
+  store i32 %prev.phi1, ptr %prev.addr
+  store i32 %curr.phi1, ptr %curr.addr
+  store i32 %i.phi1, ptr %i.addr
+  br label %while.end1
+while.end1:
+; weave.source kind=statement index=0 bytes=752..765 wir-bytes=3137..3218 path=&quot;examples/fibonacci_iterative.weave&quot;
+  ; return
+  %t3 = load i32, ptr %curr.addr
+  ret i32 %t3
+}
+
+</code></pre></details><details><summary>Diagnostics JSON</summary><pre><code>{
+  &quot;format&quot;: &quot;weavec-diagnostics-v1&quot;,
+  &quot;status&quot;: &quot;succeeded&quot;,
+  &quot;phase&quot;: &quot;complete&quot;,
+  &quot;exit_code&quot;: 0,
+  &quot;raw_exit_code&quot;: 0,
+  &quot;diagnostics&quot;: []
+}
+</code></pre></details><details><summary>Compilation trace JSON</summary><pre><code>{
+  &quot;format&quot;: &quot;weavec-compilation-trace-v1&quot;,
+  &quot;status&quot;: &quot;succeeded&quot;,
+  &quot;phase&quot;: &quot;complete&quot;,
+  &quot;sources&quot;: [&quot;examples/fibonacci_iterative.weave&quot;],
+  &quot;events&quot;: []
+}
+</code></pre></details><details><summary>Build manifest JSON</summary><pre><code>{
+  &quot;format&quot;: &quot;weavec-build-manifest-v1&quot;,
+  &quot;status&quot;: &quot;succeeded&quot;,
+  &quot;phase&quot;: &quot;complete&quot;,
+  &quot;target&quot;: &quot;x86_64-unknown-linux-gnu&quot;,
+  &quot;compiler&quot;: &quot;/opt/weavec/bin/weavec&quot;,
+  &quot;runtime&quot;: &quot;/opt/weavec/lib/weavec/x86_64-unknown-linux-gnu/libweave-runtime.a&quot;,
+  &quot;codegen&quot;: &quot;clang&quot;,
+  &quot;linker&quot;: &quot;clang&quot;,
+  &quot;output&quot;: &quot;build/fibonacci.loupe/artifacts/program&quot;,
+  &quot;sources&quot;: [&quot;examples/fibonacci_iterative.weave&quot;]
+}
+</code></pre></details>
+<details>
+<summary>Normalized analysis JSON</summary>
+<pre><code>{
+  &quot;compiler_exit_code&quot;: 0,
+  &quot;diagnostics&quot;: {
+    &quot;available&quot;: true,
+    &quot;items&quot;: 0,
+    &quot;severities&quot;: {}
+  },
+  &quot;format&quot;: &quot;weave-loupe-analysis-v1&quot;,
+  &quot;llvm&quot;: {
+    &quot;add&quot;: 4,
+    &quot;alloca&quot;: 3,
+    &quot;anonymous_ssa_lines&quot;: 0,
+    &quot;basic_blocks&quot;: 10,
+    &quot;br&quot;: 7,
+    &quot;call&quot;: 1,
+    &quot;functions&quot;: 2,
+    &quot;icmp&quot;: 2,
+    &quot;identity_adds&quot;: 2,
+    &quot;instructions&quot;: 33,
+    &quot;invoke&quot;: 0,
+    &quot;load&quot;: 4,
+    &quot;mul&quot;: 0,
+    &quot;numeric_blocks&quot;: 0,
+    &quot;phi&quot;: 3,
+    &quot;poison_uses&quot;: 0,
+    &quot;provenance_comments&quot;: 14,
+    &quot;ret&quot;: 3,
+    &quot;sdiv&quot;: 0,
+    &quot;select&quot;: 0,
+    &quot;store&quot;: 6,
+    &quot;sub&quot;: 0,
+    &quot;switch&quot;: 0,
+    &quot;udiv&quot;: 0,
+    &quot;undef_uses&quot;: 0
+  },
+  &quot;trace&quot;: {
+    &quot;actions&quot;: {},
+    &quot;categories&quot;: {},
+    &quot;events&quot;: 0,
+    &quot;passes&quot;: {}
+  }
+}</code></pre>
+</details>
+</body>
+</html>
