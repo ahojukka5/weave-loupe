@@ -1,0 +1,36 @@
+; fibonacci_iterative.weave
+; Based on weavec test/performance/wir/0061_fibonacci_iterative.wir
+; Computes fib(10) iteratively and returns it as the process exit code.
+
+(program
+  (name "fibonacci_iterative")
+  (version "0.1")
+  (fn fib
+    (params (n i32))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (le_i32 n (const_i32 1)))
+        (then
+          (do
+            (return n)))
+        (else
+          (do)))
+      (let prev i32 (const_i32 0))
+      (let curr i32 (const_i32 1))
+      (let i i32 (const_i32 2))
+      (while
+        (condition
+          (le_i32 i n))
+        (do
+          (let next i32 (add_i32 prev curr))
+          (set prev curr)
+          (set curr next)
+          (set i (add_i32 i (const_i32 1)))))
+      (return curr)))
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (return (call_i32 fib (const_i32 10))))))

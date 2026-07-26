@@ -7,7 +7,12 @@ authors = [
     { name = "Jukka Aho", email = "ahojukka5@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "openai>=2.48.0",
+]
+
+[project.scripts]
+loupe = "weave_loupe.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.9.7,<0.10.0"]
