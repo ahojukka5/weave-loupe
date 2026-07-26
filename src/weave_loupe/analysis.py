@@ -110,8 +110,10 @@ def analyze_diagnostics(document: Any | None) -> dict[str, Any]:
 
 def _compiler_exit_code(bundle: Bundle) -> int:
     compiler = bundle.manifest.get("compiler", {})
-    if isinstance(compiler, dict) and isinstance(compiler.get("exit_code"), int):
-        return compiler["exit_code"]
+    if isinstance(compiler, dict):
+        exit_code = compiler.get("exit_code")
+        if isinstance(exit_code, int):
+            return exit_code
     return -1
 
 
