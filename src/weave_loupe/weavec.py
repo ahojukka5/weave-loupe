@@ -1,29 +1,45 @@
-"""Helpers for invoking the weavec compiler."""
+"""Helpers for invoking the public ``weavec build`` artifact interface."""
 
 from __future__ import annotations
 
 import os
 import shutil
 import subprocess
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Mapping, Sequence
 
 
 class WeavecError(RuntimeError):
-    """Raised when weavec cannot be found or fails."""
+    """Raised when weavec cannot be found or cannot be invoked."""
 
 
 @dataclass(frozen=True)
-class CompilationArtifacts:
-    """Surface Weave lowered through WIR to LLVM IR."""
+class BuildRequest:
+    """Paths used by one instrumented compiler invocation."""
 
-    weave_source: str
-    wir: str
-    llvm_ir: str
+    sources: tuple[Path, ...]
+    executable: Path
+    wir: Path
+    llvm: Path
+    diagnostics: Path
+    trace: Path
+    build_manifest: Path
+
+
+@dataclass(frozen=True)
+class BuildResult:
+    """Result of one instrumented compiler invocation."""
+
+    request: BuildRequest
+    command: tuple[str, ...]
+    returncode: int
+    stdout: str
+    stderr: str
 
 
 def resolve_weavec(explicit: Path | None = None) -> Path:
+    """Resolve the compiler from an explicit path, ``WEAVEC_BIN``, or ``PATH``."""
     if explicit is not None:
         path = explicit.expanduser().resolve()
         if not path.is_file():
@@ -43,44 +59,69 @@ def resolve_weavec(explicit: Path | None = None) -> Path:
     return Path(found).resolve()
 
 
-def compile_weave(weave_file: Path, weavec: Path | None = None) -> CompilationArtifacts:
-    """Lower surface Weave to WIR and LLVM IR via weavec."""
-    source = weave_file.expanduser().resolve()
-    if not source.is_file():
-        raise WeavecError(f"weave source not found: {source}")
-
-    weave_source = source.read_text(encoding="utf-8")
-    binary = resolve_weavec(weavec)
-    with tempfile.TemporaryDirectory(prefix="loupe-") as tmp:
-        tmp_path = Path(tmp)
-        wir_path = tmp_path / "program.wir"
-        ll_path = tmp_path / "program.ll"
-
-        _run(
-            [str(binary), "--frontend", str(wir_path), str(source)],
-            label="weavec --frontend",
-        )
-        _run(
-            [str(binary), "--backend", str(wir_path), str(ll_path)],
-            label="weavec --backend",
-        )
-        return CompilationArtifacts(
-            weave_source=weave_source,
-            wir=wir_path.read_text(encoding="utf-8"),
-            llvm_ir=ll_path.read_text(encoding="utf-8"),
-        )
-
-
-def _run(cmd: list[str], *, label: str) -> None:
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        check=False,
+def build_command(binary: Path, request: BuildRequest) -> tuple[str, ...]:
+    """Return the stable public command used to capture compiler evidence."""
+    return (
+        str(binary),
+        "build",
+        *(str(source) for source in request.sources),
+        "-o",
+        str(request.executable),
+        "--emit-wir",
+        str(request.wir),
+        "--emit-llvm",
+        str(request.llvm),
+        "--diagnostics-json",
+        str(request.diagnostics),
+        "--trace-json",
+        str(request.trace),
+        "--manifest-json",
+        str(request.build_manifest),
+        "--llvm-provenance",
     )
-    if result.returncode != 0:
-        detail = (result.stderr or result.stdout or "").strip()
-        raise WeavecError(
-            f"{label} failed with exit {result.returncode}"
-            + (f":\n{detail}" if detail else "")
+
+
+def run_build(
+    request: BuildRequest,
+    *,
+    weavec: Path | None = None,
+    environment: Mapping[str, str] | None = None,
+) -> BuildResult:
+    """Run ``weavec build`` and retain output even when compilation fails."""
+    if not request.sources:
+        raise WeavecError("at least one Weave source is required")
+    for source in request.sources:
+        if not source.is_file():
+            raise WeavecError(f"weave source not found: {source}")
+
+    binary = resolve_weavec(weavec)
+    command = build_command(binary, request)
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+            env=dict(environment) if environment is not None else None,
         )
+    except OSError as exc:
+        raise WeavecError(f"could not run weavec: {exc}") from exc
+
+    return BuildResult(
+        request=request,
+        command=command,
+        returncode=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+    )
+
+
+def normalize_sources(sources: Sequence[Path]) -> tuple[Path, ...]:
+    """Resolve and validate ordered source paths."""
+    normalized = tuple(source.expanduser() for source in sources)
+    if not normalized:
+        raise WeavecError("at least one Weave source is required")
+    for source in normalized:
+        if not source.is_file():
+            raise WeavecError(f"weave source not found: {source}")
+    return normalized

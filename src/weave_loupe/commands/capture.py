@@ -1,0 +1,30 @@
+"""``loupe capture`` command."""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from weave_loupe.bundle import BundleError, capture_bundle
+
+
+def run_capture(
+    *,
+    weave_files: list[Path],
+    output: Path,
+    weavec: Path | None,
+    include_executable: bool,
+) -> int:
+    try:
+        result = capture_bundle(
+            sources=weave_files,
+            output=output,
+            weavec=weavec,
+            include_executable=include_executable,
+        )
+    except BundleError as exc:
+        print(f"loupe capture: {exc}", file=sys.stderr)
+        return 1
+    print(f"bundle: {result.bundle}")
+    print(f"compiler exit: {result.compiler_exit_code}")
+    return result.compiler_exit_code
