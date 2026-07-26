@@ -77,10 +77,20 @@ make compiler changes comparable. For example, a future direct-SSA or optimized
 LLVM path should reduce stack allocations, loads, stores, and identity additions
 without losing source provenance.
 
+### Interpreting the stage boundary
+
+The checked-in metrics describe the LLVM emitted directly by the self-hosted
+backend, before an LLVM optimization pipeline transforms it for native code.
+They therefore expose compiler lowering decisions instead of hiding them behind
+`mem2reg`, instruction combining, or control-flow simplification. A future
+optimized-LLVM artifact should be recorded beside this evidence, not replace it,
+so Loupe can show exactly which costs the optimizer removed and which survived.
+
 The compilation trace currently contains zero events for this example because
 the implemented stable trace actions concern transformations not exercised by
-this program. The trace registry follow-up will make coverage explicit rather
-than treating an empty trace as an error.
+this program. Zero events describe this input; they do not prove that every
+compiler transformation is registered. The trace-registry audit is responsible
+for that separate completeness guarantee.
 
 ## 4. Compare compiler versions
 
