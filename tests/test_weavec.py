@@ -1,103 +1,90 @@
-"""Tests for weavec discovery and compilation helpers."""
+"""Tests for compiler invocation helpers."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
 from weave_loupe.weavec import (
-    CompilationArtifacts,
+    BuildRequest,
     WeavecError,
-    compile_weave,
+    build_command,
+    normalize_sources,
     resolve_weavec,
+    run_build,
 )
 
 
-def test_resolve_weavec_explicit_path(tmp_path: Path) -> None:
-    binary = tmp_path / "weavec"
-    binary.write_text("#!/bin/sh\n", encoding="utf-8")
-    binary.chmod(0o755)
-    assert resolve_weavec(binary) == binary.resolve()
+def _request(tmp_path: Path, source: Path) -> BuildRequest:
+    return BuildRequest(
+        sources=(source,),
+        executable=tmp_path / "program",
+        wir=tmp_path / "program.wir",
+        llvm=tmp_path / "program.ll",
+        diagnostics=tmp_path / "diagnostics.json",
+        trace=tmp_path / "trace.json",
+        build_manifest=tmp_path / "build.json",
+    )
 
 
-def test_resolve_weavec_missing_explicit_path(tmp_path: Path) -> None:
-    with pytest.raises(WeavecError, match="weavec binary not found"):
+def test_resolve_weavec_explicit(fake_weavec: Path) -> None:
+    assert resolve_weavec(fake_weavec) == fake_weavec.resolve()
+
+
+def test_resolve_weavec_env(
+    fake_weavec: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("WEAVEC_BIN", str(fake_weavec))
+    assert resolve_weavec() == fake_weavec.resolve()
+
+
+def test_resolve_weavec_path(
+    fake_weavec: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("WEAVEC_BIN", raising=False)
+    with patch("weave_loupe.weavec.shutil.which", return_value=str(fake_weavec)):
+        assert resolve_weavec() == fake_weavec.resolve()
+
+
+def test_resolve_weavec_missing(tmp_path: Path) -> None:
+    with pytest.raises(WeavecError, match="binary not found"):
         resolve_weavec(tmp_path / "missing")
 
 
-def test_resolve_weavec_from_env(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_normalize_sources_requires_input() -> None:
+    with pytest.raises(WeavecError, match="at least one"):
+        normalize_sources([])
+
+
+def test_normalize_sources_preserves_order(tmp_path: Path) -> None:
+    left = tmp_path / "a.weave"
+    right = tmp_path / "b.weave"
+    left.write_text("a")
+    right.write_text("b")
+    assert normalize_sources([right, left]) == (right.resolve(), left.resolve())
+
+
+def test_build_command_uses_public_artifact_flags(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
 ) -> None:
-    binary = tmp_path / "weavec"
-    binary.write_text("#!/bin/sh\n", encoding="utf-8")
-    monkeypatch.setenv("WEAVEC_BIN", str(binary))
-    assert resolve_weavec() == binary.resolve()
+    command = build_command(fake_weavec, _request(tmp_path, source_file))
+    assert command[1] == "build"
+    assert "--emit-wir" in command
+    assert "--emit-llvm" in command
+    assert "--diagnostics-json" in command
+    assert "--trace-json" in command
+    assert "--manifest-json" in command
+    assert command[-1] == "--llvm-provenance"
 
 
-def test_resolve_weavec_from_path(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_run_build_retains_outputs(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
 ) -> None:
-    binary = tmp_path / "weavec"
-    binary.write_text("#!/bin/sh\n", encoding="utf-8")
-    monkeypatch.delenv("WEAVEC_BIN", raising=False)
-    with patch("weave_loupe.weavec.shutil.which", return_value=str(binary)):
-        assert resolve_weavec() == binary.resolve()
-
-
-def test_resolve_weavec_missing(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("WEAVEC_BIN", raising=False)
-    with (
-        patch("weave_loupe.weavec.shutil.which", return_value=None),
-        pytest.raises(WeavecError, match="weavec not found"),
-    ):
-        resolve_weavec()
-
-
-def test_compile_weave_runs_frontend_and_backend(tmp_path: Path) -> None:
-    source = tmp_path / "demo.weave"
-    source.write_text("(program)", encoding="utf-8")
-    binary = tmp_path / "weavec"
-    binary.write_text("#!/bin/sh\n", encoding="utf-8")
-
-    def fake_run(cmd: list[str], *, label: str) -> None:
-        del label
-        if cmd[1] == "--frontend":
-            Path(cmd[2]).write_text("(core-module)", encoding="utf-8")
-        elif cmd[1] == "--backend":
-            Path(cmd[3]).write_text("define i32 @main()", encoding="utf-8")
-        else:
-            raise AssertionError(cmd)
-
-    with (
-        patch("weave_loupe.weavec.resolve_weavec", return_value=binary),
-        patch("weave_loupe.weavec._run", side_effect=fake_run) as run_mock,
-    ):
-        artifacts = compile_weave(source)
-
-    assert artifacts == CompilationArtifacts(
-        weave_source="(program)",
-        wir="(core-module)",
-        llvm_ir="define i32 @main()",
-    )
-    assert run_mock.call_count == 2
-    assert run_mock.call_args_list[0].args[0][1] == "--frontend"
-    assert run_mock.call_args_list[1].args[0][1] == "--backend"
-
-
-def test_compile_weave_missing_source(tmp_path: Path) -> None:
-    with pytest.raises(WeavecError, match="weave source not found"):
-        compile_weave(tmp_path / "missing.weave")
-
-
-def test_run_raises_on_nonzero_exit() -> None:
-    from weave_loupe.weavec import _run
-
-    result = SimpleNamespace(returncode=7, stderr="nope", stdout="")
-    with (
-        patch("weave_loupe.weavec.subprocess.run", return_value=result),
-        pytest.raises(WeavecError, match="failed with exit 7"),
-    ):
-        _run(["weavec", "--frontend", "out.wir", "in.weave"], label="frontend")
+    request = _request(tmp_path, source_file)
+    result = run_build(request, weavec=fake_weavec)
+    assert result.returncode == 0
+    assert result.stdout == "compiled\n"
+    assert request.wir.is_file()
+    assert request.llvm.is_file()
