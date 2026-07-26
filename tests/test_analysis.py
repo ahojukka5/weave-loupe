@@ -32,7 +32,7 @@ entry:
 
 def test_analyze_llvm_counts_provenance() -> None:
     metrics = analyze_llvm(
-        '; weave.source kind=statement index=0 bytes=0..1 '
+        "; weave.source kind=statement index=0 bytes=0..1 "
         'wir-bytes=0..2 path="x.weave"\n'
     )
     assert metrics["provenance_comments"] == 1

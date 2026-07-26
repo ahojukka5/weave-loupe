@@ -32,11 +32,7 @@ def test_bundle_report_is_deterministic(
 
 def test_diff_report_contains_metric_table() -> None:
     report = render_diff_report(
-        {
-            "llvm_metrics": {
-                "instructions": {"before": 5, "after": 4, "delta": -1}
-            }
-        }
+        {"llvm_metrics": {"instructions": {"before": 5, "after": 4, "delta": -1}}}
     )
     assert "Weave Loupe comparison" in report
     assert "instructions" in report

@@ -33,9 +33,7 @@ def test_resolve_weavec_explicit(fake_weavec: Path) -> None:
     assert resolve_weavec(fake_weavec) == fake_weavec.resolve()
 
 
-def test_resolve_weavec_env(
-    fake_weavec: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_resolve_weavec_env(fake_weavec: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WEAVEC_BIN", str(fake_weavec))
     assert resolve_weavec() == fake_weavec.resolve()
 
