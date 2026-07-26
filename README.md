@@ -13,3 +13,5 @@ uv sync
 ```sh
 uv run python -c "from weave_loupe import hello; print(hello())"
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and commit rules.
