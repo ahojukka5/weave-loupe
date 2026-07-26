@@ -5,7 +5,7 @@ Tools to help in Weave compiler development.
 ## Setup
 
 ```sh
-uv sync
+uv sync --group dev
 ```
 
 Ensure `weavec` is on `PATH` (or set `WEAVEC_BIN`), and configure:
@@ -34,5 +34,14 @@ uv run loupe audit examples/fibonacci_iterative.weave --verbose
 
 Optional flags: `--model`, `--weavec`, `--wir-out`, `--llvm-out`,
 `--max-tokens`, `--verbose`.
+
+## Quality checks
+
+```sh
+uv run ruff check .
+uv run ruff format .
+uv run mypy
+uv run pytest
+```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and commit rules.

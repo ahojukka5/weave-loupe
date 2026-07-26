@@ -7,7 +7,16 @@ guidelines will be added as the project grows.
 ## Development setup
 
 ```sh
-uv sync
+uv sync --group dev
+```
+
+## Quality checks
+
+```sh
+uv run ruff check .
+uv run ruff format .
+uv run mypy
+uv run pytest
 ```
 
 ## Commit rules

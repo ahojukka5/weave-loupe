@@ -9,6 +9,11 @@ wheels/
 # Virtual environments
 .venv
 
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
 # Local Weave compiler smoke-test artifacts
 hello/
 weavec/
