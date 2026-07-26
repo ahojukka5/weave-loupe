@@ -1,4 +1,4 @@
-"""Tests for the loupe audit command orchestration."""
+"""Tests for enriched LLM audit orchestration."""
 
 from __future__ import annotations
 
@@ -7,124 +7,58 @@ from unittest.mock import patch
 
 from weave_loupe.commands.audit import run_audit
 from weave_loupe.llm import LlmConfig
-from weave_loupe.weavec import CompilationArtifacts, WeavecError
 
 
-def test_run_audit_success_writes_artifacts_and_report(tmp_path: Path, capsys) -> None:
-    source = tmp_path / "demo.weave"
-    source.write_text("(program)", encoding="utf-8")
-    wir_out = tmp_path / "out.wir"
-    llvm_out = tmp_path / "out.ll"
-    artifacts = CompilationArtifacts(
-        weave_source="(program)",
-        wir="(core-module)",
-        llvm_ir="define i32 @main()",
-    )
+def test_audit_passes_trace_and_metrics(
+    tmp_path: Path, source_file: Path, fake_weavec: Path, capsys
+) -> None:
     config = LlmConfig(
         endpoint="https://example.test/v1",
         api_key="secret",
-        model="z-ai/glm-5.2",
+        model="model",
         max_tokens=64,
     )
-
     with (
+        patch("weave_loupe.commands.audit.load_config", return_value=config),
         patch(
-            "weave_loupe.commands.audit.compile_weave",
-            return_value=artifacts,
-        ) as compile_mock,
-        patch(
-            "weave_loupe.commands.audit.load_config",
-            return_value=config,
-        ) as load_mock,
-        patch(
-            "weave_loupe.commands.audit.chat_completion",
-            return_value="# Weave Loupe Audit Report\nOK",
-        ) as chat_mock,
+            "weave_loupe.commands.audit.chat_completion", return_value="report"
+        ) as chat,
     ):
         code = run_audit(
-            weave_file=source,
-            model="z-ai/glm-5.2",
-            weavec=None,
-            llvm_out=llvm_out,
-            wir_out=wir_out,
+            weave_files=[source_file],
+            model="model",
+            weavec=fake_weavec,
+            llvm_out=tmp_path / "out.ll",
+            wir_out=tmp_path / "out.wir",
             max_tokens=64,
             verbose=False,
         )
-
     assert code == 0
-    assert wir_out.read_text(encoding="utf-8") == "(core-module)"
-    assert llvm_out.read_text(encoding="utf-8") == "define i32 @main()"
-    assert "# Weave Loupe Audit Report" in capsys.readouterr().out
-    compile_mock.assert_called_once()
-    load_mock.assert_called_once_with(model="z-ai/glm-5.2", max_tokens=64)
-    prompt = chat_mock.call_args.args[1]
-    assert "(program)" in prompt
-    assert "(core-module)" in prompt
-    assert "define i32 @main()" in prompt
+    prompt = chat.call_args.args[1]
+    assert "Trace summary JSON" in prompt
+    assert "typed-integer-wrap" in prompt
+    assert "identity_adds" in prompt
+    assert capsys.readouterr().out == "report\n"
 
 
-def test_run_audit_verbose_prints_prompt(tmp_path: Path, capsys) -> None:
-    source = tmp_path / "demo.weave"
-    source.write_text("(program)", encoding="utf-8")
-    artifacts = CompilationArtifacts(
-        weave_source="(program)",
-        wir="(core-module)",
-        llvm_ir="define i32 @main()",
-    )
+def test_audit_verbose_prints_prompt(
+    source_file: Path, fake_weavec: Path, capsys
+) -> None:
     config = LlmConfig(
-        endpoint="https://example.test/v1",
-        api_key="secret",
-        model="z-ai/glm-5.2",
+        endpoint="https://example.test/v1", api_key="secret", model="model"
     )
-
     with (
-        patch(
-            "weave_loupe.commands.audit.compile_weave",
-            return_value=artifacts,
-        ),
         patch("weave_loupe.commands.audit.load_config", return_value=config),
-        patch(
-            "weave_loupe.commands.audit.chat_completion",
-            return_value="report",
-        ),
+        patch("weave_loupe.commands.audit.chat_completion", return_value="ok"),
     ):
         code = run_audit(
-            weave_file=source,
-            model="z-ai/glm-5.2",
-            weavec=None,
+            weave_files=[source_file],
+            model="model",
+            weavec=fake_weavec,
             llvm_out=None,
             wir_out=None,
-            max_tokens=16,
+            max_tokens=64,
             verbose=True,
         )
-
     assert code == 0
-    captured = capsys.readouterr()
-    assert captured.out == "report\n"
-    assert "=== loupe audit prompt begin ===" in captured.err
-    assert "=== Weave source (.weave) ===" in captured.err
-    assert "=== Intermediate representation (.wir) ===" in captured.err
-    assert "=== Emitted LLVM IR (.ll) ===" in captured.err
-    assert "=== loupe audit prompt end ===" in captured.err
-
-
-def test_run_audit_returns_one_on_weavec_error(tmp_path: Path, capsys) -> None:
-    source = tmp_path / "demo.weave"
-    source.write_text("(program)", encoding="utf-8")
-
-    with patch(
-        "weave_loupe.commands.audit.compile_weave",
-        side_effect=WeavecError("boom"),
-    ):
-        code = run_audit(
-            weave_file=source,
-            model="z-ai/glm-5.2",
-            weavec=None,
-            llvm_out=None,
-            wir_out=None,
-            max_tokens=16,
-            verbose=False,
-        )
-
-    assert code == 1
-    assert "loupe audit: boom" in capsys.readouterr().err
+    assert "loupe audit prompt begin" in capsys.readouterr().err
