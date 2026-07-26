@@ -61,8 +61,7 @@ def run_audit(
                 source_name = str(source.get("input", source["path"]))
                 source_names.append(source_name)
                 source_blocks.append(
-                    f"--- {source_name} ---\n"
-                    + bundle.read_text(str(source["path"]))
+                    f"--- {source_name} ---\n" + bundle.read_text(str(source["path"]))
                 )
             analysis = analyze_bundle(bundle)
             diagnostics = bundle.artifact_json("diagnostics")

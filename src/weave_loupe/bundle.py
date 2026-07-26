@@ -9,7 +9,8 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence, cast
+from collections.abc import Mapping, Sequence
+from typing import Any, cast
 
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
@@ -83,9 +84,7 @@ def capture_bundle(
     destination = output.expanduser().resolve()
     destination.parent.mkdir(parents=True, exist_ok=True)
     work = Path(
-        tempfile.mkdtemp(
-            prefix=f".{destination.name}.", dir=destination.parent
-        )
+        tempfile.mkdtemp(prefix=f".{destination.name}.", dir=destination.parent)
     )
     try:
         source_dir = work / "sources"

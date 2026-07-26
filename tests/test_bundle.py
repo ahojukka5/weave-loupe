@@ -15,9 +15,7 @@ def test_capture_bundle_records_sources_and_artifacts(
     tmp_path: Path, source_file: Path, fake_weavec: Path
 ) -> None:
     output = tmp_path / "demo.loupe"
-    result = capture_bundle(
-        sources=[source_file], output=output, weavec=fake_weavec
-    )
+    result = capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
     assert result.compiler_exit_code == 0
     bundle = load_bundle(output)
     assert bundle.manifest["format"] == "weave-loupe-bundle-v1"

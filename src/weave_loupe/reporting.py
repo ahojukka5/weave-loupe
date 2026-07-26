@@ -5,7 +5,8 @@ from __future__ import annotations
 import html
 import json
 from pathlib import Path
-from typing import Any, Mapping, cast
+from collections.abc import Mapping
+from typing import Any, cast
 
 from weave_loupe.analysis import analyze_bundle
 from weave_loupe.bundle import Bundle
@@ -72,17 +73,17 @@ code {{ font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }}
 <div class="summary">
 <div class="card">
 <h2>Compiler</h2>
-<p>Exit code: <strong>{analysis['compiler_exit_code']}</strong></p>
+<p>Exit code: <strong>{analysis["compiler_exit_code"]}</strong></p>
 </div>
 <div class="card">
 <h2>Trace</h2>
 <p>Events: <strong>
-{cast(Mapping[str, Any], analysis['trace'])['events']}
+{cast(Mapping[str, Any], analysis["trace"])["events"]}
 </strong></p>
 </div>
 <div class="card">
 <h2>LLVM</h2>
-<p>Instructions: <strong>{llvm.get('instructions', 0)}</strong></p>
+<p>Instructions: <strong>{llvm.get("instructions", 0)}</strong></p>
 </div>
 </div>
 <h2>LLVM structural metrics</h2>

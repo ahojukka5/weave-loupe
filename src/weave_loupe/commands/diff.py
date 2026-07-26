@@ -20,9 +20,9 @@ def run_diff(
 ) -> int:
     try:
         comparison = compare_bundles(load_bundle(before), load_bundle(after))
-        payload = json.dumps(
-            comparison, indent=2, sort_keys=True, ensure_ascii=False
-        ) + "\n"
+        payload = (
+            json.dumps(comparison, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+        )
         if json_out is not None:
             json_out.parent.mkdir(parents=True, exist_ok=True)
             json_out.write_text(payload, encoding="utf-8")
