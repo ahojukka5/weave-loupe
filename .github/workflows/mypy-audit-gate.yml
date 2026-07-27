@@ -1,0 +1,31 @@
+name: mypy-audit-gate
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'tmp/format-audit-gate'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/reproducible-audit-gate
+      - uses: astral-sh/setup-uv@v6
+      - run: uv python install 3.12
+      - run: uv sync --group dev
+      - name: Capture strict Mypy diagnostics
+        shell: bash
+        run: |
+          set +e
+          uv run mypy > mypy.txt 2>&1
+          cat mypy.txt
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audit-gate-mypy
+          path: mypy.txt
