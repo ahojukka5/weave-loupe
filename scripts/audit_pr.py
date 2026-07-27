@@ -45,7 +45,7 @@ def main() -> int:
     changed = _changed_paths(args.base, args.head)
     sources = _changed_weave_sources(changed)
     if not sources and _audit_engine_changed(changed):
-        sources = sorted(Path("examples").rglob("*.weave"))
+        sources = sorted(Path("docs/audit").rglob("*.weave"))
 
     audits = [
         _audit_file(source=source, weavec=args.weavec, model=args.model)
@@ -105,6 +105,7 @@ def _audit_file(*, source: Path, weavec: Path, model: str) -> FileAudit:
         model,
         "--report-out",
         str(report),
+        "--verbose",
     ]
     completed = subprocess.run(command, capture_output=True, text=True, check=False)
     return FileAudit(
