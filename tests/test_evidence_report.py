@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from weave_loupe.evidence_report import insert_complete_evidence, render_complete_evidence
+from weave_loupe.evidence_report import (
+    insert_complete_evidence,
+    render_complete_evidence,
+)
 
 
 def test_render_complete_evidence_preserves_stage_order() -> None:
@@ -21,9 +24,7 @@ def test_render_complete_evidence_preserves_stage_order() -> None:
 
 
 def test_render_complete_evidence_uses_safe_fence() -> None:
-    rendered = render_complete_evidence(
-        [("Source", "text", "before\n```\nafter")]
-    )
+    rendered = render_complete_evidence([("Source", "text", "before\n```\nafter")])
 
     assert "````text" in rendered
     assert rendered.count("````") == 2
@@ -33,4 +34,6 @@ def test_insert_complete_evidence_precedes_llm_review() -> None:
     report = "# Audit\n\n## LLM review\n\nOK\n"
     rendered = insert_complete_evidence(report, [("WIR", "lisp", "(wir)")])
 
-    assert rendered.index("## Complete compiler evidence") < rendered.index("## LLM review")
+    assert rendered.index("## Complete compiler evidence") < rendered.index(
+        "## LLM review"
+    )
