@@ -23,7 +23,7 @@ def test_prompt_includes_complete_evidence_and_verdict_contract() -> None:
     assert "Weave-to-WIR semantic preservation" in prompt
     assert "WIR-to-raw-LLVM semantic preservation" in prompt
     assert "Native runtime cases and expected observable behavior" in prompt
-    assert "direct execution" in prompt
+    assert "direct evidence from executing the exact linked" in prompt
     assert "raw llvm {brace}" in prompt
     assert "optimized llvm" in prompt
     assert "disassembly" in prompt
