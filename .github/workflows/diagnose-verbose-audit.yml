@@ -1,0 +1,26 @@
+name: diagnose-verbose-audit
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'feat/verbose-audit-corpus'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv python install 3.12
+      - run: uv sync --group dev
+      - name: Capture diagnostics
+        shell: bash
+        run: |
+          mkdir -p build
+          uv run ruff check . > build/ruff.txt 2>&1 || true
+          uv run ruff format --check . > build/format.txt 2>&1 || true
+          uv run mypy > build/mypy.txt 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verbose-audit-diagnostics
+          path: build/*.txt
