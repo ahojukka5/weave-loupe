@@ -1,0 +1,39 @@
+name: format-audit-gate
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.head_ref == 'tmp/format-audit-gate'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Format product branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/reproducible-audit-gate
+          git checkout -B feature/reproducible-audit-gate origin/feature/reproducible-audit-gate
+          uv sync --group dev
+          uv run ruff format .
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- '*.py' 'src/**/*.py' 'tests/**/*.py' 'scripts/**/*.py'
+          git commit -m "style(audit): apply Ruff formatting"
+          git push origin HEAD:feature/reproducible-audit-gate
