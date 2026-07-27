@@ -46,6 +46,12 @@ class AuditRun:
         return self.returncode == 2
 
 
+@dataclass(frozen=True)
+class AuditOutcome:
+    run: AuditRun
+    candidate: Path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--weavec", type=Path, required=True)
@@ -72,39 +78,53 @@ def main() -> int:
     due = [state for state in states if state.reason is not None]
 
     args.logs_dir.mkdir(parents=True, exist_ok=True)
-    runs = [
-        _audit(
-            state=state,
-            weavec=args.weavec,
-            model=args.model,
-            logs_dir=args.logs_dir,
-        )
-        for state in due
-    ]
+    with tempfile.TemporaryDirectory(prefix="loupe-reaudit-") as temp_dir:
+        candidate_root = Path(temp_dir)
+        outcomes = [
+            _audit(
+                state=state,
+                candidate_root=candidate_root,
+                weavec=args.weavec,
+                model=args.model,
+                logs_dir=args.logs_dir,
+            )
+            for state in due
+        ]
+        runs = [outcome.run for outcome in outcomes]
+        if all(run.passed for run in runs):
+            for outcome in outcomes:
+                report = Path(outcome.run.report)
+                report.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(outcome.candidate, report)
 
-    args.summary.parent.mkdir(parents=True, exist_ok=True)
-    args.summary.write_text(
-        _render_summary(identity=identity, states=states, runs=runs, now=now),
-        encoding="utf-8",
-    )
-    args.reports_list.parent.mkdir(parents=True, exist_ok=True)
-    args.reports_list.write_text(
-        "".join(f"{run.report}\n" for run in runs if run.passed),
-        encoding="utf-8",
-    )
-    failures = {
-        "format": "weave-loupe-scheduled-failures-v1",
-        "timestamp_utc": now.replace(microsecond=0).isoformat(),
-        "compiler": asdict(identity),
-        "compiler_findings": [asdict(run) for run in runs if run.compiler_finding],
-        "infrastructure_failures": [
-            asdict(run) for run in runs if not run.passed and not run.compiler_finding
-        ],
-    }
-    args.failures_json.parent.mkdir(parents=True, exist_ok=True)
-    args.failures_json.write_text(
-        json.dumps(failures, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+        args.summary.parent.mkdir(parents=True, exist_ok=True)
+        args.summary.write_text(
+            _render_summary(identity=identity, states=states, runs=runs, now=now),
+            encoding="utf-8",
+        )
+        args.reports_list.parent.mkdir(parents=True, exist_ok=True)
+        args.reports_list.write_text(
+            "".join(f"{run.report}\n" for run in runs if run.passed),
+            encoding="utf-8",
+        )
+        failures = {
+            "format": "weave-loupe-scheduled-failures-v1",
+            "timestamp_utc": now.replace(microsecond=0).isoformat(),
+            "compiler": asdict(identity),
+            "compiler_findings": [
+                asdict(run) for run in runs if run.compiler_finding
+            ],
+            "infrastructure_failures": [
+                asdict(run)
+                for run in runs
+                if not run.passed and not run.compiler_finding
+            ],
+        }
+        args.failures_json.parent.mkdir(parents=True, exist_ok=True)
+        args.failures_json.write_text(
+            json.dumps(failures, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
     if any(not run.passed and not run.compiler_finding for run in runs):
         return 1
@@ -176,33 +196,36 @@ def _parse_time(value: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
-def _audit(*, state: ReportState, weavec: Path, model: str, logs_dir: Path) -> AuditRun:
+def _audit(
+    *,
+    state: ReportState,
+    candidate_root: Path,
+    weavec: Path,
+    model: str,
+    logs_dir: Path,
+) -> AuditOutcome:
     safe_name = "__".join(state.source.parts).replace(".weave", "")
     stdout_log = logs_dir / f"{safe_name}.stdout.md"
     stderr_log = logs_dir / f"{safe_name}.stderr.txt"
-    with tempfile.TemporaryDirectory(prefix="loupe-reaudit-") as temp_dir:
-        candidate = Path(temp_dir) / state.report.name
-        command = [
-            sys.executable,
-            "-m",
-            "weave_loupe.cli",
-            "audit",
-            str(state.source),
-            "--weavec",
-            str(weavec),
-            "--model",
-            model,
-            "--report-out",
-            str(candidate),
-            "--verbose",
-        ]
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
-        stdout_log.write_text(completed.stdout, encoding="utf-8")
-        stderr_log.write_text(completed.stderr, encoding="utf-8")
-        if completed.returncode == 0:
-            state.report.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(candidate, state.report)
-    return AuditRun(
+    candidate = candidate_root / state.report.name
+    command = [
+        sys.executable,
+        "-m",
+        "weave_loupe.cli",
+        "audit",
+        str(state.source),
+        "--weavec",
+        str(weavec),
+        "--model",
+        model,
+        "--report-out",
+        str(candidate),
+        "--verbose",
+    ]
+    completed = subprocess.run(command, capture_output=True, text=True, check=False)
+    stdout_log.write_text(completed.stdout, encoding="utf-8")
+    stderr_log.write_text(completed.stderr, encoding="utf-8")
+    run = AuditRun(
         source=str(state.source),
         report=str(state.report),
         reason=state.reason or "not due",
@@ -210,6 +233,7 @@ def _audit(*, state: ReportState, weavec: Path, model: str, logs_dir: Path) -> A
         stdout_log=str(stdout_log),
         stderr_log=str(stderr_log),
     )
+    return AuditOutcome(run=run, candidate=candidate)
 
 
 def _render_summary(
