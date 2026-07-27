@@ -16,6 +16,7 @@ from weave_loupe.audit_result import (
     render_audit_report,
 )
 from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
+from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.templates import render_audit_prompt
 
@@ -62,6 +63,8 @@ def run_audit(
             assembly = bundle.artifact_text("assembly") or ""
             disassembly = bundle.artifact_text("disassembly") or ""
             optimization_record = bundle.artifact_text("optimization_record") or ""
+            build_manifest = bundle.artifact_text("build_manifest") or ""
+            trace = bundle.artifact_text("trace") or ""
             if wir_out is not None:
                 wir_out.parent.mkdir(parents=True, exist_ok=True)
                 wir_out.write_text(wir, encoding="utf-8")
@@ -77,8 +80,15 @@ def run_audit(
                 source_blocks.append(
                     f"--- {source_name} ---\n" + bundle.read_text(str(source["path"]))
                 )
+            weave_source = "\n\n".join(source_blocks)
             analysis = analyze_bundle(bundle)
             diagnostics = bundle.artifact_json("diagnostics")
+            diagnostics_text = json.dumps(
+                diagnostics, indent=2, sort_keys=True, ensure_ascii=False
+            )
+            analysis_text = json.dumps(
+                analysis, indent=2, sort_keys=True, ensure_ascii=False
+            )
             metadata = collect_audit_metadata(
                 sources=weave_files,
                 weavec=weavec,
@@ -87,28 +97,17 @@ def run_audit(
             )
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
-                weave_source="\n\n".join(source_blocks),
+                weave_source=weave_source,
                 wir=wir,
                 llvm_ir=llvm_ir,
                 optimized_llvm=optimized_llvm,
                 assembly=assembly,
                 disassembly=disassembly,
                 optimization_record=optimization_record,
-                diagnostics_json=json.dumps(
-                    diagnostics, indent=2, sort_keys=True, ensure_ascii=False
-                ),
-                analysis_json=json.dumps(
-                    analysis, indent=2, sort_keys=True, ensure_ascii=False
-                ),
+                diagnostics_json=diagnostics_text,
+                analysis_json=analysis_text,
                 metadata_json=metadata_json(metadata),
             )
-
-            if verbose:
-                print("=== loupe audit prompt begin ===", file=sys.stderr)
-                print(prompt, file=sys.stderr, end="")
-                if not prompt.endswith("\n"):
-                    print(file=sys.stderr)
-                print("=== loupe audit prompt end ===", file=sys.stderr)
 
             config = load_config(model=model, max_tokens=max_tokens)
             response = chat_completion(config, prompt)
@@ -118,6 +117,23 @@ def run_audit(
                 metadata=metadata,
                 model_response=response,
             )
+            if verbose:
+                report = insert_complete_evidence(
+                    report,
+                    [
+                        ("Weave source", "lisp", weave_source),
+                        ("WIR", "lisp", wir),
+                        ("Raw LLVM IR", "llvm", llvm_ir),
+                        ("Optimized LLVM IR", "llvm", optimized_llvm),
+                        ("Target assembly", "asm", assembly),
+                        ("Linked executable disassembly", "asm", disassembly),
+                        ("LLVM optimization record", "yaml", optimization_record),
+                        ("Diagnostics", "json", diagnostics_text),
+                        ("Deterministic analysis", "json", analysis_text),
+                        ("Build manifest", "json", build_manifest),
+                        ("Compiler trace", "json", trace),
+                    ],
+                )
 
         sys.stdout.write(report)
         if not report.endswith("\n"):
