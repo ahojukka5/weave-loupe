@@ -111,9 +111,7 @@ def main() -> int:
             "format": "weave-loupe-scheduled-failures-v1",
             "timestamp_utc": now.replace(microsecond=0).isoformat(),
             "compiler": asdict(identity),
-            "compiler_findings": [
-                asdict(run) for run in runs if run.compiler_finding
-            ],
+            "compiler_findings": [asdict(run) for run in runs if run.compiler_finding],
             "infrastructure_failures": [
                 asdict(run)
                 for run in runs
