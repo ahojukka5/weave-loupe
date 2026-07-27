@@ -27,11 +27,17 @@ uv run loupe audit docs/audit/fibonacci.weave \
   --report-out docs/audit/fibonacci.md
 ```
 
-`--verbose` embeds the complete compiler evidence in the Markdown report: source,
-WIR, raw LLVM, optimized LLVM, target assembly, linked executable disassembly,
+`--verbose` embeds the focused compiler evidence in the Markdown report: source,
+raw LLVM, optimized LLVM, target assembly, linked executable disassembly,
 optimization remarks, diagnostics, deterministic analysis, build manifest, and
 compiler trace. This is the mode used by the pull-request workflow so a human can
-inspect the exact evidence independently of the LLM verdict.
+inspect the evidence independently of the LLM verdict.
+
+WIR is intentionally omitted from the LLM prompt and generated Markdown. Current
+WIR contains dense source-provenance annotations that add substantial context
+without improving the source-to-native review. The compiler still captures WIR
+inside the bundle, and `--wir-out path.wir` exports it explicitly when a lowering
+or provenance investigation needs it.
 
 ## Canonical audit corpus
 
@@ -40,11 +46,11 @@ The checked-in corpus contains complementary Fibonacci programs:
 - `docs/audit/fibonacci.weave` passes the constant input `10`. It verifies
   inlining, constant propagation, loop deletion, and dead-code elimination; the
   ideal final program is a two-instruction `main` returning `55`.
-- `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. It accepts
-  decimal values from `0` through `46` and falls back to `10` for missing,
-  malformed, or out-of-range input. The compiler may still inline functions and
-  promote variables to SSA, but it cannot replace the input-dependent Fibonacci
-  computation with one constant return.
+- `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. The audit
+  harness supplies a decimal value from `0` through `46`; missing or numerically
+  out-of-range input falls back to `10`. The compiler may still inline functions
+  and promote variables to SSA, but it cannot replace the input-dependent
+  Fibonacci computation with one constant return.
 
 For a local runtime check:
 
@@ -63,9 +69,9 @@ logical CPU count, memory, Python version, and libc. The deterministic envelope
 is produced by Loupe rather than delegated to the model.
 
 The audit prompt is adversarial and requires a stage-by-stage verification matrix.
-An `OK` verdict requires affirmative evidence for source semantics, each lowering
-boundary, LLVM validity, signedness and arithmetic behavior, ABI and register use,
-memory safety, target compatibility, and the absence of avoidable compiler
+An `OK` verdict requires affirmative evidence for source semantics, source-to-LLVM
+preservation, LLVM validity, signedness and arithmetic behavior, ABI and register
+use, memory safety, target compatibility, and the absence of avoidable compiler
 overhead in final native code. Missing essential evidence produces
 `FAILED: insufficient-evidence: ...` rather than a speculative pass.
 
