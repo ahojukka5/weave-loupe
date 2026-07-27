@@ -92,7 +92,7 @@ value('--manifest-json').write_text(
 )
 program = value('-o')
 program.write_text(
-    '#!/usr/bin/env python3\n'
+    f'#!{sys.executable}\n'
     'import os\n'
     'import sys\n'
     'sys.stdout.write(os.environ.get("LOUPE_STDOUT", ""))\n'
