@@ -8,11 +8,32 @@ State the concrete audit conclusion. Attribute each important observation to
 Weave source, WIR, raw LLVM, optimized LLVM, target assembly, linked executable
 disassembly, or the optimization record.
 
+## Verification matrix
+For every row below, write `PASS`, `FAIL`, or `UNVERIFIED` and cite concrete
+artifact evidence. Do not omit a row.
+
+- Source semantics and expected result
+- Weave-to-WIR semantic preservation
+- WIR-to-raw-LLVM semantic preservation
+- Raw LLVM validity, SSA, types, and control flow
+- Optimized LLVM semantic preservation
+- Integer signedness, overflow, shifts, and comparisons
+- Calls, return values, ABI, stack alignment, and register use
+- Memory safety, lifetime, leaks, and undefined behavior
+- Target compatibility and native instruction validity
+- Compiler-generated overhead remaining in final native code
+
+An `UNVERIFIED` result is acceptable only for a genuinely nonessential property.
+If correctness, safety, ABI compatibility, or the claimed final-code quality is
+unverifiable from the supplied evidence, the gate must fail with code
+`insufficient-evidence`.
+
 ## Blocking findings
-List only findings that justify a failed gate: incorrect behavior, invalid SSA
+List every finding that justifies a failed gate: incorrect behavior, invalid SSA
 or IR, undefined behavior, memory unsafety or leakage, target incompatibility,
-or substantial compiler-generated overhead that remains in optimized LLVM or
-final machine code. Use `None found.` when no blocking finding is supported.
+ABI violation, or substantial compiler-generated overhead that remains in
+optimized LLVM or final machine code. Use `None found.` only when every essential
+verification-matrix row has affirmative evidence.
 
 For each finding use:
 
@@ -36,7 +57,10 @@ List focused tests, measurements, or comparisons that would increase confidence.
 """
 
 AUDIT_PROMPT_TEMPLATE = """\
-You are the release-gate reviewer for the Weave compiler toolchain.
+You are the adversarial release-gate reviewer for the Weave compiler toolchain.
+Your job is to try to falsify the claim that the final native program is correct,
+safe, ABI-valid, target-compatible, and free from avoidable compiler-generated
+overhead.
 
 Your first output line is a strict machine protocol. It MUST be exactly one of:
 
@@ -46,15 +70,29 @@ FAILED: <lowercase-kebab-code>: <one-line reason>
 Do not emit a preamble, Markdown fence, heading, or whitespace before that line.
 After it, write the Markdown review using the supplied template.
 
-Return FAILED only when the evidence supports a merge-blocking defect:
-incorrect behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety
-or memory leakage, target incompatibility, or substantial compiler-generated
-overhead that remains in optimized LLVM or final machine code. A speculative
-idea, style preference, source-level algorithm alternative, or inefficiency
-that disappears during LLVM optimization is non-blocking. Do not invent
-problems. When evidence is incomplete, state the limitation without converting
-it into a failure unless the missing evidence itself makes the claimed result
-unverifiable.
+Do not infer correctness from successful compilation, LLVM optimization, or a
+plausible-looking final instruction sequence. Independently trace the expected
+source behavior through WIR, raw LLVM, optimized LLVM, target assembly, and linked
+executable disassembly. Inspect final native code instruction by instruction,
+including calls, returns, signed comparisons, arithmetic width, register values,
+stack behavior, ABI rules, and control-flow edges. Cross-check all stages against
+each other and against the deterministic analysis and optimization remarks.
+
+Return FAILED when the evidence supports a merge-blocking defect: incorrect
+behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety or memory
+leakage, target incompatibility, ABI violation, or substantial compiler-generated
+overhead that remains in optimized LLVM or final machine code. Also return FAILED
+with code `insufficient-evidence` when an essential correctness, safety, ABI, or
+final-code-quality claim cannot actually be verified from the supplied artifacts.
+A speculative idea, style preference, source-level algorithm alternative, or
+inefficiency that disappears during LLVM optimization is non-blocking. Do not
+invent problems, but do not soften or omit supported problems merely because the
+program is small or the optimizer produced compact code.
+
+An OK verdict requires affirmative artifact evidence for every essential row in
+the verification matrix. A concise final program such as `mov constant; ret` is
+not sufficient by itself: prove that the constant and return convention match the
+source semantics and all preceding compiler stages.
 
 Source paths: {source_path}
 
