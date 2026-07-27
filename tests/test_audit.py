@@ -43,16 +43,21 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert code == 0
     prompt = chat.call_args.args[1]
     assert "Complete analysis JSON" in prompt
+    assert "WIR review projection" in prompt
+    assert "(fn main (params) (returns i32)" in prompt
+    assert "weavec-source-span-v1" not in prompt
     assert "Optimized LLVM IR" in prompt
     assert "Linked executable disassembly" in prompt
-    assert "=== WIR ===" not in prompt
     assert "typed-integer-wrap" in prompt
     assert "identity_adds" in prompt
-    assert wir_path.read_text(encoding="utf-8")
+    raw_wir = wir_path.read_text(encoding="utf-8")
+    assert "weavec-source-span-v1" in raw_wir
     report = report_path.read_text(encoding="utf-8")
     assert "**Status:** OK" in report
     assert "Audit timestamp (UTC)" in report
     assert "weavec binary SHA-256" in report
+    assert "weavec v0.3.0+git.test123" in report
+    assert "weavec build kind:** `development`" in report
     assert "Machine and running conditions" in report
     assert capsys.readouterr().out == report
 
@@ -115,7 +120,7 @@ def test_audit_rejects_malformed_verdict(
     assert "first line must be exactly" in capsys.readouterr().err
 
 
-def test_audit_verbose_embeds_focused_evidence(
+def test_audit_verbose_embeds_cleaned_wir(
     source_file: Path, fake_weavec: Path, capsys
 ) -> None:
     with (
@@ -139,7 +144,9 @@ def test_audit_verbose_embeds_focused_evidence(
     assert code == 0
     assert "## Complete compiler evidence" in captured.out
     assert "### Weave source" in captured.out
-    assert "### WIR" not in captured.out
+    assert "### WIR (provenance comments hidden)" in captured.out
+    assert "(fn main (params) (returns i32)" in captured.out
+    assert "weavec-source-span-v1" not in captured.out
     assert "### Raw LLVM IR" in captured.out
     assert "### Optimized LLVM IR" in captured.out
     assert "### Target assembly" in captured.out
