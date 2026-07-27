@@ -22,6 +22,7 @@ def test_audit_writes_report_only_for_ok_verdict(
     tmp_path: Path, source_file: Path, fake_weavec: Path, capsys
 ) -> None:
     report_path = tmp_path / "demo.md"
+    wir_path = tmp_path / "out.wir"
     with (
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
@@ -34,7 +35,7 @@ def test_audit_writes_report_only_for_ok_verdict(
             model="model",
             weavec=fake_weavec,
             llvm_out=tmp_path / "out.ll",
-            wir_out=tmp_path / "out.wir",
+            wir_out=wir_path,
             report_out=report_path,
             max_tokens=64,
             verbose=False,
@@ -44,8 +45,10 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "Complete analysis JSON" in prompt
     assert "Optimized LLVM IR" in prompt
     assert "Linked executable disassembly" in prompt
+    assert "=== WIR ===" not in prompt
     assert "typed-integer-wrap" in prompt
     assert "identity_adds" in prompt
+    assert wir_path.read_text(encoding="utf-8")
     report = report_path.read_text(encoding="utf-8")
     assert "**Status:** OK" in report
     assert "Audit timestamp (UTC)" in report
@@ -112,7 +115,7 @@ def test_audit_rejects_malformed_verdict(
     assert "first line must be exactly" in capsys.readouterr().err
 
 
-def test_audit_verbose_embeds_complete_evidence(
+def test_audit_verbose_embeds_focused_evidence(
     source_file: Path, fake_weavec: Path, capsys
 ) -> None:
     with (
@@ -136,7 +139,7 @@ def test_audit_verbose_embeds_complete_evidence(
     assert code == 0
     assert "## Complete compiler evidence" in captured.out
     assert "### Weave source" in captured.out
-    assert "### WIR" in captured.out
+    assert "### WIR" not in captured.out
     assert "### Raw LLVM IR" in captured.out
     assert "### Optimized LLVM IR" in captured.out
     assert "### Target assembly" in captured.out
