@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from weave_loupe.bundle import Bundle
+from weave_loupe.compiler_version import identify_weavec
 from weave_loupe.weavec import resolve_weavec
 
 _FAILED = re.compile(r"^FAILED:\s*([a-z0-9]+(?:-[a-z0-9]+)*):\s*(\S(?:.*\S)?)\s*$")
@@ -70,6 +71,7 @@ def collect_audit_metadata(
 ) -> dict[str, Any]:
     """Collect source, compiler, runtime, and machine facts for one audit."""
     binary = resolve_weavec(weavec)
+    identity = identify_weavec(binary)
     return {
         "format": "weave-loupe-audit-metadata-v1",
         "timestamp_utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
@@ -79,7 +81,11 @@ def collect_audit_metadata(
         "weavec": {
             "path": str(binary),
             "sha256": _sha256(binary),
-            "version": _command_version(binary),
+            "version": identity.display,
+            "base_version": identity.base,
+            "git_sha": identity.git_sha,
+            "development": identity.development,
+            "version_source": identity.source,
             "repository": _git_metadata(binary),
         },
         "machine": _machine_metadata(),
@@ -111,6 +117,7 @@ def render_audit_report(
     machine = _mapping(metadata.get("machine"))
     bundle = _mapping(metadata.get("bundle"))
     github = _mapping(metadata.get("github"))
+    build_kind = "development" if weavec.get("development") else "release"
 
     lines = [
         "# Weave Loupe Audit Report",
@@ -130,6 +137,8 @@ def render_audit_report(
         f"- **weavec Git SHA:** `{weavec_repo.get('sha', 'unavailable')}`",
         f"- **weavec binary SHA-256:** `{weavec.get('sha256', 'unavailable')}`",
         f"- **weavec version:** `{weavec.get('version', 'unavailable')}`",
+        f"- **weavec build kind:** `{build_kind}`",
+        f"- **weavec version source:** `{weavec.get('version_source', 'unavailable')}`",
         f"- **LLM model:** `{metadata['model']}`",
     ]
     if github.get("run_id"):
@@ -226,21 +235,6 @@ def _run_git(directory: Path, *args: str) -> str | None:
     return completed.stdout.strip()
 
 
-def _command_version(binary: Path) -> str:
-    try:
-        completed = subprocess.run(
-            [str(binary), "--version"],
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=10,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return "unavailable"
-    output = (completed.stdout or completed.stderr).strip().splitlines()
-    return output[0] if completed.returncode == 0 and output else "unavailable"
-
-
 def _machine_metadata() -> dict[str, Any]:
     libc_name, libc_version = platform.libc_ver()
     return {
@@ -287,55 +281,49 @@ def _memory_bytes() -> int:
     return 0
 
 
-def _github_metadata() -> dict[str, str]:
-    names = {
-        "run_id": "GITHUB_RUN_ID",
-        "run_attempt": "GITHUB_RUN_ATTEMPT",
-        "workflow": "GITHUB_WORKFLOW",
-        "repository": "GITHUB_REPOSITORY",
-        "sha": "GITHUB_SHA",
-        "ref": "GITHUB_REF",
-        "runner_arch": "RUNNER_ARCH",
-        "runner_os": "RUNNER_OS",
-    }
-    return {key: value for key, env in names.items() if (value := os.environ.get(env))}
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _common_source_directory(sources: list[Path]) -> Path:
-    resolved = [source.expanduser().resolve() for source in sources]
-    if not resolved:
+    if not sources:
         return Path.cwd()
+    resolved = [source.resolve() for source in sources]
     common = Path(os.path.commonpath([str(path.parent) for path in resolved]))
     return common
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _artifact_hashes(bundle: Bundle) -> dict[str, str]:
     artifacts = bundle.manifest.get("artifacts", {})
     if not isinstance(artifacts, dict):
         return {}
-    result: dict[str, str] = {}
-    for name, value in artifacts.items():
-        if isinstance(name, str) and isinstance(value, dict):
-            digest = value.get("sha256")
-            if isinstance(digest, str):
-                result[name] = digest
-    return result
+    hashes: dict[str, str] = {}
+    for name, relative in artifacts.items():
+        if isinstance(relative, str):
+            path = bundle.root / relative
+            if path.is_file():
+                hashes[str(name)] = _sha256(path)
+    return hashes
 
 
-def _compiler_exit_code(bundle: Bundle) -> int:
-    compiler = bundle.manifest.get("compiler", {})
-    if isinstance(compiler, dict) and isinstance(compiler.get("exit_code"), int):
-        return int(compiler["exit_code"])
-    return -1
+def _compiler_exit_code(bundle: Bundle) -> int | None:
+    value = bundle.manifest.get("compiler_exit_code")
+    return value if isinstance(value, int) else None
 
 
-def _mapping(value: object) -> dict[str, Any]:
+def _github_metadata() -> dict[str, str]:
+    values = {
+        "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+        "repository": os.environ.get("GITHUB_REPOSITORY", ""),
+        "sha": os.environ.get("GITHUB_SHA", ""),
+        "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+    }
+    return {key: value for key, value in values.items() if value}
+
+
+def _mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
