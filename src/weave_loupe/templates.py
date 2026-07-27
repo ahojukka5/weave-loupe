@@ -6,7 +6,7 @@ AUDIT_REPORT_TEMPLATE = """\
 ## Summary
 State the concrete audit conclusion. Attribute each important observation to
 Weave source, cleaned WIR, raw LLVM, optimized LLVM, target assembly, linked
-executable disassembly, or the optimization record.
+executable disassembly, direct runtime execution, or the optimization record.
 
 ## Verification matrix
 For every row below, write `PASS`, `FAIL`, or `UNVERIFIED` and cite concrete
@@ -21,6 +21,7 @@ artifact evidence. Do not omit a row.
 - Calls, return values, ABI, stack alignment, and register use
 - Memory safety, lifetime, leaks, and undefined behavior
 - Target compatibility and native instruction validity
+- Native runtime cases and expected observable behavior
 - Compiler-generated overhead remaining in final native code
 
 An `UNVERIFIED` result is acceptable only for a genuinely nonessential property.
@@ -31,18 +32,18 @@ unverifiable from the supplied evidence, the gate must fail with code
 ## Blocking findings
 List every finding that justifies a failed gate: incorrect behavior, invalid SSA
 or IR, undefined behavior, memory unsafety or leakage, target incompatibility,
-ABI violation, or substantial compiler-generated overhead that remains in
-optimized LLVM or final machine code. Use `None found.` only when every essential
-verification-matrix row has affirmative evidence.
+ABI violation, failed runtime expectations, or substantial compiler-generated
+overhead that remains in optimized LLVM or final machine code. Use `None found.`
+only when every essential verification-matrix row has affirmative evidence.
 
 For each finding use:
 
 ### Finding: <short title>
 - Code: lowercase-kebab-case
 - Severity: critical | high | medium
-- Stage: Weave | WIR | raw LLVM | optimized LLVM | native code
-- Location: function or source range
-- Evidence: concrete artifact evidence
+- Stage: Weave | WIR | raw LLVM | optimized LLVM | native code | native execution
+- Location: function, source range, or runtime case
+- Evidence: concrete artifact or execution evidence
 - Failure mode: concrete consequence
 - Required fix: specific correction
 
@@ -73,11 +74,17 @@ After it, write the Markdown review using the supplied template.
 Do not infer correctness from successful compilation, LLVM optimization, or a
 plausible-looking final instruction sequence. Independently trace the expected
 source behavior through cleaned WIR, raw LLVM, optimized LLVM, target assembly,
-and linked executable disassembly. Inspect final native code instruction by
-instruction, including calls, returns, signed comparisons, arithmetic width,
-register values, stack behavior, ABI rules, and control-flow edges. Cross-check
-all stages against each other and against the deterministic analysis and
-optimization remarks.
+linked executable disassembly, and any direct runtime matrix in the complete
+analysis JSON. Inspect final native code instruction by instruction, including
+calls, returns, signed comparisons, arithmetic width, register values, stack
+behavior, ABI rules, and control-flow edges. Cross-check all stages against each
+other, the deterministic analysis, runtime observations, and optimization
+remarks.
+
+A configured runtime matrix is direct evidence from executing the exact linked
+artifact. Its expected values come from a versioned, hash-addressed sidecar. Any
+failed case is a semantic defect even when the static artifacts look plausible.
+When no matrix is configured, do not invent runtime observations.
 
 The WIR shown below is a review projection of the exact captured artifact. Only
 source-file and source-span provenance comments are hidden, and whitespace is
@@ -86,19 +93,20 @@ hash-addressed in the bundle and may be exported separately for debugging.
 
 Return FAILED when the evidence supports a merge-blocking defect: incorrect
 behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety or memory
-leakage, target incompatibility, ABI violation, or substantial compiler-generated
-overhead that remains in optimized LLVM or final machine code. Also return FAILED
-with code `insufficient-evidence` when an essential correctness, safety, ABI, or
-final-code-quality claim cannot actually be verified from the supplied artifacts.
-A speculative idea, style preference, source-level algorithm alternative, or
-inefficiency that disappears during LLVM optimization is non-blocking. Do not
-invent problems, but do not soften or omit supported problems merely because the
-program is small or the optimizer produced compact code.
+leakage, target incompatibility, ABI violation, failed runtime expectations, or
+substantial compiler-generated overhead that remains in optimized LLVM or final
+machine code. Also return FAILED with code `insufficient-evidence` when an
+essential correctness, safety, ABI, or final-code-quality claim cannot actually
+be verified from the supplied artifacts. A speculative idea, style preference,
+source-level algorithm alternative, or inefficiency that disappears during LLVM
+optimization is non-blocking. Do not invent problems, but do not soften or omit
+supported problems merely because the program is small or the optimizer
+produced compact code.
 
 An OK verdict requires affirmative artifact evidence for every essential row in
 the verification matrix. A concise final program such as `mov constant; ret` is
-not sufficient by itself: prove that the constant and return convention match the
-source semantics and all preceding compiler stages.
+not sufficient by itself: prove that the constant and return convention match
+the source semantics and all preceding compiler stages.
 
 Source paths: {source_path}
 
