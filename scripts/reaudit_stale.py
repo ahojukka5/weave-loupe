@@ -17,6 +17,14 @@ from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 
 _TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
 _VERSION_PREFIX = "- **weavec version:** `"
+_VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
+
+
+@dataclass(frozen=True)
+class ReportIdentity:
+    timestamp: datetime | None
+    version: str | None
+    version_source: str | None
 
 
 @dataclass(frozen=True)
@@ -25,6 +33,7 @@ class ReportState:
     report: Path
     timestamp: datetime | None
     version: str | None
+    version_source: str | None
     reason: str | None
 
 
@@ -142,38 +151,45 @@ def _report_states(
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
         report = source.with_suffix(".md")
-        timestamp, version = _read_report_identity(report)
+        report_identity = _read_report_identity(report)
         reason: str | None = None
         if force:
             reason = "manual force"
-        elif timestamp is None:
+        elif report_identity.timestamp is None:
             reason = "missing or unparseable report timestamp"
-        elif now - timestamp >= max_age:
+        elif now - report_identity.timestamp >= max_age:
             reason = f"report age is at least {max_age.days} days"
-        elif identity.development and version != identity.display:
+        elif identity.development and report_identity.version != identity.display:
             reason = (
                 "development compiler changed from "
-                f"{version or 'unknown'} to {identity.display}"
+                f"{report_identity.version or 'unknown'} to {identity.display}"
+            )
+        elif identity.source == "command" and report_identity.version_source != "command":
+            reason = (
+                "compiler identity source changed from "
+                f"{report_identity.version_source or 'unknown'} to command"
             )
         states.append(
             ReportState(
                 source=source,
                 report=report,
-                timestamp=timestamp,
-                version=version,
+                timestamp=report_identity.timestamp,
+                version=report_identity.version,
+                version_source=report_identity.version_source,
                 reason=reason,
             )
         )
     return states
 
 
-def _read_report_identity(report: Path) -> tuple[datetime | None, str | None]:
+def _read_report_identity(report: Path) -> ReportIdentity:
     try:
         lines = report.read_text(encoding="utf-8").splitlines()
     except OSError:
-        return None, None
+        return ReportIdentity(timestamp=None, version=None, version_source=None)
     timestamp: datetime | None = None
     version: str | None = None
+    version_source: str | None = None
     for line in lines:
         if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
             try:
@@ -182,9 +198,15 @@ def _read_report_identity(report: Path) -> tuple[datetime | None, str | None]:
                 timestamp = None
         elif line.startswith(_VERSION_PREFIX) and line.endswith("`"):
             version = line[len(_VERSION_PREFIX) : -1]
-        if timestamp is not None and version is not None:
+        elif line.startswith(_VERSION_SOURCE_PREFIX) and line.endswith("`"):
+            version_source = line[len(_VERSION_SOURCE_PREFIX) : -1]
+        if timestamp is not None and version is not None and version_source is not None:
             break
-    return timestamp, version
+    return ReportIdentity(
+        timestamp=timestamp,
+        version=version,
+        version_source=version_source,
+    )
 
 
 def _parse_time(value: str) -> datetime:
@@ -252,6 +274,7 @@ def _render_summary(
         f"- **Checked at:** `{now.replace(microsecond=0).isoformat()}`",
         f"- **Compiler:** `{identity.display}`",
         f"- **Compiler build kind:** `{build_kind}`",
+        f"- **Compiler identity source:** `{identity.source}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
         f"- **Passed:** `{passed}`",
