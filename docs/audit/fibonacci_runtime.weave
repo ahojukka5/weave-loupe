@@ -1,0 +1,145 @@
+; Runtime-input Weave Loupe audit corpus example.
+; Reads WEAVE_AUDIT_N as a decimal integer in the inclusive range 0..46.
+; Missing, malformed, or out-of-range input falls back to 10.
+; Examples: unset or 10 -> 55, 12 -> 144, 20 -> 6765.
+;
+; Unlike fibonacci.weave, the compiler cannot know n at compile time. It may
+; inline functions and promote loop variables to SSA, but an input-dependent
+; Fibonacci computation must remain in optimized LLVM and native code.
+
+(program
+  (name "fibonacci-runtime")
+  (version "0.1")
+
+  (extern getenv
+    (params (name ptr))
+    (returns ptr))
+
+  (fn parse_audit_n
+    (params (text ptr))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (eq_ptr (param_get text) (const_null)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+
+      (let first i32
+        (load_u8 (param_get text)))
+      (if
+        (condition
+          (lt_i32 (local_get first) (const_i32 48)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+      (if
+        (condition
+          (gt_i32 (local_get first) (const_i32 57)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+
+      (let tens i32
+        (sub_i32 (local_get first) (const_i32 48)))
+      (let second_ptr ptr
+        (ptr_add (param_get text) (const_i64 1)))
+      (let second i32
+        (load_u8 (local_get second_ptr)))
+
+      (if
+        (condition
+          (eq_i32 (local_get second) (const_i32 0)))
+        (then
+          (do
+            (return (local_get tens))))
+        (else
+          (do)))
+      (if
+        (condition
+          (lt_i32 (local_get second) (const_i32 48)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+      (if
+        (condition
+          (gt_i32 (local_get second) (const_i32 57)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+
+      (let third i32
+        (load_u8
+          (ptr_add (param_get text) (const_i64 2))))
+      (if
+        (condition
+          (ne_i32 (local_get third) (const_i32 0)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+
+      (let value i32
+        (add_i32
+          (mul_i32 (local_get tens) (const_i32 10))
+          (sub_i32 (local_get second) (const_i32 48))))
+      (if
+        (condition
+          (gt_i32 (local_get value) (const_i32 46)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+      (return (local_get value))))
+
+  (fn fib
+    (params (n i32))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (le_i32 (param_get n) (const_i32 1)))
+        (then
+          (do
+            (return (param_get n))))
+        (else
+          (do)))
+      (let previous i32 (const_i32 0))
+      (let current i32 (const_i32 1))
+      (let index i32 (const_i32 2))
+      (while
+        (condition
+          (le_i32 (local_get index) (param_get n)))
+        (do
+          (let next i32
+            (add_i32 (local_get previous) (local_get current)))
+          (set previous (local_get current))
+          (set current (local_get next))
+          (set index
+            (add_i32 (local_get index) (const_i32 1)))))
+      (return (local_get current))))
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let input ptr
+        (call_ptr getenv
+          (const_string_ptr "WEAVE_AUDIT_N")))
+      (let n i32
+        (call_i32 parse_audit_n (local_get input)))
+      (return
+        (call_i32 fib (local_get n))))))
