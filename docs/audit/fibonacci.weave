@@ -1,5 +1,5 @@
 ; Canonical Weave Loupe audit corpus example.
-; Computes fib(10) iteratively and returns 55 as the process exit code.
+; Computes fib(10) iteratively; the expected signed i32 return value is 55.
 
 (program
   (name "fibonacci")
