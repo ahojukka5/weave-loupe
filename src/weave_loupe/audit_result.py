@@ -8,6 +8,7 @@ import os
 import platform
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -252,7 +253,7 @@ def _machine_metadata() -> dict[str, Any]:
         "python": platform.python_version(),
         "libc": " ".join(part for part in (libc_name, libc_version) if part)
         or "unavailable",
-        "byteorder": os.sys.byteorder,
+        "byteorder": sys.byteorder,
     }
 
 
