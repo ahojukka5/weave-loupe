@@ -10,15 +10,17 @@ class _Token:
     value: str
 
 
-WirExpr = str | list["WirExpr"]
+type WirExpr = str | list[WirExpr]
 
 
 def clean_wir_for_review(wir: str, *, width: int = 96) -> str:
-    """Remove provenance comments and pretty-print WIR without changing raw evidence."""
+    """Remove provenance comments and pretty-print WIR for review."""
     try:
         tokens = _tokenize(wir)
         expressions = _parse(tokens)
-        rendered = [line for expr in expressions for line in _format(expr, 0, width)]
+        rendered = [
+            line for expr in expressions for line in _format(expr, 0, width)
+        ]
         return "\n".join(rendered).rstrip() + "\n" if rendered else ""
     except ValueError:
         fallback = _comment_free_text(wir)
