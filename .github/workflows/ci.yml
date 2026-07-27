@@ -36,6 +36,20 @@ jobs:
           set -o pipefail
           uv run ruff format --check . 2>&1 | tee build/quality/ruff-format.log
 
+      - name: Mypy
+        shell: bash
+        run: |
+          mkdir -p build/quality
+          set -o pipefail
+          uv run mypy 2>&1 | tee build/quality/mypy.log
+
+      - name: Pytest
+        shell: bash
+        run: |
+          mkdir -p build/quality
+          set -o pipefail
+          uv run pytest 2>&1 | tee build/quality/pytest.log
+
       - name: Upload quality diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -44,9 +58,3 @@ jobs:
           path: build/quality
           if-no-files-found: warn
           retention-days: 7
-
-      - name: Mypy
-        run: uv run mypy
-
-      - name: Pytest
-        run: uv run pytest
