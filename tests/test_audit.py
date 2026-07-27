@@ -112,7 +112,7 @@ def test_audit_rejects_malformed_verdict(
     assert "first line must be exactly" in capsys.readouterr().err
 
 
-def test_audit_verbose_prints_prompt(
+def test_audit_verbose_embeds_complete_evidence(
     source_file: Path, fake_weavec: Path, capsys
 ) -> None:
     with (
@@ -132,5 +132,14 @@ def test_audit_verbose_prints_prompt(
             max_tokens=64,
             verbose=True,
         )
+    captured = capsys.readouterr()
     assert code == 0
-    assert "loupe audit prompt begin" in capsys.readouterr().err
+    assert "## Complete compiler evidence" in captured.out
+    assert "### Weave source" in captured.out
+    assert "### WIR" in captured.out
+    assert "### Raw LLVM IR" in captured.out
+    assert "### Optimized LLVM IR" in captured.out
+    assert "### Target assembly" in captured.out
+    assert "### Linked executable disassembly" in captured.out
+    assert "### Deterministic analysis" in captured.out
+    assert captured.err == ""
