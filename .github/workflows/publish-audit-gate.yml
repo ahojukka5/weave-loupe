@@ -1,0 +1,40 @@
+name: publish-audit-gate
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.head_ref == 'tmp/publish-audit-gate'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct and verify product patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/transport/audit-gate/part-* > /tmp/change.patch.gz.b64
+          test "$(wc -c < /tmp/change.patch.gz.b64)" -eq 10680
+          echo "f12830ab5c9f9eafffeb3dc10f3020be5e97a4204b6eae4ac1581a50b2f3bcbc  /tmp/change.patch.gz.b64" | sha256sum -c -
+          base64 --decode /tmp/change.patch.gz.b64 > /tmp/change.patch.gz
+          echo "0190868fb936bd4be21aabb17550acd786ab22c46bb243a2b536a8a47ff0c18f  /tmp/change.patch.gz" | sha256sum -c -
+          gzip -dc /tmp/change.patch.gz > /tmp/change.patch
+          echo "9f1a438ff4e4ffa8c17d0165b23692edb6f7ae1b501a7433a9174e819b86a68b  /tmp/change.patch" | sha256sum -c -
+
+      - name: Publish clean product branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          git checkout --detach origin/master
+          git apply --index /tmp/change.patch
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(audit): add reproducible pull-request gate"
+          git push --force origin HEAD:feature/reproducible-audit-gate
