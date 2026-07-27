@@ -44,9 +44,21 @@ A report records the exact code commit that was audited. The following automated
 commit adds only the generated report, so its parent is the reproducible audited
 state rather than an unaudited source change.
 
-Configure `WEAVE_LLM_ENDPOINT` and `WEAVE_LLM_API_KEY` as repository secrets (or
-use `WEAVE_LLM_API_TOKEN` for the token compatibility name). The workflow
-intentionally accepts secrets only on same-repository pull-request branches. It
-does not use `pull_request_target`, because executing untrusted fork code with the
-LLM secret would expose the credential. Repositories that consume Loupe separately
-need their own selected repository or organization secrets.
+Configure these repository secrets:
+
+- `WEAVE_LLM_ENDPOINT`
+- `WEAVE_LLM_API_KEY` or the compatibility name `WEAVE_LLM_API_TOKEN`
+- `WEAVE_GITHUB_TOKEN`, a fine-grained personal access token or GitHub App token
+  with write access to repository contents
+
+The report commit uses `WEAVE_GITHUB_TOKEN` instead of the workflow-generated
+`GITHUB_TOKEN`. GitHub therefore treats it as an ordinary authenticated push and
+starts the follow-up pull-request checks automatically. The guard recognizes the
+report-only commit, skips the expensive second LLM audit, and lets normal CI
+validate the resulting branch state.
+
+The workflow intentionally accepts secrets only on same-repository pull-request
+branches. It does not use `pull_request_target`, because executing untrusted fork
+code with the LLM or repository-write credential would expose those secrets.
+Repositories that consume Loupe separately need their own selected repository or
+organization secrets.
