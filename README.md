@@ -15,7 +15,7 @@ Ensure `weavec` is on `PATH`, or pass `--weavec` / set `WEAVEC_BIN`.
 ## Core workflow
 
 ```sh
-uv run loupe capture examples/fibonacci_iterative.weave \
+uv run loupe capture docs/audit/fibonacci.weave \
   --output build/fibonacci.loupe
 
 uv run loupe report build/fibonacci.loupe \
@@ -41,15 +41,19 @@ Ask an OpenAI-compatible model to review the complete evidence:
 ```sh
 export WEAVE_LLM_ENDPOINT=https://integrate.api.nvidia.com/v1
 export WEAVE_LLM_API_KEY=...
-uv run loupe audit examples/fibonacci_iterative.weave \
-  --report-out examples/fibonacci_iterative.md
+uv run loupe audit docs/audit/fibonacci.weave \
+  --verbose \
+  --report-out docs/audit/fibonacci.md
 ```
 
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
-malformed audits and writes the report only after an `OK` verdict. Reports include
-the audit timestamp, source/compiler Git SHAs, binary and artifact hashes, and
-machine specifications. See the [pull-request audit gate](docs/audit-gate.md).
+malformed audits and writes the report only after an `OK` verdict. Verbose reports
+include the complete source, WIR, raw and optimized LLVM, assembly, linked native
+disassembly, optimization remarks, diagnostics, deterministic analysis, build
+manifest, and compiler trace, together with timestamps, Git SHAs, hashes, and
+machine specifications. See the [audit corpus](docs/audit/README.md) and the
+[pull-request audit gate](docs/audit-gate.md).
 
 See the [documentation index](docs/index.md) and the complete
 [Fibonacci walkthrough](docs/fibonacci.md), including expected terminal output,

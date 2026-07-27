@@ -58,7 +58,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write a Markdown report only when the audit verdict is OK.",
     )
     audit.add_argument("--max-tokens", type=int, default=4096)
-    audit.add_argument("--verbose", "-v", action="store_true")
+    audit.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help=(
+            "Embed the complete source, WIR, raw and optimized LLVM, assembly, "
+            "native disassembly, diagnostics, and analysis in the Markdown report."
+        ),
+    )
     return parser
 
 
