@@ -8,6 +8,7 @@ from weave_loupe.compiler_version import identify_weavec
 
 
 def _script(path: Path, body: str) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("#!/bin/sh\n" + body, encoding="utf-8")
     path.chmod(0o755)
     return path
