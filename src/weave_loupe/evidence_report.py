@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Sequence
 
-EvidenceSection = tuple[str, str, str]
+type EvidenceSection = tuple[str, str, str]
 
 
 def insert_complete_evidence(report: str, sections: Sequence[EvidenceSection]) -> str:
@@ -38,5 +38,8 @@ def render_complete_evidence(sections: Sequence[EvidenceSection]) -> str:
 
 
 def _safe_fence(content: str) -> str:
-    longest = max((len(match.group(0)) for match in re.finditer(r"`+", content)), default=0)
+    longest = max(
+        (len(match.group(0)) for match in re.finditer(r"`+", content)),
+        default=0,
+    )
     return "`" * max(3, longest + 1)
