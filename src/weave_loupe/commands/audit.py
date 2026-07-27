@@ -19,6 +19,7 @@ from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
 from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
+from weave_loupe.runtime_cases import RuntimeCasesError, execute_runtime_cases
 from weave_loupe.templates import render_audit_prompt
 from weave_loupe.wir_review import clean_wir_for_review
 
@@ -43,7 +44,7 @@ def run_audit(
                 sources=weave_files,
                 output=bundle_path,
                 weavec=weavec,
-                include_executable=False,
+                include_executable=True,
             )
             bundle = load_bundle(capture.bundle)
             if capture.compiler_exit_code != 0:
@@ -85,9 +86,17 @@ def run_audit(
                 )
             weave_source = "\n\n".join(source_blocks)
             analysis = analyze_bundle(bundle)
+            runtime_matrix = execute_runtime_cases(
+                bundle=bundle,
+                sources=weave_files,
+            )
+            analysis["runtime"] = runtime_matrix
             diagnostics = bundle.artifact_json("diagnostics")
             diagnostics_text = json.dumps(
                 diagnostics, indent=2, sort_keys=True, ensure_ascii=False
+            )
+            runtime_text = json.dumps(
+                runtime_matrix, indent=2, sort_keys=True, ensure_ascii=False
             )
             analysis_text = json.dumps(
                 analysis, indent=2, sort_keys=True, ensure_ascii=False
@@ -140,6 +149,7 @@ def run_audit(
                             "yaml",
                             optimization_record,
                         ),
+                        ("Runtime execution matrix", "json", runtime_text),
                         ("Diagnostics", "json", diagnostics_text),
                         ("Deterministic analysis", "json", analysis_text),
                         ("Build manifest", "json", build_manifest),
@@ -164,7 +174,7 @@ def run_audit(
             report_out.parent.mkdir(parents=True, exist_ok=True)
             report_out.write_text(report, encoding="utf-8")
         return 0
-    except (OSError, BundleError, LlmError, AuditProtocolError) as exc:
+    except (OSError, BundleError, LlmError, AuditProtocolError, RuntimeCasesError) as exc:
         if report_out is not None and report_out.exists():
             report_out.unlink()
         if response:
