@@ -16,6 +16,7 @@ from weave_loupe.audit_result import (
     render_audit_report,
 )
 from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
+from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.templates import render_audit_prompt
@@ -111,7 +112,8 @@ def run_audit(
 
             config = load_config(model=model, max_tokens=max_tokens)
             response = chat_completion(config, prompt)
-            verdict = parse_audit_response(response)
+            model_verdict = parse_audit_response(response)
+            verdict = apply_deterministic_gate(model_verdict, analysis)
             report = render_audit_report(
                 verdict=verdict,
                 metadata=metadata,
