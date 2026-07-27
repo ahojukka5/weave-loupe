@@ -34,6 +34,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+          token: ${{ secrets.WEAVE_GITHUB_TOKEN }}
 
       - name: Detect generated-report commit
         id: guard
