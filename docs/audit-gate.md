@@ -40,6 +40,10 @@ branch only when every audited source passes. The workflow updates one persisten
 PR comment with pass or failure details and uploads the complete result as an
 artifact.
 
+A report records the exact code commit that was audited. The following automated
+commit adds only the generated report, so its parent is the reproducible audited
+state rather than an unaudited source change.
+
 The workflow intentionally accepts secrets only on same-repository pull-request
 branches. It does not use `pull_request_target`, because executing untrusted fork
 code with the LLM secret would expose the credential. Repositories that consume
