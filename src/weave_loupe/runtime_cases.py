@@ -66,9 +66,7 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     if not isinstance(document, dict):
         raise RuntimeCasesError("runtime case document must be a JSON object")
     if document.get("format") != RUNTIME_CASES_FORMAT:
-        raise RuntimeCasesError(
-            f"runtime case format must be {RUNTIME_CASES_FORMAT!r}"
-        )
+        raise RuntimeCasesError(f"runtime case format must be {RUNTIME_CASES_FORMAT!r}")
 
     timeout = document.get("timeout_seconds", 5)
     if not isinstance(timeout, (int, float)) or isinstance(timeout, bool):
@@ -101,9 +99,7 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     )
 
 
-def execute_runtime_cases(
-    *, bundle: Bundle, sources: list[Path]
-) -> dict[str, Any]:
+def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, Any]:
     """Execute configured cases and return deterministic, report-ready evidence."""
     configuration = discover_runtime_cases(sources)
     if configuration is None:
@@ -188,9 +184,7 @@ def _parse_case(value: object, index: int) -> RuntimeCase:
         raise RuntimeCasesError(f"case {name!r} requires an expect object")
     exit_code = expectation.get("exit_code")
     if not isinstance(exit_code, int) or isinstance(exit_code, bool):
-        raise RuntimeCasesError(
-            f"case {name!r} expect.exit_code must be an integer"
-        )
+        raise RuntimeCasesError(f"case {name!r} expect.exit_code must be an integer")
     if not -255 <= exit_code <= 255:
         raise RuntimeCasesError(
             f"case {name!r} expect.exit_code must be between -255 and 255"
