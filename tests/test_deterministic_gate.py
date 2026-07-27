@@ -6,13 +6,16 @@ from weave_loupe.audit_result import AuditVerdict
 from weave_loupe.deterministic_gate import apply_deterministic_gate
 
 
-def test_dead_native_code_overrides_model_ok() -> None:
-    model_verdict = AuditVerdict(
+def _ok_verdict() -> AuditVerdict:
+    return AuditVerdict(
         status="OK",
         code=None,
         reason=None,
         body="## Summary\nThe model found no problem.",
     )
+
+
+def test_dead_native_code_overrides_model_ok() -> None:
     analysis = {
         "native": {
             "reachability_complete": True,
@@ -21,7 +24,7 @@ def test_dead_native_code_overrides_model_ok() -> None:
         }
     }
 
-    verdict = apply_deterministic_gate(model_verdict, analysis)
+    verdict = apply_deterministic_gate(_ok_verdict(), analysis)
 
     assert not verdict.passed
     assert verdict.code == "dead-native-code"
@@ -30,6 +33,30 @@ def test_dead_native_code_overrides_model_ok() -> None:
     )
     assert "The model returned `OK`" in verdict.body
     assert "37" in verdict.body
+
+
+def test_runtime_mismatch_overrides_model_ok() -> None:
+    analysis = {
+        "runtime": {
+            "configured": True,
+            "passed": False,
+            "cases": [
+                {
+                    "name": "twelve",
+                    "passed": False,
+                    "failures": ["exit code 143 did not match 144"],
+                }
+            ],
+        }
+    }
+
+    verdict = apply_deterministic_gate(_ok_verdict(), analysis)
+
+    assert not verdict.passed
+    assert verdict.code == "runtime-mismatch"
+    assert verdict.reason == "native runtime cases failed: twelve"
+    assert "exit code 143 did not match 144" in verdict.body
+    assert "correct lowering or code generation" in verdict.body
 
 
 def test_deterministic_gate_preserves_model_failure() -> None:
@@ -44,18 +71,14 @@ def test_deterministic_gate_preserves_model_failure() -> None:
 
 
 def test_deterministic_gate_accepts_reachable_program_code() -> None:
-    model_verdict = AuditVerdict(
-        status="OK",
-        code=None,
-        reason=None,
-        body="Verified.",
-    )
+    model_verdict = _ok_verdict()
     analysis = {
+        "runtime": {"configured": True, "passed": True, "cases": []},
         "native": {
             "reachability_complete": True,
             "unreachable_program_functions": [],
             "unreachable_program_instructions": 0,
-        }
+        },
     }
 
     assert apply_deterministic_gate(model_verdict, analysis) is model_verdict
