@@ -96,9 +96,7 @@ def _changed_paths(base: str, head: str) -> list[Path]:
 
 
 def _changed_weave_sources(changed: list[Path]) -> list[Path]:
-    sources = {
-        path for path in changed if path.suffix == ".weave" and path.is_file()
-    }
+    sources = {path for path in changed if path.suffix == ".weave" and path.is_file()}
     for path in changed:
         name = str(path)
         if not name.endswith(_RUNTIME_SIDECAR_SUFFIX):
