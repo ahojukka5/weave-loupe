@@ -90,7 +90,16 @@ value('--manifest-json').write_text(
         }
     ) + '\n'
 )
-value('-o').write_text('binary')
+program = value('-o')
+program.write_text(
+    '#!/usr/bin/env python3\n'
+    'import os\n'
+    'import sys\n'
+    'sys.stdout.write(os.environ.get("LOUPE_STDOUT", ""))\n'
+    'sys.stderr.write(os.environ.get("LOUPE_STDERR", ""))\n'
+    'raise SystemExit(int(os.environ.get("LOUPE_EXIT", "1")))\n'
+)
+program.chmod(0o755)
 print('compiled')
 """,
         encoding="utf-8",
