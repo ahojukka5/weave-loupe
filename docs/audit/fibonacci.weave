@@ -1,5 +1,6 @@
 ; Canonical Weave Loupe audit corpus example.
 ; Computes fib(10) iteratively; the expected signed i32 return value is 55.
+; The standalone executable must not retain fib after main is constant-folded.
 
 (program
   (name "fibonacci")
