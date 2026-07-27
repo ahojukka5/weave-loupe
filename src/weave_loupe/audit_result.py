@@ -302,16 +302,20 @@ def _artifact_hashes(bundle: Bundle) -> dict[str, str]:
     if not isinstance(artifacts, dict):
         return {}
     hashes: dict[str, str] = {}
-    for name, relative in artifacts.items():
-        if isinstance(relative, str):
-            path = bundle.root / relative
-            if path.is_file():
-                hashes[str(name)] = _sha256(path)
+    for name in artifacts:
+        if not isinstance(name, str):
+            continue
+        path = bundle.artifact_path(name)
+        if path is not None:
+            hashes[name] = _sha256(path)
     return hashes
 
 
 def _compiler_exit_code(bundle: Bundle) -> int | None:
-    value = bundle.manifest.get("compiler_exit_code")
+    compiler = bundle.manifest.get("compiler")
+    if not isinstance(compiler, dict):
+        return None
+    value = compiler.get("exit_code")
     return value if isinstance(value, int) else None
 
 
