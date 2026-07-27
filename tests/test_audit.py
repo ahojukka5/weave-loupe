@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -15,6 +16,28 @@ def _config() -> LlmConfig:
         api_key="secret",
         model="model",
         max_tokens=64,
+    )
+
+
+def _write_runtime_cases(source: Path, *, exit_code: int, actual: int = 1) -> None:
+    source.with_suffix(".audit.json").write_text(
+        json.dumps(
+            {
+                "format": "weave-loupe-runtime-cases-v1",
+                "cases": [
+                    {
+                        "name": "native-result",
+                        "env": {"LOUPE_EXIT": str(actual)},
+                        "expect": {
+                            "exit_code": exit_code,
+                            "stdout": "",
+                            "stderr": "",
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
     )
 
 
@@ -50,6 +73,7 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "Linked executable disassembly" in prompt
     assert "typed-integer-wrap" in prompt
     assert "identity_adds" in prompt
+    assert '"configured": false' in prompt
     raw_wir = wir_path.read_text(encoding="utf-8")
     assert "weavec-source-span-v1" in raw_wir
     report = report_path.read_text(encoding="utf-8")
@@ -60,6 +84,73 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "weavec build kind:** `development`" in report
     assert "Machine and running conditions" in report
     assert capsys.readouterr().out == report
+
+
+def test_audit_executes_passing_runtime_matrix(
+    tmp_path: Path, source_file: Path, fake_weavec: Path, capsys
+) -> None:
+    _write_runtime_cases(source_file, exit_code=7, actual=7)
+    report_path = tmp_path / "demo.md"
+    with (
+        patch("weave_loupe.commands.audit.load_config", return_value=_config()),
+        patch(
+            "weave_loupe.commands.audit.chat_completion",
+            return_value="OK\n## Summary\nNative execution agrees.",
+        ) as chat,
+    ):
+        code = run_audit(
+            weave_files=[source_file],
+            model="model",
+            weavec=fake_weavec,
+            llvm_out=None,
+            wir_out=None,
+            report_out=report_path,
+            max_tokens=64,
+            verbose=True,
+        )
+
+    assert code == 0
+    prompt = chat.call_args.args[1]
+    assert '"configured": true' in prompt
+    assert '"exit_code": 7' in prompt
+    report = report_path.read_text(encoding="utf-8")
+    assert "### Runtime execution matrix" in report
+    assert '"name": "native-result"' in report
+    assert '"passed": true' in report
+    assert capsys.readouterr().err == ""
+
+
+def test_runtime_mismatch_overrides_model_ok_and_removes_report(
+    tmp_path: Path, source_file: Path, fake_weavec: Path, capsys
+) -> None:
+    _write_runtime_cases(source_file, exit_code=2, actual=1)
+    report_path = tmp_path / "demo.md"
+    report_path.write_text("stale", encoding="utf-8")
+    with (
+        patch("weave_loupe.commands.audit.load_config", return_value=_config()),
+        patch(
+            "weave_loupe.commands.audit.chat_completion",
+            return_value="OK\n## Summary\nStatic evidence looks valid.",
+        ),
+    ):
+        code = run_audit(
+            weave_files=[source_file],
+            model="model",
+            weavec=fake_weavec,
+            llvm_out=None,
+            wir_out=None,
+            report_out=report_path,
+            max_tokens=64,
+            verbose=True,
+        )
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert not report_path.exists()
+    assert "**Status:** FAILED" in captured.out
+    assert "runtime-mismatch" in captured.out
+    assert "exit code 1 did not match 2" in captured.out
+    assert "FAILED [runtime-mismatch]" in captured.err
 
 
 def test_audit_failure_returns_nonzero_and_removes_stale_report(
@@ -151,5 +242,6 @@ def test_audit_verbose_embeds_cleaned_wir(
     assert "### Optimized LLVM IR" in captured.out
     assert "### Target assembly" in captured.out
     assert "### Linked executable disassembly" in captured.out
+    assert "### Runtime execution matrix" in captured.out
     assert "### Deterministic analysis" in captured.out
     assert captured.err == ""

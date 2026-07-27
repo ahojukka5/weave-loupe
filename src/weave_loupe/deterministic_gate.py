@@ -14,6 +14,10 @@ def apply_deterministic_gate(
     if not verdict.passed:
         return verdict
 
+    runtime_override = _runtime_override(verdict, analysis)
+    if runtime_override is not None:
+        return runtime_override
+
     native = analysis.get("native")
     if not isinstance(native, dict):
         return verdict
@@ -42,11 +46,73 @@ def apply_deterministic_gate(
         "- Required fix: remove the dead functions during LLVM optimization or "
         "link-time section garbage collection."
     )
+    return _failed_verdict(
+        verdict,
+        code="dead-native-code",
+        reason=reason,
+        override=override,
+    )
+
+
+def _runtime_override(
+    verdict: AuditVerdict, analysis: dict[str, Any]
+) -> AuditVerdict | None:
+    runtime = analysis.get("runtime")
+    if not isinstance(runtime, dict) or runtime.get("configured") is not True:
+        return None
+    if runtime.get("passed") is True:
+        return None
+
+    raw_cases = runtime.get("cases")
+    cases = raw_cases if isinstance(raw_cases, list) else []
+    failed_names: list[str] = []
+    details: list[str] = []
+    for item in cases:
+        if not isinstance(item, dict) or item.get("passed") is True:
+            continue
+        name = item.get("name")
+        case_name = name if isinstance(name, str) and name else "unnamed"
+        failed_names.append(case_name)
+        raw_failures = item.get("failures")
+        failures = (
+            [failure for failure in raw_failures if isinstance(failure, str)]
+            if isinstance(raw_failures, list)
+            else []
+        )
+        detail = "; ".join(failures) or "observed output did not match"
+        details.append(f"- `{case_name}`: {detail}")
+
+    names = ", ".join(failed_names) or "unknown"
+    reason = f"native runtime cases failed: {names}"
+    override = (
+        "## Deterministic gate override\n\n"
+        "The model returned `OK`, but direct execution of the linked native "
+        "program disagreed with the versioned runtime expectations. A semantic "
+        "mismatch in executable behavior is a merge-blocking compiler defect.\n\n"
+        + ("\n".join(details) if details else "- Runtime matrix reported failure.")
+        + "\n- Required fix: correct lowering or code generation, then regenerate "
+        "the passing runtime evidence."
+    )
+    return _failed_verdict(
+        verdict,
+        code="runtime-mismatch",
+        reason=reason,
+        override=override,
+    )
+
+
+def _failed_verdict(
+    verdict: AuditVerdict,
+    *,
+    code: str,
+    reason: str,
+    override: str,
+) -> AuditVerdict:
     body = verdict.body.rstrip()
     body = f"{body}\n\n{override}" if body else override
     return AuditVerdict(
         status="FAILED",
-        code="dead-native-code",
+        code=code,
         reason=reason,
         body=body,
     )

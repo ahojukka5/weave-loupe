@@ -28,9 +28,10 @@ uv run loupe audit docs/audit/fibonacci.weave \
 ```
 
 `--verbose` embeds source, readable WIR, raw LLVM, optimized LLVM, target
-assembly, linked executable disassembly, optimization remarks, diagnostics,
-deterministic analysis, build manifest, and compiler trace. This lets a human
-inspect the same source-to-native evidence independently of the LLM verdict.
+assembly, linked executable disassembly, optimization remarks, direct runtime
+observations, diagnostics, deterministic analysis, build manifest, and compiler
+trace. This lets a human inspect the same source-to-native evidence independently
+of the LLM verdict.
 
 ## Readable WIR projection
 
@@ -46,18 +47,64 @@ The prompt and Markdown report use a deterministic review projection instead:
 This keeps WIR visible for human lowering review without allowing provenance
 annotations to dominate the report or model context.
 
+## Native runtime matrices
+
+A source may have an adjacent `foo.audit.json` file using format
+`weave-loupe-runtime-cases-v1`. Loupe then captures the exact linked executable
+and runs every declared case before asking the model for a verdict.
+
+```json
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "twelve",
+      "env": {"WEAVE_AUDIT_N": "12"},
+      "args": [],
+      "stdin": "",
+      "expect": {
+        "exit_code": 144,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}
+```
+
+Each case may specify command-line arguments, environment changes, standard
+input, and exact expected exit status, standard output, and standard error.
+Omitted output expectations are not compared. The default environment is empty
+so host-specific variables do not silently affect results; a matrix may opt into
+the inherited environment explicitly. Execution uses no shell, has a bounded
+timeout, and embeds at most 16 KiB from each output stream.
+
+The report records the sidecar and executable SHA-256 values plus each case's
+command, environment, expectations, observations, output hashes, timeout status,
+and failures. A mismatch triggers Loupe's deterministic gate with
+`runtime-mismatch`; an LLM `OK` cannot waive directly observed incorrect native
+behavior. Invalid sidecars and unavailable executables are infrastructure
+failures rather than compiler findings.
+
+Changes to `foo.audit.json` automatically re-audit `foo.weave` in pull requests.
+Scheduled re-audits discover the sidecar through the source and therefore repeat
+the same native execution matrix.
+
 ## Canonical audit corpus
 
 The checked-in corpus contains complementary Fibonacci programs:
 
 - `docs/audit/fibonacci.weave` passes the constant input `10`. It verifies
   inlining, constant propagation, loop deletion, and dead-code elimination; the
-  ideal final program is a two-instruction `main` returning `55`.
-- `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. The audit
-  harness supplies a decimal value from `0` through `46`; missing or numerically
-  out-of-range input falls back to `10`. The compiler may still inline functions
-  and promote variables to SSA, but it cannot replace the input-dependent
-  Fibonacci computation with one constant return.
+  ideal final program is a two-instruction `main` returning `55`. Its runtime
+  matrix also executes the linked binary and requires exit status `55`.
+- `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. The
+  compiler may still inline functions and promote variables to SSA, but it cannot
+  replace the input-dependent Fibonacci computation with one constant return.
+  Its matrix covers missing input, base cases, ordinary values, range fallbacks,
+  and the fixture's documented non-numeric `atoi` behavior.
 
 For a local runtime check:
 
@@ -79,7 +126,7 @@ The preferred identity comes from `weavec --version`. For older binaries Loupe
 uses the repository `VERSION` file and Git metadata:
 
 ```text
-weavec v0.3.0                 # exact release
+weavec v0.3.0                   # exact release
 weavec v0.3.0+git.b7046aacc634  # development build
 ```
 
@@ -92,15 +139,17 @@ the compiler version when a `VERSION` file and Git SHA are available.
 The adversarial prompt requires a stage-by-stage verification matrix. An `OK`
 verdict requires affirmative evidence for source semantics, Weave-to-WIR and
 WIR-to-LLVM preservation, LLVM validity, arithmetic behavior, ABI and register
-use, memory safety, target compatibility, and the absence of avoidable compiler
-overhead in final native code. Missing essential evidence produces
-`FAILED: insufficient-evidence: ...` rather than a speculative pass.
+use, memory safety, target compatibility, configured runtime cases, and the
+absence of avoidable compiler overhead in final native code. Missing essential
+evidence produces `FAILED: insufficient-evidence: ...` rather than a speculative
+pass.
 
 The `Weave audit` workflow audits every added, copied, modified, or renamed
-`.weave` file in a pull request. Changes to the audit engine run the canonical
-programs under `docs/audit/` as a self-test. Each successful `foo.weave` audit
-produces `foo.md`; reports are committed only when every audited source passes.
-The workflow updates one persistent PR comment and uploads complete evidence.
+`.weave` file in a pull request and maps changed `*.audit.json` sidecars back to
+their adjacent sources. Changes to the audit engine run the canonical programs
+under `docs/audit/` as a self-test. Each successful `foo.weave` audit produces
+`foo.md`; reports are committed only when every audited source passes. The
+workflow updates one persistent PR comment and uploads complete evidence.
 
 A report records the exact code commit that was audited. The automated report
 commit contains only generated reports, so its parent is the reproducible audited
@@ -118,9 +167,10 @@ report. A report is due when:
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
-evidence. Exit code `2` creates or updates a deduplicated issue in `ahojukka5/weavec`
-with the compiler identity, affected sources, and workflow link. Infrastructure
-failures fail the scheduled job but do not misclassify the compiler.
+evidence. Exit code `2` creates or updates a deduplicated issue in
+`ahojukka5/weavec` with the compiler identity, affected sources, and workflow
+link. Infrastructure failures fail the scheduled job but do not misclassify the
+compiler.
 
 Configure these repository secrets:
 

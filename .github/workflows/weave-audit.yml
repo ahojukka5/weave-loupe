@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "**/*.weave"
+      - "**/*.audit.json"
       - "src/weave_loupe/**"
       - "scripts/audit_pr.py"
       - "scripts/reaudit_stale.py"

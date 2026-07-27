@@ -14,7 +14,7 @@ def test_prompt_includes_complete_evidence_and_verdict_contract() -> None:
         disassembly="disassembly",
         optimization_record="remarks",
         diagnostics_json='{"diagnostics": []}',
-        analysis_json='{"instructions": 2}',
+        analysis_json='{"runtime": {"configured": true, "passed": true}}',
         metadata_json='{"timestamp_utc": "now"}',
     )
     assert "source {brace}" in prompt
@@ -22,11 +22,13 @@ def test_prompt_includes_complete_evidence_and_verdict_contract() -> None:
     assert "(core-module (core-version 2))" in prompt
     assert "Weave-to-WIR semantic preservation" in prompt
     assert "WIR-to-raw-LLVM semantic preservation" in prompt
+    assert "Native runtime cases and expected observable behavior" in prompt
+    assert "direct evidence from executing the exact linked" in prompt
     assert "raw llvm {brace}" in prompt
     assert "optimized llvm" in prompt
     assert "disassembly" in prompt
     assert "FAILED: <lowercase-kebab-code>" in prompt
-    assert '"instructions": 2' in prompt
+    assert '"configured": true' in prompt
     assert "adversarial release-gate reviewer" in prompt
     assert "Verification matrix" in prompt
     assert "insufficient-evidence" in prompt

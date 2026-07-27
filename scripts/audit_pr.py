@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
+_RUNTIME_SIDECAR_SUFFIX = ".audit.json"
 AUDIT_ENGINE_PATHS = (
     "src/weave_loupe/",
     "scripts/audit_pr.py",
@@ -95,9 +96,15 @@ def _changed_paths(base: str, head: str) -> list[Path]:
 
 
 def _changed_weave_sources(changed: list[Path]) -> list[Path]:
-    return sorted(
-        path for path in changed if path.suffix == ".weave" and path.is_file()
-    )
+    sources = {path for path in changed if path.suffix == ".weave" and path.is_file()}
+    for path in changed:
+        name = str(path)
+        if not name.endswith(_RUNTIME_SIDECAR_SUFFIX):
+            continue
+        source = Path(name[: -len(_RUNTIME_SIDECAR_SUFFIX)] + ".weave")
+        if source.is_file():
+            sources.add(source)
+    return sorted(sources)
 
 
 def _audit_engine_changed(changed: list[Path]) -> bool:
