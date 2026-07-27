@@ -174,7 +174,13 @@ def run_audit(
             report_out.parent.mkdir(parents=True, exist_ok=True)
             report_out.write_text(report, encoding="utf-8")
         return 0
-    except (OSError, BundleError, LlmError, AuditProtocolError, RuntimeCasesError) as exc:
+    except (
+        OSError,
+        BundleError,
+        LlmError,
+        AuditProtocolError,
+        RuntimeCasesError,
+    ) as exc:
         if report_out is not None and report_out.exists():
             report_out.unlink()
         if response:
