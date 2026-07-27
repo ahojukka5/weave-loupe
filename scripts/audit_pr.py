@@ -78,7 +78,9 @@ def _changed_paths(base: str, head: str) -> list[Path]:
 
 
 def _changed_weave_sources(changed: list[Path]) -> list[Path]:
-    return sorted(path for path in changed if path.suffix == ".weave" and path.is_file())
+    return sorted(
+        path for path in changed if path.suffix == ".weave" and path.is_file()
+    )
 
 
 def _audit_engine_changed(changed: list[Path]) -> bool:
@@ -135,8 +137,8 @@ def _render_summary(
     if not audits:
         lines.extend(
             [
-                "No auditable `.weave` files were found. The gate is failed rather than "
-                "silently passing without evidence.",
+                "No auditable `.weave` files were found. The gate is failed "
+                "rather than silently passing without evidence.",
                 "",
                 "Changed paths:",
                 "",
