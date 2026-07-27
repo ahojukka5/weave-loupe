@@ -44,7 +44,9 @@ A report records the exact code commit that was audited. The following automated
 commit adds only the generated report, so its parent is the reproducible audited
 state rather than an unaudited source change.
 
-The workflow intentionally accepts secrets only on same-repository pull-request
-branches. It does not use `pull_request_target`, because executing untrusted fork
-code with the LLM secret would expose the credential. Repositories that consume
-Loupe separately need their own selected repository or organization secrets.
+Configure `WEAVE_LLM_ENDPOINT` and `WEAVE_LLM_API_KEY` as repository secrets (or
+use `WEAVE_LLM_API_TOKEN` for the token compatibility name). The workflow
+intentionally accepts secrets only on same-repository pull-request branches. It
+does not use `pull_request_target`, because executing untrusted fork code with the
+LLM secret would expose the credential. Repositories that consume Loupe separately
+need their own selected repository or organization secrets.
