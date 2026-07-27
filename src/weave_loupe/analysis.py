@@ -21,9 +21,7 @@ def analyze_bundle(bundle: Bundle) -> dict[str, Any]:
         "format": "weave-loupe-analysis-v1",
         "compiler_exit_code": _compiler_exit_code(bundle),
         "llvm": analyze_llvm(bundle.artifact_text("llvm") or ""),
-        "optimized_llvm": analyze_llvm(
-            bundle.artifact_text("optimized_llvm") or ""
-        ),
+        "optimized_llvm": analyze_llvm(bundle.artifact_text("optimized_llvm") or ""),
         "evidence": {
             name: bundle.artifact_path(name) is not None
             for name in (

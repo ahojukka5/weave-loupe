@@ -16,9 +16,7 @@ from typing import Any, Literal
 from weave_loupe.bundle import Bundle
 from weave_loupe.weavec import resolve_weavec
 
-_FAILED = re.compile(
-    r"^FAILED:\s*([a-z0-9]+(?:-[a-z0-9]+)*):\s*(\S(?:.*\S)?)\s*$"
-)
+_FAILED = re.compile(r"^FAILED:\s*([a-z0-9]+(?:-[a-z0-9]+)*):\s*(\S(?:.*\S)?)\s*$")
 
 
 class AuditProtocolError(ValueError):
@@ -58,8 +56,7 @@ def parse_audit_response(response: str) -> AuditVerdict:
             body=body,
         )
     raise AuditProtocolError(
-        "first line must be exactly 'OK' or "
-        "'FAILED: <lowercase-kebab-code>: <reason>'"
+        "first line must be exactly 'OK' or 'FAILED: <lowercase-kebab-code>: <reason>'"
     )
 
 
