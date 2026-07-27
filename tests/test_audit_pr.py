@@ -38,9 +38,7 @@ def test_missing_sidecar_source_is_not_selected(
     assert _selector()([Path("orphan.audit.json")]) == []
 
 
-def test_source_and_sidecar_are_deduplicated(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
+def test_source_and_sidecar_are_deduplicated(tmp_path: Path, monkeypatch: Any) -> None:
     source = tmp_path / "demo.weave"
     source.write_text("(program (entry main))\n", encoding="utf-8")
     sidecar = tmp_path / "demo.audit.json"
