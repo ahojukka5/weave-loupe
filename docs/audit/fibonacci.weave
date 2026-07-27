@@ -1,0 +1,35 @@
+; Canonical Weave Loupe audit corpus example.
+; Computes fib(10) iteratively and returns 55 as the process exit code.
+
+(program
+  (name "fibonacci")
+  (version "0.1")
+  (fn fib
+    (params (n i32))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (le_i32 n (const_i32 1)))
+        (then
+          (do
+            (return n)))
+        (else
+          (do)))
+      (let previous i32 (const_i32 0))
+      (let current i32 (const_i32 1))
+      (let index i32 (const_i32 2))
+      (while
+        (condition
+          (le_i32 index n))
+        (do
+          (let next i32 (add_i32 previous current))
+          (set previous current)
+          (set current next)
+          (set index (add_i32 index (const_i32 1)))))
+      (return current)))
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (return (call_i32 fib (const_i32 10))))))
