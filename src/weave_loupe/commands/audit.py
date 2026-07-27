@@ -62,9 +62,7 @@ def run_audit(
             optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
             assembly = bundle.artifact_text("assembly") or ""
             disassembly = bundle.artifact_text("disassembly") or ""
-            optimization_record = (
-                bundle.artifact_text("optimization_record") or ""
-            )
+            optimization_record = bundle.artifact_text("optimization_record") or ""
             build_manifest = bundle.artifact_text("build_manifest") or ""
             trace = bundle.artifact_text("trace") or ""
             if wir_out is not None:
@@ -80,8 +78,7 @@ def run_audit(
                 source_name = str(source.get("input", source["path"]))
                 source_names.append(source_name)
                 source_blocks.append(
-                    f"--- {source_name} ---\n"
-                    + bundle.read_text(str(source["path"]))
+                    f"--- {source_name} ---\n" + bundle.read_text(str(source["path"]))
                 )
             weave_source = "\n\n".join(source_blocks)
             analysis = analyze_bundle(bundle)
