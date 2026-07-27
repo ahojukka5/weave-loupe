@@ -41,8 +41,15 @@ Ask an OpenAI-compatible model to review the complete evidence:
 ```sh
 export WEAVE_LLM_ENDPOINT=https://integrate.api.nvidia.com/v1
 export WEAVE_LLM_API_KEY=...
-uv run loupe audit examples/fibonacci_iterative.weave
+uv run loupe audit examples/fibonacci_iterative.weave \
+  --report-out examples/fibonacci_iterative.md
 ```
+
+The first model line must be `OK` or
+`FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
+malformed audits and writes the report only after an `OK` verdict. Reports include
+the audit timestamp, source/compiler Git SHAs, binary and artifact hashes, and
+machine specifications. See the [pull-request audit gate](docs/audit-gate.md).
 
 See the [documentation index](docs/index.md) and the complete
 [Fibonacci walkthrough](docs/fibonacci.md), including expected terminal output,

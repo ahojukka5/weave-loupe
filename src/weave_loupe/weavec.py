@@ -22,6 +22,10 @@ class BuildRequest:
     executable: Path
     wir: Path
     llvm: Path
+    optimized_llvm: Path
+    assembly: Path
+    disassembly: Path
+    optimization_record: Path
     diagnostics: Path
     trace: Path
     build_manifest: Path
@@ -71,6 +75,16 @@ def build_command(binary: Path, request: BuildRequest) -> tuple[str, ...]:
         str(request.wir),
         "--emit-llvm",
         str(request.llvm),
+        "--emit-optimized-llvm",
+        str(request.optimized_llvm),
+        "--emit-assembly",
+        str(request.assembly),
+        "--emit-disassembly",
+        str(request.disassembly),
+        "--optimization-record",
+        str(request.optimization_record),
+        "-O3",
+        "--native",
         "--diagnostics-json",
         str(request.diagnostics),
         "--trace-json",

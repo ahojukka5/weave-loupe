@@ -21,6 +21,10 @@ def test_capture_bundle_records_sources_and_artifacts(
     assert bundle.manifest["format"] == "weave-loupe-bundle-v1"
     assert bundle.sources[0]["input"] == str(source_file)
     assert bundle.artifact_text("wir") == "(core-module (core-version 2))\n"
+    assert bundle.artifact_text("optimized_llvm") is not None
+    assert bundle.artifact_text("assembly") is not None
+    assert bundle.artifact_text("disassembly") is not None
+    assert bundle.artifact_text("optimization_record") is not None
     assert bundle.artifact_path("executable") is None
 
 

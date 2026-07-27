@@ -23,6 +23,10 @@ def _request(tmp_path: Path, source: Path) -> BuildRequest:
         executable=tmp_path / "program",
         wir=tmp_path / "program.wir",
         llvm=tmp_path / "program.ll",
+        optimized_llvm=tmp_path / "program.optimized.ll",
+        assembly=tmp_path / "program.s",
+        disassembly=tmp_path / "program.disasm",
+        optimization_record=tmp_path / "program.opt.yaml",
         diagnostics=tmp_path / "diagnostics.json",
         trace=tmp_path / "trace.json",
         build_manifest=tmp_path / "build.json",
@@ -71,6 +75,12 @@ def test_build_command_uses_public_artifact_flags(
     assert command[1] == "build"
     assert "--emit-wir" in command
     assert "--emit-llvm" in command
+    assert "--emit-optimized-llvm" in command
+    assert "--emit-assembly" in command
+    assert "--emit-disassembly" in command
+    assert "--optimization-record" in command
+    assert "-O3" in command
+    assert "--native" in command
     assert "--diagnostics-json" in command
     assert "--trace-json" in command
     assert "--manifest-json" in command
@@ -86,3 +96,7 @@ def test_run_build_retains_outputs(
     assert result.stdout == "compiled\n"
     assert request.wir.is_file()
     assert request.llvm.is_file()
+    assert request.optimized_llvm.is_file()
+    assert request.assembly.is_file()
+    assert request.disassembly.is_file()
+    assert request.optimization_record.is_file()
