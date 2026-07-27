@@ -176,9 +176,7 @@ def _parse_time(value: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
-def _audit(
-    *, state: ReportState, weavec: Path, model: str, logs_dir: Path
-) -> AuditRun:
+def _audit(*, state: ReportState, weavec: Path, model: str, logs_dir: Path) -> AuditRun:
     safe_name = "__".join(state.source.parts).replace(".weave", "")
     stdout_log = logs_dir / f"{safe_name}.stdout.md"
     stderr_log = logs_dir / f"{safe_name}.stderr.txt"
