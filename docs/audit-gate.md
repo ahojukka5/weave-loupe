@@ -33,6 +33,29 @@ optimization remarks, diagnostics, deterministic analysis, build manifest, and
 compiler trace. This is the mode used by the pull-request workflow so a human can
 inspect the exact evidence independently of the LLM verdict.
 
+## Canonical audit corpus
+
+The checked-in corpus contains complementary Fibonacci programs:
+
+- `docs/audit/fibonacci.weave` passes the constant input `10`. It verifies
+  inlining, constant propagation, loop deletion, and dead-code elimination; the
+  ideal final program is a two-instruction `main` returning `55`.
+- `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. It accepts
+  decimal values from `0` through `46` and falls back to `10` for missing,
+  malformed, or out-of-range input. The compiler may still inline functions and
+  promote variables to SSA, but it cannot replace the input-dependent Fibonacci
+  computation with one constant return.
+
+For a local runtime check:
+
+```sh
+WEAVE_AUDIT_N=12 ./fibonacci_runtime
+printf '%s\n' "$?"  # 144
+```
+
+The upper bound keeps every accepted Fibonacci result representable as signed
+`i32`, so native-code review is not obscured by overflow semantics.
+
 Every generated report records the UTC timestamp, audited source Git SHA, Loupe
 and compiler Git SHAs when discoverable, compiler binary hash and version, source
 and artifact hashes, model, operating system, kernel, CPU architecture and model,
