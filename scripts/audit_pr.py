@@ -13,7 +13,9 @@ COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
 AUDIT_ENGINE_PATHS = (
     "src/weave_loupe/",
     "scripts/audit_pr.py",
+    "scripts/reaudit_stale.py",
     ".github/workflows/weave-audit.yml",
+    ".github/workflows/scheduled-reaudit.yml",
     "pyproject.toml",
     "uv.lock",
 )
