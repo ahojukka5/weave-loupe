@@ -20,6 +20,7 @@ from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.templates import render_audit_prompt
+from weave_loupe.wir_review import clean_wir_for_review
 
 
 def run_audit(
@@ -59,6 +60,7 @@ def run_audit(
                 )
 
             wir = bundle.artifact_text("wir") or ""
+            review_wir = clean_wir_for_review(wir)
             llvm_ir = bundle.artifact_text("llvm") or ""
             optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
             assembly = bundle.artifact_text("assembly") or ""
@@ -99,6 +101,7 @@ def run_audit(
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
                 weave_source=weave_source,
+                wir=review_wir,
                 llvm_ir=llvm_ir,
                 optimized_llvm=optimized_llvm,
                 assembly=assembly,
@@ -123,6 +126,7 @@ def run_audit(
                     report,
                     [
                         ("Weave source", "lisp", weave_source),
+                        ("WIR (provenance comments hidden)", "lisp", review_wir),
                         ("Raw LLVM IR", "llvm", llvm_ir),
                         ("Optimized LLVM IR", "llvm", optimized_llvm),
                         ("Target assembly", "asm", assembly),

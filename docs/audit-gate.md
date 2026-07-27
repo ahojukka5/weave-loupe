@@ -27,17 +27,24 @@ uv run loupe audit docs/audit/fibonacci.weave \
   --report-out docs/audit/fibonacci.md
 ```
 
-`--verbose` embeds the focused compiler evidence in the Markdown report: source,
-raw LLVM, optimized LLVM, target assembly, linked executable disassembly,
-optimization remarks, diagnostics, deterministic analysis, build manifest, and
-compiler trace. This is the mode used by the pull-request workflow so a human can
-inspect the evidence independently of the LLM verdict.
+`--verbose` embeds source, readable WIR, raw LLVM, optimized LLVM, target
+assembly, linked executable disassembly, optimization remarks, diagnostics,
+deterministic analysis, build manifest, and compiler trace. This lets a human
+inspect the same source-to-native evidence independently of the LLM verdict.
 
-WIR is intentionally omitted from the LLM prompt and generated Markdown. Current
-WIR contains dense source-provenance annotations that add substantial context
-without improving the source-to-native review. The compiler still captures WIR
-inside the bundle, and `--wir-out path.wir` exports it explicitly when a lowering
-or provenance investigation needs it.
+## Readable WIR projection
+
+The compiler's raw WIR remains captured and hash-addressed in the `.loupe`
+bundle. `--wir-out path.wir` exports those exact bytes for provenance debugging.
+
+The prompt and Markdown report use a deterministic review projection instead:
+
+- source-file and source-span comments are hidden;
+- semantic tokens, strings, list structure, and ordering are preserved;
+- the remaining S-expression is reparsed and formatted to a readable width.
+
+This keeps WIR visible for human lowering review without allowing provenance
+annotations to dominate the report or model context.
 
 ## Canonical audit corpus
 
@@ -62,46 +69,74 @@ printf '%s\n' "$?"  # 144
 The upper bound keeps every accepted Fibonacci result representable as signed
 `i32`, so native-code review is not obscured by overflow semantics.
 
-Every generated report records the UTC timestamp, audited source Git SHA, Loupe
-and compiler Git SHAs when discoverable, compiler binary hash and version, source
-and artifact hashes, model, operating system, kernel, CPU architecture and model,
-logical CPU count, memory, Python version, and libc. The deterministic envelope
-is produced by Loupe rather than delegated to the model.
+## Reproducible compiler identity
 
-The audit prompt is adversarial and requires a stage-by-stage verification matrix.
-An `OK` verdict requires affirmative evidence for source semantics, source-to-LLVM
-preservation, LLVM validity, signedness and arithmetic behavior, ABI and register
+Every report records the UTC timestamp, source and Loupe Git SHAs, compiler
+repository SHA, compiler binary hash, model, machine details, and a normalized
+weavec version.
+
+The preferred identity comes from `weavec --version`. For older binaries Loupe
+uses the repository `VERSION` file and Git metadata:
+
+```text
+weavec v0.3.0                 # exact release
+weavec v0.3.0+git.b7046aacc634  # development build
+```
+
+Reports also state whether the compiler is a release or development build and
+how the version was discovered. A report must never silently use `unknown` as
+the compiler version when a `VERSION` file and Git SHA are available.
+
+## Pull-request workflow
+
+The adversarial prompt requires a stage-by-stage verification matrix. An `OK`
+verdict requires affirmative evidence for source semantics, Weave-to-WIR and
+WIR-to-LLVM preservation, LLVM validity, arithmetic behavior, ABI and register
 use, memory safety, target compatibility, and the absence of avoidable compiler
 overhead in final native code. Missing essential evidence produces
 `FAILED: insufficient-evidence: ...` rather than a speculative pass.
 
 The `Weave audit` workflow audits every added, copied, modified, or renamed
-`.weave` file in a pull request, regardless of its directory. Changes to the audit
-engine itself run the canonical programs under `docs/audit/` as a self-test. Each
-successful `foo.weave` audit produces `foo.md`; reports are committed to the
-pull-request branch only when every audited source passes. The workflow updates
-one persistent PR comment with pass or failure details and uploads the complete
-result as an artifact.
+`.weave` file in a pull request. Changes to the audit engine run the canonical
+programs under `docs/audit/` as a self-test. Each successful `foo.weave` audit
+produces `foo.md`; reports are committed only when every audited source passes.
+The workflow updates one persistent PR comment and uploads complete evidence.
 
-A report records the exact code commit that was audited. The following automated
-commit adds only the generated report, so its parent is the reproducible audited
+A report records the exact code commit that was audited. The automated report
+commit contains only generated reports, so its parent is the reproducible audited
 state rather than an unaudited source change.
+
+## Scheduled re-audits
+
+`.github/workflows/scheduled-reaudit.yml` runs daily and checks every canonical
+report. A report is due when:
+
+- its timestamp is missing or at least 30 days old;
+- it is manually forced through `workflow_dispatch`; or
+- the current compiler is a development build and its version differs from the
+  version recorded in the report.
+
+Passing reports replace the old files atomically and are committed to `master`.
+A failed re-audit preserves the last passing report and uploads the new failure
+evidence. Exit code `2` creates or updates a deduplicated issue in `ahojukka5/weavec`
+with the compiler identity, affected sources, and workflow link. Infrastructure
+failures fail the scheduled job but do not misclassify the compiler.
 
 Configure these repository secrets:
 
 - `WEAVE_LLM_ENDPOINT`
 - `WEAVE_LLM_API_KEY` or the compatibility name `WEAVE_LLM_API_TOKEN`
 - `WEAVE_GITHUB_TOKEN`, a fine-grained personal access token or GitHub App token
-  with write access to repository contents
+  with repository-content write access to `weave-loupe` and issue write access to
+  `weavec`
 
-The report commit uses `WEAVE_GITHUB_TOKEN` instead of the workflow-generated
-`GITHUB_TOKEN`. GitHub therefore treats it as an ordinary authenticated push and
-starts the follow-up pull-request checks automatically. The guard recognizes the
-report-only commit, skips the expensive second LLM audit, and lets normal CI
-validate the resulting branch state.
+The report commits use `WEAVE_GITHUB_TOKEN` instead of the workflow-generated
+`GITHUB_TOKEN`. GitHub therefore treats them as ordinary authenticated pushes and
+starts follow-up checks automatically. The pull-request guard recognizes its own
+report-only commit and avoids a duplicate expensive LLM audit.
 
-The workflow intentionally accepts secrets only on same-repository pull-request
-branches. It does not use `pull_request_target`, because executing untrusted fork
-code with the LLM or repository-write credential would expose those secrets.
-Repositories that consume Loupe separately need their own selected repository or
-organization secrets.
+The pull-request workflow accepts secrets only on same-repository branches. It
+does not use `pull_request_target`, because executing untrusted fork code with the
+LLM or repository-write credential would expose those secrets. Repositories that
+consume Loupe separately need their own selected repository or organization
+secrets.

@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,7 +15,9 @@ COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
 AUDIT_ENGINE_PATHS = (
     "src/weave_loupe/",
     "scripts/audit_pr.py",
+    "scripts/reaudit_stale.py",
     ".github/workflows/weave-audit.yml",
+    ".github/workflows/scheduled-reaudit.yml",
     "pyproject.toml",
     "uv.lock",
 )
@@ -23,6 +27,7 @@ AUDIT_ENGINE_PATHS = (
 class FileAudit:
     source: Path
     report: Path
+    candidate: Path
     returncode: int
     stdout: str
     stderr: str
@@ -47,23 +52,35 @@ def main() -> int:
     if not sources and _audit_engine_changed(changed):
         sources = sorted(Path("docs/audit").rglob("*.weave"))
 
-    audits = [
-        _audit_file(source=source, weavec=args.weavec, model=args.model)
-        for source in sources
-    ]
-    passed = bool(audits) and all(audit.passed for audit in audits)
-    summary = _render_summary(
-        base=args.base,
-        head=args.head,
-        changed=changed,
-        audits=audits,
-        passed=passed,
-    )
-    args.summary.parent.mkdir(parents=True, exist_ok=True)
-    args.summary.write_text(summary, encoding="utf-8")
-    args.reports_list.parent.mkdir(parents=True, exist_ok=True)
-    reports = "".join(f"{audit.report}\n" for audit in audits if audit.passed)
-    args.reports_list.write_text(reports, encoding="utf-8")
+    with tempfile.TemporaryDirectory(prefix="loupe-pr-audit-") as temp_dir:
+        candidate_root = Path(temp_dir)
+        audits = [
+            _audit_file(
+                source=source,
+                candidate_root=candidate_root,
+                weavec=args.weavec,
+                model=args.model,
+            )
+            for source in sources
+        ]
+        passed = bool(audits) and all(audit.passed for audit in audits)
+        if passed:
+            for audit in audits:
+                audit.report.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(audit.candidate, audit.report)
+
+        summary = _render_summary(
+            base=args.base,
+            head=args.head,
+            changed=changed,
+            audits=audits,
+            passed=passed,
+        )
+        args.summary.parent.mkdir(parents=True, exist_ok=True)
+        args.summary.write_text(summary, encoding="utf-8")
+        args.reports_list.parent.mkdir(parents=True, exist_ok=True)
+        reports = "".join(f"{audit.report}\n" for audit in audits if audit.passed)
+        args.reports_list.write_text(reports, encoding="utf-8")
     return 0 if passed else 1
 
 
@@ -91,8 +108,11 @@ def _audit_engine_changed(changed: list[Path]) -> bool:
     )
 
 
-def _audit_file(*, source: Path, weavec: Path, model: str) -> FileAudit:
+def _audit_file(
+    *, source: Path, candidate_root: Path, weavec: Path, model: str
+) -> FileAudit:
     report = source.with_suffix(".md")
+    candidate = candidate_root / report.name
     command = [
         sys.executable,
         "-m",
@@ -104,13 +124,14 @@ def _audit_file(*, source: Path, weavec: Path, model: str) -> FileAudit:
         "--model",
         model,
         "--report-out",
-        str(report),
+        str(candidate),
         "--verbose",
     ]
     completed = subprocess.run(command, capture_output=True, text=True, check=False)
     return FileAudit(
         source=source,
         report=report,
+        candidate=candidate,
         returncode=completed.returncode,
         stdout=completed.stdout,
         stderr=completed.stderr,

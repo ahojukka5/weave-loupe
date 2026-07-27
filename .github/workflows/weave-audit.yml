@@ -7,7 +7,9 @@ on:
       - "**/*.weave"
       - "src/weave_loupe/**"
       - "scripts/audit_pr.py"
+      - "scripts/reaudit_stale.py"
       - ".github/workflows/weave-audit.yml"
+      - ".github/workflows/scheduled-reaudit.yml"
       - "pyproject.toml"
       - "uv.lock"
 
@@ -53,6 +55,7 @@ jobs:
         with:
           repository: ahojukka5/weavec
           path: .weave-tools/weavec
+          fetch-depth: 0
 
       - name: Install LLVM toolchain
         if: steps.guard.outputs.skip != 'true'

@@ -5,15 +5,16 @@ from __future__ import annotations
 AUDIT_REPORT_TEMPLATE = """\
 ## Summary
 State the concrete audit conclusion. Attribute each important observation to
-Weave source, raw LLVM, optimized LLVM, target assembly, linked executable
-disassembly, or the optimization record.
+Weave source, cleaned WIR, raw LLVM, optimized LLVM, target assembly, linked
+executable disassembly, or the optimization record.
 
 ## Verification matrix
 For every row below, write `PASS`, `FAIL`, or `UNVERIFIED` and cite concrete
 artifact evidence. Do not omit a row.
 
 - Source semantics and expected result
-- Source-to-raw-LLVM semantic preservation
+- Weave-to-WIR semantic preservation
+- WIR-to-raw-LLVM semantic preservation
 - Raw LLVM validity, SSA, types, and control flow
 - Optimized LLVM semantic preservation
 - Integer signedness, overflow, shifts, and comparisons
@@ -39,7 +40,7 @@ For each finding use:
 ### Finding: <short title>
 - Code: lowercase-kebab-case
 - Severity: critical | high | medium
-- Stage: Weave | raw LLVM | optimized LLVM | native code
+- Stage: Weave | WIR | raw LLVM | optimized LLVM | native code
 - Location: function or source range
 - Evidence: concrete artifact evidence
 - Failure mode: concrete consequence
@@ -71,11 +72,17 @@ After it, write the Markdown review using the supplied template.
 
 Do not infer correctness from successful compilation, LLVM optimization, or a
 plausible-looking final instruction sequence. Independently trace the expected
-source behavior through raw LLVM, optimized LLVM, target assembly, and linked
-executable disassembly. Inspect final native code instruction by instruction,
-including calls, returns, signed comparisons, arithmetic width, register values,
-stack behavior, ABI rules, and control-flow edges. Cross-check all stages against
-each other and against the deterministic analysis and optimization remarks.
+source behavior through cleaned WIR, raw LLVM, optimized LLVM, target assembly,
+and linked executable disassembly. Inspect final native code instruction by
+instruction, including calls, returns, signed comparisons, arithmetic width,
+register values, stack behavior, ABI rules, and control-flow edges. Cross-check
+all stages against each other and against the deterministic analysis and
+optimization remarks.
+
+The WIR shown below is a review projection of the exact captured artifact. Only
+source-file and source-span provenance comments are hidden, and whitespace is
+normalized. Semantic tokens and structure are preserved. The raw WIR remains
+hash-addressed in the bundle and may be exported separately for debugging.
 
 Return FAILED when the evidence supports a merge-blocking defect: incorrect
 behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety or memory
@@ -102,6 +109,10 @@ Source paths: {source_path}
 === Weave source ===
 {weave_source}
 === End Weave source ===
+
+=== WIR review projection ===
+{wir}
+=== End WIR review projection ===
 
 === Raw LLVM IR ===
 {llvm_ir}
@@ -141,6 +152,7 @@ def render_audit_prompt(
     *,
     source_path: str,
     weave_source: str,
+    wir: str,
     llvm_ir: str,
     optimized_llvm: str = "",
     assembly: str = "",
@@ -154,6 +166,7 @@ def render_audit_prompt(
     replacements = {
         "{source_path}": source_path,
         "{weave_source}": weave_source,
+        "{wir}": wir,
         "{llvm_ir}": llvm_ir,
         "{optimized_llvm}": optimized_llvm,
         "{assembly}": assembly,
