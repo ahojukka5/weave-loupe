@@ -8,25 +8,25 @@
 
 ## Reproducibility
 
-- **Audit timestamp (UTC):** `2026-07-27T18:35:18+00:00`
-- **Audited source Git SHA:** `d1d470feb45e547ab78e43e349a26ce86e9227fa`
-- **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `d1d470feb45e547ab78e43e349a26ce86e9227fa`
+- **Audit timestamp (UTC):** `2026-07-27T20:23:07+00:00`
+- **Audited source Git SHA:** `7605066c229a85e97f1c121d5c427f5ff6ff1e30`
+- **Source tree state:** `dirty`
+- **Weave Loupe Git SHA:** `7605066c229a85e97f1c121d5c427f5ff6ff1e30`
 - **weavec Git SHA:** `b7046aacc634283a7ae6e548984d00511dcc7776`
 - **weavec binary SHA-256:** `96e78338d7ae0199646f78f4af6d4d3c25f2b027c8ddc7ab25bd3a2dfdfdea70`
 - **weavec version:** `unavailable`
 - **LLM model:** `z-ai/glm-5.2`
-- **GitHub run ID:** `30294376027`
-- **GitHub workflow SHA:** `7e496dfc8925725cf736cbf525e1110c96d9540f`
+- **GitHub run ID:** `30302265023`
+- **GitHub workflow SHA:** `64cbcf7ab49b54db7f7fe4290959d22afb37113b`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `AMD EPYC 9V74 80-Core Processor`
+- **CPU:** `AMD EPYC 7763 64-Core Processor`
 - **Logical CPUs:** `4`
-- **Memory:** `16766423040` bytes
+- **Memory:** `16770752512` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
@@ -37,10 +37,10 @@
 ## Captured evidence
 
 - `assembly` — SHA-256 `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
-- `build_manifest` — SHA-256 `d2856103e6eb34ef6cfd4d94748c75156df9401ea0b9dae70bfe55419a7be246`
+- `build_manifest` — SHA-256 `ea562f2a0e738c1098bba6309491e395137baf908d6da339ccf9522a42c28264`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
 - `disassembly` — SHA-256 `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
-- `llvm` — SHA-256 `9a2a63d52ca9eb50d0415fa8f29b0e5f9b42118fb0706c1912241a4b04080ce8`
+- `llvm` — SHA-256 `0cea22dfdfb91d6b0a801a44b3020af4dc7ebd86abd1d26707dd886f97eee650`
 - `optimization_record` — SHA-256 `c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
 - `optimized_llvm` — SHA-256 `7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
 - `trace` — SHA-256 `b2b31cb4820d6e3e8eb29602a4ca1e1637f19953fa4ce2230d0a6f2d5d8e7878`
@@ -137,222 +137,11 @@ source-to-native lowering can also be inspected manually.
       (return (call_i32 fib n)))))
 ```
 
-### WIR
-
-```lisp
-(core-module
-  (core-version 2)
-  (decls
-; weavec-source-file-v1 0 "docs/audit/fibonacci_runtime.weave"
-    ; weavec-source-span-v1 0 412 469
-(; weavec-source-span-v1 0 413 419
-extern ; weavec-source-span-v1 0 420 426
-getenv ; weavec-source-span-v1 0 431 450
-(; weavec-source-span-v1 0 432 438
-params ; weavec-source-span-v1 0 439 449
-(; weavec-source-span-v1 0 440 444
-name ; weavec-source-span-v1 0 445 448
-ptr)) ; weavec-source-span-v1 0 455 468
-(; weavec-source-span-v1 0 456 463
-returns ; weavec-source-span-v1 0 464 467
-ptr))
-    ; weavec-source-span-v1 0 473 528
-(; weavec-source-span-v1 0 474 480
-extern ; weavec-source-span-v1 0 481 485
-atoi ; weavec-source-span-v1 0 490 509
-(; weavec-source-span-v1 0 491 497
-params ; weavec-source-span-v1 0 498 508
-(; weavec-source-span-v1 0 499 503
-text ; weavec-source-span-v1 0 504 507
-ptr)) ; weavec-source-span-v1 0 514 527
-(; weavec-source-span-v1 0 515 522
-returns ; weavec-source-span-v1 0 523 526
-i32))
-    ; weavec-source-span-v1 0 532 1096
-(; weavec-source-span-v1 0 533 535
-fn ; weavec-source-span-v1 0 536 539
-fib ; weavec-source-span-v1 0 544 560
-(; weavec-source-span-v1 0 545 551
-params ; weavec-source-span-v1 0 552 559
-(; weavec-source-span-v1 0 553 554
-n ; weavec-source-span-v1 0 555 558
-i32)) ; weavec-source-span-v1 0 565 578
-(; weavec-source-span-v1 0 566 573
-returns ; weavec-source-span-v1 0 574 577
-i32) ; weavec-source-span-v1 0 583 1095
-(do ; weavec-source-span-v1 0 593 725
-(; weavec-source-span-v1 0 594 596
-if ; weavec-source-span-v1 0 605 641
-(; weavec-source-span-v1 0 606 615
-condition ; weavec-source-span-v1 0 616 640
-(; weavec-source-span-v1 0 617 623
-le_i32 ; weavec-source-span-v1 0 624 625
-n ; weavec-source-span-v1 0 626 639
-(; weavec-source-span-v1 0 627 636
-const_i32 ; weavec-source-span-v1 0 637 638
-1))) ; weavec-source-span-v1 0 650 694
-(; weavec-source-span-v1 0 651 655
-then ; weavec-source-span-v1 0 666 693
-(do ; weavec-source-span-v1 0 682 692
-(; weavec-source-span-v1 0 683 689
-return ; weavec-source-span-v1 0 690 691
-n))) ; weavec-source-span-v1 0 703 724
-(; weavec-source-span-v1 0 704 708
-else ; weavec-source-span-v1 0 719 723
-(do))) ; weavec-source-span-v1 0 733 765
-(let ; weavec-source-span-v1 0 738 746
-previous i32 ; weavec-source-span-v1 0 751 764
-(; weavec-source-span-v1 0 752 761
-const_i32 ; weavec-source-span-v1 0 762 763
-0)) ; weavec-source-span-v1 0 772 803
-(let ; weavec-source-span-v1 0 777 784
-current i32 ; weavec-source-span-v1 0 789 802
-(; weavec-source-span-v1 0 790 799
-const_i32 ; weavec-source-span-v1 0 800 801
-1)) ; weavec-source-span-v1 0 810 839
-(let ; weavec-source-span-v1 0 815 820
-index i32 ; weavec-source-span-v1 0 825 838
-(; weavec-source-span-v1 0 826 835
-const_i32 ; weavec-source-span-v1 0 836 837
-2)) ; weavec-source-span-v1 0 847 1070
-(; weavec-source-span-v1 0 848 853
-while ; weavec-source-span-v1 0 862 890
-(; weavec-source-span-v1 0 863 872
-condition ; weavec-source-span-v1 0 873 889
-(; weavec-source-span-v1 0 874 880
-le_i32 ; weavec-source-span-v1 0 881 886
-index ; weavec-source-span-v1 0 887 888
-n)) ; weavec-source-span-v1 0 899 1069
-(do ; weavec-source-span-v1 0 913 954
-(let ; weavec-source-span-v1 0 918 922
-next i32 ; weavec-source-span-v1 0 927 953
-(; weavec-source-span-v1 0 928 935
-add_i32 ; weavec-source-span-v1 0 936 944
-previous ; weavec-source-span-v1 0 945 952
-current)) ; weavec-source-span-v1 0 965 987
-(; weavec-source-span-v1 0 966 969
-set ; weavec-source-span-v1 0 970 978
-previous ; weavec-source-span-v1 0 979 986
-current) ; weavec-source-span-v1 0 998 1016
-(; weavec-source-span-v1 0 999 1002
-set ; weavec-source-span-v1 0 1003 1010
-current ; weavec-source-span-v1 0 1011 1015
-next) ; weavec-source-span-v1 0 1027 1068
-(; weavec-source-span-v1 0 1028 1031
-set ; weavec-source-span-v1 0 1032 1037
-index ; weavec-source-span-v1 0 1038 1067
-(; weavec-source-span-v1 0 1039 1046
-add_i32 ; weavec-source-span-v1 0 1047 1052
-index ; weavec-source-span-v1 0 1053 1066
-(; weavec-source-span-v1 0 1054 1063
-const_i32 ; weavec-source-span-v1 0 1064 1065
-1))))) ; weavec-source-span-v1 0 1078 1094
-(; weavec-source-span-v1 0 1079 1085
-return ; weavec-source-span-v1 0 1086 1093
-current)))
-; weavec-source-span-v1 0 1100 1778
-    (fn ; weavec-source-span-v1 0 1107 1111
-main ; weavec-source-span-v1 0 1116 1124
-(; weavec-source-span-v1 0 1117 1123
-params) ; weavec-source-span-v1 0 1129 1142
-(; weavec-source-span-v1 0 1130 1137
-returns ; weavec-source-span-v1 0 1138 1141
-i32) ; weavec-source-span-v1 0 1147 1777
-(do ; weavec-source-span-v1 0 1157 1243
-(let ; weavec-source-span-v1 0 1162 1167
-input ptr ; weavec-source-span-v1 0 1180 1242
-(; weavec-source-span-v1 0 1181 1189
-call_ptr ; weavec-source-span-v1 0 1190 1196
-getenv ; weavec-source-span-v1 0 1207 1241
-(; weavec-source-span-v1 0 1208 1224
-const_string_ptr ; weavec-source-span-v1 0 1226 1239
-"WEAVE_AUDIT_N"))) ; weavec-source-span-v1 0 1250 1276
-(let ; weavec-source-span-v1 0 1255 1256
-n i32 ; weavec-source-span-v1 0 1261 1275
-(; weavec-source-span-v1 0 1262 1271
-const_i32 ; weavec-source-span-v1 0 1272 1274
-10)) ; weavec-source-span-v1 0 1284 1438
-(; weavec-source-span-v1 0 1285 1287
-if ; weavec-source-span-v1 0 1296 1335
-(; weavec-source-span-v1 0 1297 1306
-condition ; weavec-source-span-v1 0 1307 1334
-(; weavec-source-span-v1 0 1308 1314
-ne_ptr ; weavec-source-span-v1 0 1315 1320
-input ; weavec-source-span-v1 0 1321 1333
-(; weavec-source-span-v1 0 1322 1332
-const_null))) ; weavec-source-span-v1 0 1344 1407
-(; weavec-source-span-v1 0 1345 1349
-then ; weavec-source-span-v1 0 1360 1406
-(do ; weavec-source-span-v1 0 1376 1405
-(; weavec-source-span-v1 0 1377 1380
-set ; weavec-source-span-v1 0 1381 1382
-n ; weavec-source-span-v1 0 1383 1404
-(; weavec-source-span-v1 0 1384 1392
-call_i32 ; weavec-source-span-v1 0 1393 1397
-atoi ; weavec-source-span-v1 0 1398 1403
-input)))) ; weavec-source-span-v1 0 1416 1437
-(; weavec-source-span-v1 0 1417 1421
-else ; weavec-source-span-v1 0 1432 1436
-(do))) ; weavec-source-span-v1 0 1446 1590
-(; weavec-source-span-v1 0 1447 1449
-if ; weavec-source-span-v1 0 1458 1494
-(; weavec-source-span-v1 0 1459 1468
-condition ; weavec-source-span-v1 0 1469 1493
-(; weavec-source-span-v1 0 1470 1476
-lt_i32 ; weavec-source-span-v1 0 1477 1478
-n ; weavec-source-span-v1 0 1479 1492
-(; weavec-source-span-v1 0 1480 1489
-const_i32 ; weavec-source-span-v1 0 1490 1491
-0))) ; weavec-source-span-v1 0 1503 1559
-(; weavec-source-span-v1 0 1504 1508
-then ; weavec-source-span-v1 0 1519 1558
-(do ; weavec-source-span-v1 0 1535 1557
-(; weavec-source-span-v1 0 1536 1539
-set ; weavec-source-span-v1 0 1540 1541
-n ; weavec-source-span-v1 0 1542 1556
-(; weavec-source-span-v1 0 1543 1552
-const_i32 ; weavec-source-span-v1 0 1553 1555
-10)))) ; weavec-source-span-v1 0 1568 1589
-(; weavec-source-span-v1 0 1569 1573
-else ; weavec-source-span-v1 0 1584 1588
-(do))) ; weavec-source-span-v1 0 1598 1743
-(; weavec-source-span-v1 0 1599 1601
-if ; weavec-source-span-v1 0 1610 1647
-(; weavec-source-span-v1 0 1611 1620
-condition ; weavec-source-span-v1 0 1621 1646
-(; weavec-source-span-v1 0 1622 1628
-gt_i32 ; weavec-source-span-v1 0 1629 1630
-n ; weavec-source-span-v1 0 1631 1645
-(; weavec-source-span-v1 0 1632 1641
-const_i32 ; weavec-source-span-v1 0 1642 1644
-46))) ; weavec-source-span-v1 0 1656 1712
-(; weavec-source-span-v1 0 1657 1661
-then ; weavec-source-span-v1 0 1672 1711
-(do ; weavec-source-span-v1 0 1688 1710
-(; weavec-source-span-v1 0 1689 1692
-set ; weavec-source-span-v1 0 1693 1694
-n ; weavec-source-span-v1 0 1695 1709
-(; weavec-source-span-v1 0 1696 1705
-const_i32 ; weavec-source-span-v1 0 1706 1708
-10)))) ; weavec-source-span-v1 0 1721 1742
-(; weavec-source-span-v1 0 1722 1726
-else ; weavec-source-span-v1 0 1737 1741
-(do))) ; weavec-source-span-v1 0 1751 1776
-(; weavec-source-span-v1 0 1752 1758
-return ; weavec-source-span-v1 0 1759 1775
-(; weavec-source-span-v1 0 1760 1768
-call_i32 ; weavec-source-span-v1 0 1769 1772
-fib ; weavec-source-span-v1 0 1773 1774
-n))))
-  )
-)
-```
-
 ### Raw LLVM IR
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-KGItfo/program.wir
+; source: /tmp/weavec-build-BEgJvI/program.wir
 ; core-version: 2
 
 ; declarations
@@ -1373,7 +1162,7 @@ Args:
   "linker": "clang",
   "objdump": "llvm-objdump",
   "optimization": {"level": "O3", "cpu": "native", "tune_cpu": "native"},
-  "output": "/tmp/loupe-audit-88174fy1/.audit.loupe.408n5n21/artifacts/program",
+  "output": "/tmp/loupe-audit-llyaeav9/.audit.loupe.m3fkxou2/artifacts/program",
   "sources": ["docs/audit/fibonacci_runtime.weave"]
 }
 ```
@@ -1393,33 +1182,32 @@ Args:
 ## LLM review
 
 ## Summary
-The final native program for `docs/audit/fibonacci_runtime.weave` is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source defines a runtime-input Fibonacci computation that intentionally resists constant folding. This semantic intent is preserved through WIR, raw LLVM, optimized LLVM, target assembly, and the linked executable. LLVM successfully inlines the `fib` function into `main`, promotes stack temporaries to registers, and emits a compact 25-instruction native `main` function that retains the input-dependent loop. All control-flow edges, signed comparisons, and arithmetic widths match the source semantics. The x86_64 ABI is respected, and no undefined behavior or memory unsafety is present.
+The final native program for `docs/audit/fibonacci_runtime.weave` is correct, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The source defines a runtime-driven Fibonacci computation that intentionally resists constant folding by reading `WEAVE_AUDIT_N` via `getenv`/`atoi`. The raw LLVM IR faithfully lowers the source, the optimized LLVM IR correctly inlines `fib` and preserves the input-dependent loop, and the final x86-64 assembly implements the expected iterative algorithm with proper signed comparisons and System V ABI compliance. No merge-blocking defects were found.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source (`fibonacci_runtime.weave`) defines a `fib` function with an input-dependent `while` loop and a `main` function that reads `WEAVE_AUDIT_N`, clamps the value to `[0, 46]` (defaulting to 10), and calls `fib`. The linked disassembly (`1150`-`119f`) contains the loop and calls to `getenv@plt` and `atoi@plt`, matching the expected runtime behavior.
-- Weave-to-WIR semantic preservation: PASS. The WIR preserves all source constructs, including the `le_i32`, `add_i32`, `lt_i32`, and `gt_i32` operations, the `while` loop, and the `getenv`/`atoi` calls with correct pointer and integer types.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR maps WIR operations to valid LLVM instructions (`icmp sle`, `add i32`, `icmp slt`, `icmp sgt`). Stack allocations (`alloca`) are used for local variables, and control flow matches the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, and has well-formed basic blocks and control-flow edges. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes all variables to SSA registers (0 `alloca`, 0 `store`), and preserves the input-dependent loop (`while.body1.i`). The `freeze i32` instruction on `atoi`'s return value safely handles potential undef values without altering semantics.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The source uses signed 32-bit integers. The optimized LLVM uses `icmp ugt` for the `> 46` check, which is safe because the preceding `lt_i32 n 0` check in `main` (compiled to `icmp slt` in raw LLVM) guarantees the value is non-negative. The `add i32` in the loop matches the source's `add_i32`. The final assembly uses `cmpl $0x2e, %eax` (unsigned `ja`) and `cmpl %ebx, %ecx` (signed `jle`), correctly matching the optimized IR.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The target assembly and disassembly show correct x86_64 SysV ABI usage: `rdi` for string pointer argument, `eax` for `atoi` return value, `rbx` as callee-saved register (saved with `pushq`/`popq`), and 16-byte stack alignment maintained. `main` returns `i32` in `eax` via `retq`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The program uses a string literal in `.rodata` and passes it to `getenv`. The null check (`testq %rax, %rax; je`) prevents calling `atoi` on a null pointer. The `freeze` instruction in optimized LLVM prevents UB from propagating undef values. No dynamic memory allocation is performed.
-- Target compatibility and native instruction validity: PASS. The target assembly specifies `x86_64-pc-linux-gnu` and uses standard instructions valid for the AMD EPYC 9V74 processor. The linked executable is a valid ELF64 binary.
-- Compiler-generated overhead remaining in final native code: PASS. The optimization record confirms `fib` was inlined into `main`. The analysis JSON shows 0 `alloca` and 0 `store` in optimized LLVM. The final `main` function is 25 instructions with no unnecessary stack traffic or redundant computations.
+- Source semantics and expected result: PASS. Source (`docs/audit/fibonacci_runtime.weave`) reads `WEAVE_AUDIT_N`, clamps to `[0, 46]` with fallback `10`, and computes Fibonacci iteratively. Expected: `fib(0)=0`, `fib(1)=1`, `fib(2)=1`, ..., `fib(46)=1836311903`.
+- Source-to-raw-LLVM semantic preservation: PASS. Raw LLVM IR declares `getenv`/`atoi`, defines `@main` and `@fib`, uses `icmp ne`, `icmp slt`, `icmp sgt`, `icmp sle`, and `add i32` matching source semantics. String literal `@.str0 = "WEAVE_AUDIT_N\0"` is correct.
+- Raw LLVM validity, SSA, and control flow: PASS. Raw LLVM has valid SSA, well-formed basic blocks, explicit `br` edges, and no `undef`/`poison` uses (analysis JSON: `poison_uses: 0`, `undef_uses: 0`).
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM inlines `fib` (optimization record confirms `Inlined` with `cost=-15005`), preserves the input-dependent loop via `while.body1.i`, and uses `freeze i32 %t3` to safely handle `atoi` nondeterminism. The `phi` nodes correctly track `previous`, `current`, and `index`.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source uses `i32` with signed semantics (`lt_i32`, `gt_i32`, `le_i32`). Raw LLVM uses `icmp slt`, `icmp sgt`, `icmp sle`. Optimized LLVM uses `icmp ult` for the `> 46` clamp (valid since `n` is non-negative after the `< 0` clamp) and `icmp ult` for the `< 2` check (valid since `n` is in `[0, 46]`). `add i32` matches source `add_i32`; no overflow for `n <= 46` (`fib(46) = 1836311903 < 2^31-1`).
+- Calls, return values, ABI, stack alignment, and register use: PASS. Assembly uses `leaq .L.str0(%rip), %rdi` + `callq getenv@PLT` (RDI arg, RAX return), `movq %rax, %rdi` + `callq atoi@PLT` (RDI arg, EAX return). `main` returns `i32` in `%eax`/`%rax`. Stack: `pushq %rbx` (8 bytes, maintains 16-byte alignment per SysV ABI), `popq %rbx`, `retq`. `%rbx` is callee-saved and correctly preserved.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. No dynamic allocation. Stack allocas in raw LLVM are optimized away. `getenv` null check (`testq %rax, %rax; je`) prevents null deref before `atoi`. `freeze` in optimized LLVM prevents UB from `atoi` poison. No leaks.
+- Target compatibility and native instruction validity: PASS. Target triple `x86_64-pc-linux-gnu` matches machine (AMD EPYC, Ubuntu 24.04, glibc 2.39). Instructions (`pushq`, `leaq`, `callq`, `testq`, `cmpl`, `jle`, `jb`, `ja`, `addl`, `incl`, `retq`) are valid x86-64. `.note.GNU-stack` section present (non-executable stack).
+- Compiler-generated overhead remaining in final native code: PASS. Optimized LLVM has 0 `alloca`, 0 `store`, 0 `load` (stack traffic eliminated). Final `main` is 25 instructions with 1 padding `nopw`. Loop body is 7 instructions (`movl`, `movl`, `addl`, `incl`, `movl`, `cmpl`, `jle`) using registers `%eax`, `%ecx`, `%edx`, `%esi`, `%ebx`—minimal and appropriate. No redundant spills or identity copies remain.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The `fib` algorithm uses a simple iterative loop. While optimal for space, it could be replaced with a closed-form formula or memoization if performance were critical, though this is a source-level algorithm choice, not a compiler overhead issue.
-- The optimization record notes that loop vectorization was missed due to the loop carrying dependencies. This is expected for a Fibonacci sequence and does not represent a compiler defect.
+- The loop-vectorization remarks (`NonReductionValueUsedOutsideLoop`, `CantComputeNumberOfIterations`) are non-blocking: the Fibonacci recurrence is inherently sequential and not amenable to vectorization. This is a source algorithm property, not compiler overhead.
+- The `regalloc` remarks about `LoopSpillReloadCopies` and `SpillReloadCopies` are non-blocking: the final assembly shows all loop variables in registers (`%eax`, `%ecx`, `%edx`, `%esi`, `%ebx`) with no actual spill instructions in the loop body.
+- The `freeze i32 %t3` in optimized LLVM is a conservative safety insertion by LLVM, not a compiler defect; it correctly prevents potential UB from `atoi` returning poison under aggressive optimization assumptions.
 
 ## Suggested verification
-- Execute the linked executable with `WEAVE_AUDIT_N=10` and verify the exit code is 55.
-- Execute with `WEAVE_AUDIT_N=46` and verify the exit code is 1836311903 (F(46)).
-- Execute with `WEAVE_AUDIT_N=47` and verify the exit code is 55 (fallback to 10).
-- Execute with `WEAVE_AUDIT_N=-5` and verify the exit code is 55 (fallback to 10).
-- Execute with `WEAVE_AUDIT_N` unset and verify the exit code is 55.
+- Runtime test: set `WEAVE_AUDIT_N=0`, `1`, `2`, `10`, `46` and verify exit codes `0`, `1`, `1`, `55`, `1836311903` respectively.
+- Runtime test: unset `WEAVE_AUDIT_N` and verify exit code `55` (default `n=10`).
+- Runtime test: set `WEAVE_AUDIT_N=-5` and `WEAVE_AUDIT_N=100` and verify exit code `55` (clamp to `10`).
+- Runtime test: set `WEAVE_AUDIT_N=abc` and verify graceful fallback behavior (atoi returns 0, which is in valid range, yielding fib(0)=0).
 
 <details>
 <summary>Raw model response</summary>
@@ -1427,32 +1215,31 @@ None found.
 ```text
 OK
 ## Summary
-The final native program for `docs/audit/fibonacci_runtime.weave` is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source defines a runtime-input Fibonacci computation that intentionally resists constant folding. This semantic intent is preserved through WIR, raw LLVM, optimized LLVM, target assembly, and the linked executable. LLVM successfully inlines the `fib` function into `main`, promotes stack temporaries to registers, and emits a compact 25-instruction native `main` function that retains the input-dependent loop. All control-flow edges, signed comparisons, and arithmetic widths match the source semantics. The x86_64 ABI is respected, and no undefined behavior or memory unsafety is present.
+The final native program for `docs/audit/fibonacci_runtime.weave` is correct, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The source defines a runtime-driven Fibonacci computation that intentionally resists constant folding by reading `WEAVE_AUDIT_N` via `getenv`/`atoi`. The raw LLVM IR faithfully lowers the source, the optimized LLVM IR correctly inlines `fib` and preserves the input-dependent loop, and the final x86-64 assembly implements the expected iterative algorithm with proper signed comparisons and System V ABI compliance. No merge-blocking defects were found.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source (`fibonacci_runtime.weave`) defines a `fib` function with an input-dependent `while` loop and a `main` function that reads `WEAVE_AUDIT_N`, clamps the value to `[0, 46]` (defaulting to 10), and calls `fib`. The linked disassembly (`1150`-`119f`) contains the loop and calls to `getenv@plt` and `atoi@plt`, matching the expected runtime behavior.
-- Weave-to-WIR semantic preservation: PASS. The WIR preserves all source constructs, including the `le_i32`, `add_i32`, `lt_i32`, and `gt_i32` operations, the `while` loop, and the `getenv`/`atoi` calls with correct pointer and integer types.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR maps WIR operations to valid LLVM instructions (`icmp sle`, `add i32`, `icmp slt`, `icmp sgt`). Stack allocations (`alloca`) are used for local variables, and control flow matches the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, and has well-formed basic blocks and control-flow edges. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes all variables to SSA registers (0 `alloca`, 0 `store`), and preserves the input-dependent loop (`while.body1.i`). The `freeze i32` instruction on `atoi`'s return value safely handles potential undef values without altering semantics.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The source uses signed 32-bit integers. The optimized LLVM uses `icmp ugt` for the `> 46` check, which is safe because the preceding `lt_i32 n 0` check in `main` (compiled to `icmp slt` in raw LLVM) guarantees the value is non-negative. The `add i32` in the loop matches the source's `add_i32`. The final assembly uses `cmpl $0x2e, %eax` (unsigned `ja`) and `cmpl %ebx, %ecx` (signed `jle`), correctly matching the optimized IR.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The target assembly and disassembly show correct x86_64 SysV ABI usage: `rdi` for string pointer argument, `eax` for `atoi` return value, `rbx` as callee-saved register (saved with `pushq`/`popq`), and 16-byte stack alignment maintained. `main` returns `i32` in `eax` via `retq`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The program uses a string literal in `.rodata` and passes it to `getenv`. The null check (`testq %rax, %rax; je`) prevents calling `atoi` on a null pointer. The `freeze` instruction in optimized LLVM prevents UB from propagating undef values. No dynamic memory allocation is performed.
-- Target compatibility and native instruction validity: PASS. The target assembly specifies `x86_64-pc-linux-gnu` and uses standard instructions valid for the AMD EPYC 9V74 processor. The linked executable is a valid ELF64 binary.
-- Compiler-generated overhead remaining in final native code: PASS. The optimization record confirms `fib` was inlined into `main`. The analysis JSON shows 0 `alloca` and 0 `store` in optimized LLVM. The final `main` function is 25 instructions with no unnecessary stack traffic or redundant computations.
+- Source semantics and expected result: PASS. Source (`docs/audit/fibonacci_runtime.weave`) reads `WEAVE_AUDIT_N`, clamps to `[0, 46]` with fallback `10`, and computes Fibonacci iteratively. Expected: `fib(0)=0`, `fib(1)=1`, `fib(2)=1`, ..., `fib(46)=1836311903`.
+- Source-to-raw-LLVM semantic preservation: PASS. Raw LLVM IR declares `getenv`/`atoi`, defines `@main` and `@fib`, uses `icmp ne`, `icmp slt`, `icmp sgt`, `icmp sle`, and `add i32` matching source semantics. String literal `@.str0 = "WEAVE_AUDIT_N\0"` is correct.
+- Raw LLVM validity, SSA, and control flow: PASS. Raw LLVM has valid SSA, well-formed basic blocks, explicit `br` edges, and no `undef`/`poison` uses (analysis JSON: `poison_uses: 0`, `undef_uses: 0`).
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM inlines `fib` (optimization record confirms `Inlined` with `cost=-15005`), preserves the input-dependent loop via `while.body1.i`, and uses `freeze i32 %t3` to safely handle `atoi` nondeterminism. The `phi` nodes correctly track `previous`, `current`, and `index`.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source uses `i32` with signed semantics (`lt_i32`, `gt_i32`, `le_i32`). Raw LLVM uses `icmp slt`, `icmp sgt`, `icmp sle`. Optimized LLVM uses `icmp ult` for the `> 46` clamp (valid since `n` is non-negative after the `< 0` clamp) and `icmp ult` for the `< 2` check (valid since `n` is in `[0, 46]`). `add i32` matches source `add_i32`; no overflow for `n <= 46` (`fib(46) = 1836311903 < 2^31-1`).
+- Calls, return values, ABI, stack alignment, and register use: PASS. Assembly uses `leaq .L.str0(%rip), %rdi` + `callq getenv@PLT` (RDI arg, RAX return), `movq %rax, %rdi` + `callq atoi@PLT` (RDI arg, EAX return). `main` returns `i32` in `%eax`/`%rax`. Stack: `pushq %rbx` (8 bytes, maintains 16-byte alignment per SysV ABI), `popq %rbx`, `retq`. `%rbx` is callee-saved and correctly preserved.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. No dynamic allocation. Stack allocas in raw LLVM are optimized away. `getenv` null check (`testq %rax, %rax; je`) prevents null deref before `atoi`. `freeze` in optimized LLVM prevents UB from `atoi` poison. No leaks.
+- Target compatibility and native instruction validity: PASS. Target triple `x86_64-pc-linux-gnu` matches machine (AMD EPYC, Ubuntu 24.04, glibc 2.39). Instructions (`pushq`, `leaq`, `callq`, `testq`, `cmpl`, `jle`, `jb`, `ja`, `addl`, `incl`, `retq`) are valid x86-64. `.note.GNU-stack` section present (non-executable stack).
+- Compiler-generated overhead remaining in final native code: PASS. Optimized LLVM has 0 `alloca`, 0 `store`, 0 `load` (stack traffic eliminated). Final `main` is 25 instructions with 1 padding `nopw`. Loop body is 7 instructions (`movl`, `movl`, `addl`, `incl`, `movl`, `cmpl`, `jle`) using registers `%eax`, `%ecx`, `%edx`, `%esi`, `%ebx`—minimal and appropriate. No redundant spills or identity copies remain.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The `fib` algorithm uses a simple iterative loop. While optimal for space, it could be replaced with a closed-form formula or memoization if performance were critical, though this is a source-level algorithm choice, not a compiler overhead issue.
-- The optimization record notes that loop vectorization was missed due to the loop carrying dependencies. This is expected for a Fibonacci sequence and does not represent a compiler defect.
+- The loop-vectorization remarks (`NonReductionValueUsedOutsideLoop`, `CantComputeNumberOfIterations`) are non-blocking: the Fibonacci recurrence is inherently sequential and not amenable to vectorization. This is a source algorithm property, not compiler overhead.
+- The `regalloc` remarks about `LoopSpillReloadCopies` and `SpillReloadCopies` are non-blocking: the final assembly shows all loop variables in registers (`%eax`, `%ecx`, `%edx`, `%esi`, `%ebx`) with no actual spill instructions in the loop body.
+- The `freeze i32 %t3` in optimized LLVM is a conservative safety insertion by LLVM, not a compiler defect; it correctly prevents potential UB from `atoi` returning poison under aggressive optimization assumptions.
 
 ## Suggested verification
-- Execute the linked executable with `WEAVE_AUDIT_N=10` and verify the exit code is 55.
-- Execute with `WEAVE_AUDIT_N=46` and verify the exit code is 1836311903 (F(46)).
-- Execute with `WEAVE_AUDIT_N=47` and verify the exit code is 55 (fallback to 10).
-- Execute with `WEAVE_AUDIT_N=-5` and verify the exit code is 55 (fallback to 10).
-- Execute with `WEAVE_AUDIT_N` unset and verify the exit code is 55.
+- Runtime test: set `WEAVE_AUDIT_N=0`, `1`, `2`, `10`, `46` and verify exit codes `0`, `1`, `1`, `55`, `1836311903` respectively.
+- Runtime test: unset `WEAVE_AUDIT_N` and verify exit code `55` (default `n=10`).
+- Runtime test: set `WEAVE_AUDIT_N=-5` and `WEAVE_AUDIT_N=100` and verify exit code `55` (clamp to `10`).
+- Runtime test: set `WEAVE_AUDIT_N=abc` and verify graceful fallback behavior (atoi returns 0, which is in valid range, yielding fib(0)=0).
 ```
 </details>
