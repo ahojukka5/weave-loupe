@@ -1,3 +1,3 @@
-"""weave-loupe — compiler evidence capture and analysis tools."""
+"""Capture, analyze, compare, and gate Weave compiler evidence."""
 
 __version__ = "0.1.0"
