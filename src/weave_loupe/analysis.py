@@ -9,9 +9,7 @@ from typing import Any
 from weave_loupe.bundle import Bundle
 
 _FUNCTION = re.compile(r"^\s*define\b")
-_LLVM_FUNCTION_NAME = re.compile(
-    r'^\s*define\b.*?@(?:"([^"]+)"|([-A-Za-z$._0-9]+))\('
-)
+_LLVM_FUNCTION_NAME = re.compile(r'^\s*define\b.*?@(?:"([^"]+)"|([-A-Za-z$._0-9]+))\(')
 _LABEL = re.compile(r"^\s*[-A-Za-z$._][-A-Za-z$._0-9]*:\s*(?:;.*)?$")
 _NUMERIC_LABEL = re.compile(r"^\s*\d+:\s*(?:;.*)?$")
 _ANON_SSA = re.compile(r"%\d+\b")
@@ -136,9 +134,7 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
             else:
                 details["direct_calls"].add(target)
 
-    runtime_functions = {
-        name for name in functions if name.startswith("weave_")
-    }
+    runtime_functions = {name for name in functions if name.startswith("weave_")}
     program_owned = llvm_functions | runtime_functions
     present_owned = program_owned & functions.keys()
     reachable = _reachable_functions(functions, present_owned, root="main")

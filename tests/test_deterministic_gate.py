@@ -26,8 +26,7 @@ def test_dead_native_code_overrides_model_ok() -> None:
     assert not verdict.passed
     assert verdict.code == "dead-native-code"
     assert verdict.reason == (
-        "unreachable program-owned native functions remain: "
-        "fib, weave_rt_contract_fail"
+        "unreachable program-owned native functions remain: fib, weave_rt_contract_fail"
     )
     assert "The model returned `OK`" in verdict.body
     assert "37" in verdict.body
