@@ -23,7 +23,20 @@ jobs:
         run: uv sync --group dev
 
       - name: Ruff check
-        run: uv run ruff check .
+        shell: bash
+        run: |
+          mkdir -p build/quality
+          set -o pipefail
+          uv run ruff check . 2>&1 | tee build/quality/ruff-check.log
+
+      - name: Upload quality diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-diagnostics-${{ github.run_id }}
+          path: build/quality
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Ruff format
         run: uv run ruff format --check .
