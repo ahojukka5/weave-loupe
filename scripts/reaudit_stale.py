@@ -165,8 +165,7 @@ def _report_states(
                 f"{report_identity.version or 'unknown'} to {identity.display}"
             )
         elif (
-            identity.source == "command"
-            and report_identity.version_source != "command"
+            identity.source == "command" and report_identity.version_source != "command"
         ):
             reason = (
                 "compiler identity source changed from "
