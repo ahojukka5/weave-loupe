@@ -24,4 +24,7 @@ def test_prompt_includes_complete_evidence_and_verdict_contract() -> None:
     assert "disassembly" in prompt
     assert "FAILED: <lowercase-kebab-code>" in prompt
     assert '"instructions": 2' in prompt
+    assert "adversarial release-gate reviewer" in prompt
+    assert "Verification matrix" in prompt
+    assert "insufficient-evidence" in prompt
     assert AUDIT_REPORT_TEMPLATE in prompt
