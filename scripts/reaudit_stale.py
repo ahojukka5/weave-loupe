@@ -158,7 +158,10 @@ def _read_report_identity(report: Path) -> tuple[datetime | None, str | None]:
     version: str | None = None
     for line in lines:
         if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
-            timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
+            try:
+                timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
+            except ValueError:
+                timestamp = None
         elif line.startswith(_VERSION_PREFIX) and line.endswith("`"):
             version = line[len(_VERSION_PREFIX) : -1]
         if timestamp is not None and version is not None:
@@ -168,7 +171,9 @@ def _read_report_identity(report: Path) -> tuple[datetime | None, str | None]:
 
 def _parse_time(value: str) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed.astimezone(UTC)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 def _audit(
@@ -220,12 +225,13 @@ def _render_summary(
     passed = sum(run.passed for run in runs)
     findings = sum(run.compiler_finding for run in runs)
     infrastructure = due_count - passed - findings
+    build_kind = "development" if identity.development else "release"
     lines = [
         "# Scheduled Weave audit refresh",
         "",
         f"- **Checked at:** `{now.replace(microsecond=0).isoformat()}`",
         f"- **Compiler:** `{identity.display}`",
-        f"- **Compiler build kind:** `{'development' if identity.development else 'release'}`",
+        f"- **Compiler build kind:** `{build_kind}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
         f"- **Passed:** `{passed}`",
