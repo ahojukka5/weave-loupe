@@ -71,7 +71,7 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
         )
 
     timeout = document.get("timeout_seconds", 5)
-    if not isinstance(timeout, int | float) or isinstance(timeout, bool):
+    if not isinstance(timeout, (int, float)) or isinstance(timeout, bool):
         raise RuntimeCasesError("timeout_seconds must be a number")
     timeout_seconds = float(timeout)
     if not 0 < timeout_seconds <= _MAX_TIMEOUT_SECONDS:
@@ -85,7 +85,9 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
 
     raw_cases = document.get("cases")
     if not isinstance(raw_cases, list) or not raw_cases:
-        raise RuntimeCasesError("runtime case document must contain a non-empty cases list")
+        raise RuntimeCasesError(
+            "runtime case document must contain a non-empty cases list"
+        )
 
     cases = tuple(_parse_case(item, index) for index, item in enumerate(raw_cases))
     names = [case.name for case in cases]
@@ -116,13 +118,14 @@ def execute_runtime_cases(
     executable = bundle.artifact_path("executable")
     if executable is None:
         raise RuntimeCasesError(
-            f"runtime cases configured in {configuration.path}, but no executable was captured"
+            f"runtime cases configured in {configuration.path}, "
+            "but no executable was captured"
         )
 
     results = [
         _execute_case(
             executable=executable,
-            source_directory=sources[0].resolve().parent,
+            working_directory=configuration.path.resolve().parent,
             configuration=configuration,
             case=case,
         )
@@ -154,6 +157,8 @@ def _parse_case(value: object, index: int) -> RuntimeCase:
         isinstance(argument, str) for argument in raw_args
     ):
         raise RuntimeCasesError(f"case {name!r} args must be a list of strings")
+    if any("\x00" in argument for argument in raw_args):
+        raise RuntimeCasesError(f"case {name!r} args must not contain NUL bytes")
 
     raw_environment = value.get("env", {})
     if not isinstance(raw_environment, dict):
@@ -161,10 +166,16 @@ def _parse_case(value: object, index: int) -> RuntimeCase:
     environment: dict[str, str | None] = {}
     for key, item in raw_environment.items():
         if not isinstance(key, str) or not key or "=" in key or "\x00" in key:
-            raise RuntimeCasesError(f"case {name!r} contains an invalid environment name")
+            raise RuntimeCasesError(
+                f"case {name!r} contains an invalid environment name"
+            )
         if item is not None and not isinstance(item, str):
             raise RuntimeCasesError(
                 f"case {name!r} environment values must be strings or null"
+            )
+        if isinstance(item, str) and "\x00" in item:
+            raise RuntimeCasesError(
+                f"case {name!r} environment values must not contain NUL bytes"
             )
         environment[key] = item
 
@@ -177,7 +188,9 @@ def _parse_case(value: object, index: int) -> RuntimeCase:
         raise RuntimeCasesError(f"case {name!r} requires an expect object")
     exit_code = expectation.get("exit_code")
     if not isinstance(exit_code, int) or isinstance(exit_code, bool):
-        raise RuntimeCasesError(f"case {name!r} expect.exit_code must be an integer")
+        raise RuntimeCasesError(
+            f"case {name!r} expect.exit_code must be an integer"
+        )
     if not -255 <= exit_code <= 255:
         raise RuntimeCasesError(
             f"case {name!r} expect.exit_code must be between -255 and 255"
@@ -208,7 +221,7 @@ def _optional_string(
 def _execute_case(
     *,
     executable: Path,
-    source_directory: Path,
+    working_directory: Path,
     configuration: RuntimeCases,
     case: RuntimeCase,
 ) -> dict[str, Any]:
@@ -226,7 +239,7 @@ def _execute_case(
             command,
             input=case.stdin.encode(),
             capture_output=True,
-            cwd=source_directory,
+            cwd=working_directory,
             env=environment,
             check=False,
             timeout=configuration.timeout_seconds,
@@ -237,8 +250,8 @@ def _execute_case(
     except subprocess.TimeoutExpired as exc:
         timed_out = True
         return_code = None
-        stdout = exc.stdout or b""
-        stderr = exc.stderr or b""
+        stdout = _timeout_bytes(exc.stdout)
+        stderr = _timeout_bytes(exc.stderr)
 
     stdout_text = stdout.decode("utf-8", errors="replace")
     stderr_text = stderr.decode("utf-8", errors="replace")
@@ -275,6 +288,14 @@ def _execute_case(
         "passed": not failures,
         "failures": failures,
     }
+
+
+def _timeout_bytes(value: bytes | str | None) -> bytes:
+    if isinstance(value, bytes):
+        return value
+    if isinstance(value, str):
+        return value.encode()
+    return b""
 
 
 def _capture_text(value: bytes) -> str:
