@@ -29,9 +29,12 @@ def test_diff_parser() -> None:
     assert args.before == Path("a.loupe")
 
 
-def test_audit_parser_supports_multiple_sources() -> None:
-    args = build_parser().parse_args(["audit", "a.weave", "b.weave"])
+def test_audit_parser_supports_multiple_sources_and_report_output() -> None:
+    args = build_parser().parse_args(
+        ["audit", "a.weave", "b.weave", "--report-out", "a.md"]
+    )
     assert args.weave_files == [Path("a.weave"), Path("b.weave")]
+    assert args.report_out == Path("a.md")
 
 
 def test_main_dispatches_capture() -> None:

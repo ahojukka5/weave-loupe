@@ -18,6 +18,10 @@ import sys
 
 args = sys.argv[1:]
 
+if args == ['--version']:
+    print('weavec test-1.0')
+    raise SystemExit(0)
+
 
 def value(flag):
     return pathlib.Path(args[args.index(flag) + 1])
@@ -33,6 +37,21 @@ value('--emit-llvm').write_text(
     '  %x = add i32 1, 0\\n'
     '  ret i32 %x\\n'
     '}\\n'
+)
+value('--emit-optimized-llvm').write_text(
+    'define i32 @main() {\\n'
+    'entry:\\n'
+    '  ret i32 1\\n'
+    '}\\n'
+)
+value('--emit-assembly').write_text('main:\\n  mov $1, %eax\\n  ret\\n')
+value('--emit-disassembly').write_text(
+    '0000000000000000 <main>:\\n'
+    '   0: b8 01 00 00 00 mov $0x1,%eax\\n'
+    '   5: c3 ret\\n'
+)
+value('--optimization-record').write_text(
+    '--- !Passed\\nPass: instcombine\\nName: Simplify\\n...\\n'
 )
 value('--diagnostics-json').write_text(
     json.dumps(

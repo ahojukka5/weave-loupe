@@ -1,4 +1,4 @@
-"""``loupe audit`` — LLM review of a complete compiler-evidence bundle."""
+"""``loupe audit`` — gated LLM review of compiler evidence."""
 
 from __future__ import annotations
 
@@ -8,6 +8,13 @@ import tempfile
 from pathlib import Path
 
 from weave_loupe.analysis import analyze_bundle
+from weave_loupe.audit_result import (
+    AuditProtocolError,
+    collect_audit_metadata,
+    metadata_json,
+    parse_audit_response,
+    render_audit_report,
+)
 from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.templates import render_audit_prompt
@@ -20,9 +27,12 @@ def run_audit(
     weavec: Path | None,
     llvm_out: Path | None,
     wir_out: Path | None,
+    report_out: Path | None,
     max_tokens: int,
     verbose: bool,
 ) -> int:
+    response = ""
+    report = ""
     try:
         with tempfile.TemporaryDirectory(prefix="loupe-audit-") as temp_dir:
             bundle_path = Path(temp_dir) / "audit.loupe"
@@ -48,6 +58,10 @@ def run_audit(
 
             wir = bundle.artifact_text("wir") or ""
             llvm_ir = bundle.artifact_text("llvm") or ""
+            optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
+            assembly = bundle.artifact_text("assembly") or ""
+            disassembly = bundle.artifact_text("disassembly") or ""
+            optimization_record = bundle.artifact_text("optimization_record") or ""
             if wir_out is not None:
                 wir_out.parent.mkdir(parents=True, exist_ok=True)
                 wir_out.write_text(wir, encoding="utf-8")
@@ -65,36 +79,69 @@ def run_audit(
                 )
             analysis = analyze_bundle(bundle)
             diagnostics = bundle.artifact_json("diagnostics")
+            metadata = collect_audit_metadata(
+                sources=weave_files,
+                weavec=weavec,
+                model=model,
+                bundle=bundle,
+            )
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
                 weave_source="\n\n".join(source_blocks),
                 wir=wir,
                 llvm_ir=llvm_ir,
+                optimized_llvm=optimized_llvm,
+                assembly=assembly,
+                disassembly=disassembly,
+                optimization_record=optimization_record,
                 diagnostics_json=json.dumps(
                     diagnostics, indent=2, sort_keys=True, ensure_ascii=False
                 ),
-                trace_summary_json=json.dumps(
-                    analysis["trace"], indent=2, sort_keys=True
+                analysis_json=json.dumps(
+                    analysis, indent=2, sort_keys=True, ensure_ascii=False
                 ),
-                llvm_metrics_json=json.dumps(
-                    analysis["llvm"], indent=2, sort_keys=True
-                ),
+                metadata_json=metadata_json(metadata),
             )
 
-        if verbose:
-            print("=== loupe audit prompt begin ===", file=sys.stderr)
-            print(prompt, file=sys.stderr, end="")
-            if not prompt.endswith("\n"):
-                print(file=sys.stderr)
-            print("=== loupe audit prompt end ===", file=sys.stderr)
+            if verbose:
+                print("=== loupe audit prompt begin ===", file=sys.stderr)
+                print(prompt, file=sys.stderr, end="")
+                if not prompt.endswith("\n"):
+                    print(file=sys.stderr)
+                print("=== loupe audit prompt end ===", file=sys.stderr)
 
-        config = load_config(model=model, max_tokens=max_tokens)
-        report = chat_completion(config, prompt)
-    except (OSError, BundleError, LlmError) as exc:
+            config = load_config(model=model, max_tokens=max_tokens)
+            response = chat_completion(config, prompt)
+            verdict = parse_audit_response(response)
+            report = render_audit_report(
+                verdict=verdict,
+                metadata=metadata,
+                model_response=response,
+            )
+
+        sys.stdout.write(report)
+        if not report.endswith("\n"):
+            sys.stdout.write("\n")
+
+        if not verdict.passed:
+            if report_out is not None and report_out.exists():
+                report_out.unlink()
+            print(
+                f"loupe audit: FAILED [{verdict.code}]: {verdict.reason}",
+                file=sys.stderr,
+            )
+            return 2
+
+        if report_out is not None:
+            report_out.parent.mkdir(parents=True, exist_ok=True)
+            report_out.write_text(report, encoding="utf-8")
+        return 0
+    except (OSError, BundleError, LlmError, AuditProtocolError) as exc:
+        if report_out is not None and report_out.exists():
+            report_out.unlink()
+        if response:
+            sys.stdout.write(response)
+            if not response.endswith("\n"):
+                sys.stdout.write("\n")
         print(f"loupe audit: {exc}", file=sys.stderr)
         return 1
-
-    sys.stdout.write(report)
-    if not report.endswith("\n"):
-        sys.stdout.write("\n")
-    return 0

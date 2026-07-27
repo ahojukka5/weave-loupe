@@ -51,6 +51,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--weavec", type=Path, default=None)
     audit.add_argument("--wir-out", type=Path, default=None)
     audit.add_argument("--llvm-out", type=Path, default=None)
+    audit.add_argument(
+        "--report-out",
+        type=Path,
+        default=None,
+        help="Write a Markdown report only when the audit verdict is OK.",
+    )
     audit.add_argument("--max-tokens", type=int, default=4096)
     audit.add_argument("--verbose", "-v", action="store_true")
     return parser
@@ -86,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
             weavec=args.weavec,
             llvm_out=args.llvm_out,
             wir_out=args.wir_out,
+            report_out=args.report_out,
             max_tokens=args.max_tokens,
             verbose=args.verbose,
         )

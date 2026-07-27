@@ -3,58 +3,64 @@
 from __future__ import annotations
 
 AUDIT_REPORT_TEMPLATE = """\
-# Weave Loupe Audit Report
-
 ## Summary
-State overall correctness risk and whether the emitted LLVM is performance-ready.
-Attribute each important observation to source, WIR, or LLVM generation.
+State the concrete audit conclusion. Attribute each important observation to
+Weave source, WIR, raw LLVM, optimized LLVM, target assembly, linked executable
+disassembly, or the optimization record.
 
-## Serious issues
-List correctness, safety, undefined-behavior, control-flow, SSA, or lowering
-problems. Use `None found.` when evidence does not support a serious issue.
+## Blocking findings
+List only findings that justify a failed gate: incorrect behavior, invalid SSA
+or IR, undefined behavior, memory unsafety or leakage, target incompatibility,
+or substantial compiler-generated overhead that remains in optimized LLVM or
+final machine code. Use `None found.` when no blocking finding is supported.
 
-For each issue use:
+For each finding use:
 
-### Issue: <short title>
+### Finding: <short title>
+- Code: lowercase-kebab-case
 - Severity: critical | high | medium
-- Stage: Weave | WIR | LLVM
+- Stage: Weave | WIR | raw LLVM | optimized LLVM | native code
 - Location: function or source range
 - Evidence: concrete artifact evidence
-- Why it matters: concrete failure mode
-- Suggestion: specific fix
+- Failure mode: concrete consequence
+- Required fix: specific correction
 
-## Performance opportunities
-Identify avoidable instructions, memory traffic, control flow, missed folding,
-or other work. Distinguish algorithmic cost from compiler-generated overhead.
+## Non-blocking opportunities
+Identify worthwhile but non-gating improvements. Distinguish source algorithm
+cost from compiler-generated overhead. Raw LLVM stack traffic or temporary
+instructions are not defects when optimized LLVM and final native code remove
+them.
 
-For each opportunity use:
-
-### Opportunity: <short title>
-- Impact: high | medium | low
-- Stage: Weave | WIR | LLVM
-- Location: function, trace action, or source range
-- Evidence: concrete artifact evidence
-- Ideal shape: tighter result
-- Suggestion: specific compiler or source change
-
-## Algorithmic notes
-Discuss asymptotic complexity and better algorithms separately from lowering.
-Use `None found.` when the source algorithm is already appropriate.
-
-## Suggested next steps
-Number the highest-value follow-ups, most important first.
+## Suggested verification
+List focused tests, measurements, or comparisons that would increase confidence.
 """
 
 AUDIT_PROMPT_TEMPLATE = """\
-You are an expert Weave, WIR, and LLVM compiler reviewer.
+You are the release-gate reviewer for the Weave compiler toolchain.
 
-Inspect the complete evidence bundle below. We want generated LLVM that is as
-close as practical to the optimum shape for the source algorithm. Do not invent
-problems. Attribute each finding to the stage that introduced it. Use source and
-WIR provenance comments, trace actions, diagnostics, and structural metrics as
-supporting evidence.
+Your first output line is a strict machine protocol. It MUST be exactly one of:
+
+OK
+FAILED: <lowercase-kebab-code>: <one-line reason>
+
+Do not emit a preamble, Markdown fence, heading, or whitespace before that line.
+After it, write the Markdown review using the supplied template.
+
+Return FAILED only when the evidence supports a merge-blocking defect:
+incorrect behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety
+or memory leakage, target incompatibility, or substantial compiler-generated
+overhead that remains in optimized LLVM or final machine code. A speculative
+idea, style preference, source-level algorithm alternative, or inefficiency
+that disappears during LLVM optimization is non-blocking. Do not invent
+problems. When evidence is incomplete, state the limitation without converting
+it into a failure unless the missing evidence itself makes the claimed result
+unverifiable.
 
 Source paths: {source_path}
+
+=== Reproducibility metadata JSON ===
+{metadata_json}
+=== End reproducibility metadata ===
 
 === Weave source ===
 {weave_source}
@@ -64,21 +70,33 @@ Source paths: {source_path}
 {wir}
 === End WIR ===
 
-=== LLVM IR ===
+=== Raw LLVM IR ===
 {llvm_ir}
-=== End LLVM IR ===
+=== End raw LLVM IR ===
+
+=== Optimized LLVM IR ===
+{optimized_llvm}
+=== End optimized LLVM IR ===
+
+=== Target assembly ===
+{assembly}
+=== End target assembly ===
+
+=== Linked executable disassembly ===
+{disassembly}
+=== End linked executable disassembly ===
+
+=== LLVM optimization record ===
+{optimization_record}
+=== End optimization record ===
 
 === Diagnostics JSON ===
 {diagnostics_json}
 === End diagnostics ===
 
-=== Trace summary JSON ===
-{trace_summary_json}
-=== End trace summary ===
-
-=== LLVM metrics JSON ===
-{llvm_metrics_json}
-=== End LLVM metrics ===
+=== Complete analysis JSON ===
+{analysis_json}
+=== End analysis ===
 
 === Report template ===
 {report_template}
@@ -92,18 +110,30 @@ def render_audit_prompt(
     weave_source: str,
     wir: str,
     llvm_ir: str,
+    optimized_llvm: str = "",
+    assembly: str = "",
+    disassembly: str = "",
+    optimization_record: str = "",
     diagnostics_json: str = "null",
-    trace_summary_json: str = "{}",
-    llvm_metrics_json: str = "{}",
+    analysis_json: str = "{}",
+    metadata_json: str = "{}",
 ) -> str:
     """Insert evidence without treating artifact braces as format syntax."""
-    return (
-        AUDIT_PROMPT_TEMPLATE.replace("{source_path}", source_path)
-        .replace("{weave_source}", weave_source)
-        .replace("{wir}", wir)
-        .replace("{llvm_ir}", llvm_ir)
-        .replace("{diagnostics_json}", diagnostics_json)
-        .replace("{trace_summary_json}", trace_summary_json)
-        .replace("{llvm_metrics_json}", llvm_metrics_json)
-        .replace("{report_template}", AUDIT_REPORT_TEMPLATE)
-    )
+    replacements = {
+        "{source_path}": source_path,
+        "{weave_source}": weave_source,
+        "{wir}": wir,
+        "{llvm_ir}": llvm_ir,
+        "{optimized_llvm}": optimized_llvm,
+        "{assembly}": assembly,
+        "{disassembly}": disassembly,
+        "{optimization_record}": optimization_record,
+        "{diagnostics_json}": diagnostics_json,
+        "{analysis_json}": analysis_json,
+        "{metadata_json}": metadata_json,
+        "{report_template}": AUDIT_REPORT_TEMPLATE,
+    }
+    prompt = AUDIT_PROMPT_TEMPLATE
+    for marker, value in replacements.items():
+        prompt = prompt.replace(marker, value)
+    return prompt

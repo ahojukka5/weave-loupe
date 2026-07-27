@@ -34,3 +34,5 @@ presentation format.
   JSON.
 - `loupe diff` compares structural LLVM metrics and stable trace actions.
 - `loupe audit` sends the complete evidence to an OpenAI-compatible model.
+
+- [Pull-request audit gate](audit-gate.md)
