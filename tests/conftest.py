@@ -11,7 +11,7 @@ import pytest
 def fake_weavec(tmp_path: Path) -> Path:
     script = tmp_path / "weavec"
     script.write_text(
-        """#!/usr/bin/env python3
+        r"""#!/usr/bin/env python3
 import json
 import pathlib
 import sys
