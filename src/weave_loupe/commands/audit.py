@@ -99,7 +99,6 @@ def run_audit(
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
                 weave_source=weave_source,
-                wir=wir,
                 llvm_ir=llvm_ir,
                 optimized_llvm=optimized_llvm,
                 assembly=assembly,
@@ -124,7 +123,6 @@ def run_audit(
                     report,
                     [
                         ("Weave source", "lisp", weave_source),
-                        ("WIR", "lisp", wir),
                         ("Raw LLVM IR", "llvm", llvm_ir),
                         ("Optimized LLVM IR", "llvm", optimized_llvm),
                         ("Target assembly", "asm", assembly),
