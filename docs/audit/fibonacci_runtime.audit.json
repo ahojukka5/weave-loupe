@@ -1,0 +1,103 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "missing-input-defaults-to-ten",
+      "expect": {
+        "exit_code": 55,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "zero",
+      "env": {
+        "WEAVE_AUDIT_N": "0"
+      },
+      "expect": {
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "one",
+      "env": {
+        "WEAVE_AUDIT_N": "1"
+      },
+      "expect": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "two",
+      "env": {
+        "WEAVE_AUDIT_N": "2"
+      },
+      "expect": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "ten",
+      "env": {
+        "WEAVE_AUDIT_N": "10"
+      },
+      "expect": {
+        "exit_code": 55,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "twelve",
+      "env": {
+        "WEAVE_AUDIT_N": "12"
+      },
+      "expect": {
+        "exit_code": 144,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "negative-falls-back",
+      "env": {
+        "WEAVE_AUDIT_N": "-1"
+      },
+      "expect": {
+        "exit_code": 55,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "too-large-falls-back",
+      "env": {
+        "WEAVE_AUDIT_N": "47"
+      },
+      "expect": {
+        "exit_code": 55,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "non-numeric-atoi-zero",
+      "env": {
+        "WEAVE_AUDIT_N": "abc"
+      },
+      "expect": {
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}
