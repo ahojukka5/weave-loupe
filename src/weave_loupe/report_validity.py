@@ -130,8 +130,33 @@ def evaluate_report(
     max_age: timedelta,
     force: bool = False,
 ) -> ValidityResult:
-    """Evaluate one report against current inputs, compiler, auditor, and time."""
-    identity = read_report_identity(report)
+    """Parse and evaluate one report against the current audit environment."""
+    return evaluate_identity(
+        report=report,
+        source=source,
+        identity=read_report_identity(report),
+        compiler_identity=compiler_identity,
+        compiler_binary_sha256=compiler_binary_sha256,
+        auditor=auditor,
+        now=now,
+        max_age=max_age,
+        force=force,
+    )
+
+
+def evaluate_identity(
+    *,
+    report: Path,
+    source: Path,
+    identity: ReportIdentity,
+    compiler_identity: CompilerVersion,
+    compiler_binary_sha256: str,
+    auditor: AuditorIdentity,
+    now: datetime,
+    max_age: timedelta,
+    force: bool = False,
+) -> ValidityResult:
+    """Evaluate an already parsed identity against current inputs and tools."""
     reasons: list[str] = []
     if force:
         reasons.append("manual force")
