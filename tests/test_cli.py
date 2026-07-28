@@ -50,6 +50,8 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
             "z-ai/glm-5.2",
             "--llm-endpoint",
             "https://example.test/v1",
+            "--max-tokens",
+            "4096",
             "--max-age-days",
             "14",
             "--json-out",
@@ -62,6 +64,7 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
     assert args.weavec == Path("bin/weavec")
     assert args.model == "z-ai/glm-5.2"
     assert args.llm_endpoint == "https://example.test/v1"
+    assert args.max_tokens == 4096
     assert args.max_age_days == 14
     assert args.json_out == Path("validity.json")
 
@@ -74,6 +77,7 @@ def test_verify_report_identity_defaults_to_environment(monkeypatch) -> None:
 
     assert args.model == "configured-model"
     assert args.llm_endpoint == "https://example.test/v1"
+    assert args.max_tokens is None
 
 
 def test_main_dispatches_capture() -> None:
@@ -96,6 +100,8 @@ def test_main_dispatches_report_verification() -> None:
                 "z-ai/glm-5.2",
                 "--llm-endpoint",
                 "https://example.test/v1",
+                "--max-tokens",
+                "4096",
             ]
         )
     assert result == 2
@@ -105,6 +111,7 @@ def test_main_dispatches_report_verification() -> None:
         weavec=Path("weavec"),
         model="z-ai/glm-5.2",
         endpoint="https://example.test/v1",
+        max_tokens=4096,
         max_age_days=30,
         json_out=None,
     )
