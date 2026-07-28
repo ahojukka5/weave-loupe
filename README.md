@@ -54,9 +54,10 @@ The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
 include the complete source, readable WIR, raw and optimized LLVM, assembly,
-linked native disassembly, optimization remarks, direct runtime observations,
-diagnostics, deterministic analysis, build manifest, and compiler trace, together
-with timestamps, Git SHAs, hashes, and machine specifications.
+linked native disassembly, optimization remarks, native optimization budget,
+direct runtime observations, diagnostics, deterministic analysis, build manifest,
+and compiler trace, together with timestamps, Git SHAs, hashes, and machine
+specifications.
 
 The report also records the normalized LLM endpoint, requested model, maximum
 tokens, temperature, exact prompt SHA-256, canonical request SHA-256, and any
@@ -64,7 +65,7 @@ provider-returned model, response ID, system fingerprint, finish reason, creatio
 time, and token usage. URL credentials, query parameters, fragments, and API keys
 are never published.
 
-Verify later that a report still covers the current source, runtime matrix,
+Verify later that a report still covers the current source, audit sidecar,
 compiler executable, audit implementation, reviewer request, complete published
 Markdown, and validity period without compiling or calling an LLM:
 
@@ -88,12 +89,15 @@ Markdown, including request and provider provenance, model review, and verbose
 compiler evidence. This detects accidental or unsealed manual edits; it is not a
 digital signature and does not prove who produced a report.
 
-An adjacent `foo.audit.json` file may define exact native executions for
-`foo.weave`: arguments, environment, standard input, expected exit status, and
-expected output streams. Loupe runs those cases against the exact captured
-executable, hashes the observations, and deterministically rejects a report when
-native behavior disagrees even when the reviewing model returns `OK`. See the
-[audit corpus](docs/audit/README.md) and the
+An adjacent `foo.audit.json` file may define exact native executions and a
+versioned native optimization budget. Runtime cases describe arguments,
+environment, standard input, expected exit status, and expected output streams.
+Native budgets bound linked-executable function counts, instructions, padding,
+and calls. Loupe deterministically rejects semantic mismatches or exceeded
+final-code limits even when the reviewing model returns `OK`.
+
+See the [native optimization budget guide](docs/native-budgets.md), the
+[audit corpus](docs/audit/README.md), and the
 [pull-request audit gate](docs/audit-gate.md).
 
 See the [documentation index](docs/index.md) and the complete
