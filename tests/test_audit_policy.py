@@ -24,6 +24,7 @@ def test_validity_envelope_sets_exact_thirty_day_deadline() -> None:
         "invalidate_on_input_hash_change": True,
         "invalidate_on_compiler_binary_change": True,
         "invalidate_on_auditor_fingerprint_change": True,
+        "invalidate_on_model_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }
@@ -85,6 +86,7 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "Auditor invalidation:** `any audit implementation fingerprint change`"
         in report
     )
+    assert "Model invalidation:** `any configured LLM model change`" in report
     assert "Auditor content SHA-256:** `auditor`" in report
     assert (
         "Development compiler invalidation:** `any compiler version change`" in report
