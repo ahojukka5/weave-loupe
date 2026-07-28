@@ -170,9 +170,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
         elif line.startswith(_PROMPT_TOKENS_PREFIX) and line.endswith("`"):
             prompt_tokens = _optional_int(line[len(_PROMPT_TOKENS_PREFIX) : -1])
         elif line.startswith(_COMPLETION_TOKENS_PREFIX) and line.endswith("`"):
-            completion_tokens = _optional_int(
-                line[len(_COMPLETION_TOKENS_PREFIX) : -1]
-            )
+            completion_tokens = _optional_int(line[len(_COMPLETION_TOKENS_PREFIX) : -1])
         elif line.startswith(_TOTAL_TOKENS_PREFIX) and line.endswith("`"):
             total_tokens = _optional_int(line[len(_TOTAL_TOKENS_PREFIX) : -1])
         elif line.startswith(REPORT_CONTENT_PREFIX) and line.endswith("`"):
