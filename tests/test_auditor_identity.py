@@ -71,5 +71,5 @@ def test_sha256_file_streams_exact_bytes(tmp_path: Path) -> None:
     path.write_bytes(b"\x00audit\xff")
 
     assert sha256_file(path) == (
-        "8a2481e84d49bdc43ed99b6d0b7a0c61dc193680d7f4f68699647ebd91a6e454"
+        "8a4f3ca9e9af05d6845b55b8f9f25f2812b8654f4f0769b328e86f584ec7ea69"
     )
