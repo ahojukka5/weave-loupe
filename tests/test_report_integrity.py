@@ -43,7 +43,7 @@ def test_content_change_invalidates_seal() -> None:
     assert integrity.recorded_sha256 != integrity.calculated_sha256
 
 
-def test_duplicate_envelope_seals_are_rejected() -> None:
+def test_duplicate_reproducibility_seals_are_rejected() -> None:
     sealed = seal_audit_report(_report())
     duplicate = sealed.replace(
         "## Reproducibility\n\n",
@@ -56,7 +56,23 @@ def test_duplicate_envelope_seals_are_rejected() -> None:
     assert integrity.seal_count == 2
 
 
-def test_model_prose_cannot_spoof_the_envelope_seal() -> None:
+def test_relocated_seal_is_rejected() -> None:
+    sealed = seal_audit_report(_report())
+    seal_line = next(
+        line for line in sealed.splitlines() if line.startswith(REPORT_CONTENT_PREFIX)
+    )
+    relocated = sealed.replace(f"{seal_line}\n", "").replace(
+        "# Weave Loupe Audit Report\n",
+        f"# Weave Loupe Audit Report\n{seal_line}\n",
+    )
+
+    integrity = inspect_report_integrity(relocated)
+
+    assert not integrity.valid
+    assert integrity.seal_count == 0
+
+
+def test_model_prose_cannot_spoof_the_reproducibility_seal() -> None:
     report = _report().replace(
         "No defect.\n",
         f"No defect.\n\n{REPORT_CONTENT_PREFIX}{'0' * 64}`\n",
