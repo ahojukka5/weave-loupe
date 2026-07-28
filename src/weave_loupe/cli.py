@@ -87,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get("WEAVE_LLM_MODEL"),
         help="Current review model; defaults to WEAVE_LLM_MODEL when set.",
     )
+    verify.add_argument(
+        "--llm-endpoint",
+        default=os.environ.get("WEAVE_LLM_ENDPOINT"),
+        help="Current LLM endpoint; defaults to WEAVE_LLM_ENDPOINT when set.",
+    )
     verify.add_argument("--max-age-days", type=int, default=30)
     verify.add_argument("--json-out", type=Path, default=None)
     return parser
@@ -132,6 +137,7 @@ def main(argv: list[str] | None = None) -> int:
             source=args.source,
             weavec=args.weavec,
             model=args.model,
+            endpoint=args.llm_endpoint,
             max_age_days=args.max_age_days,
             json_out=args.json_out,
         )
