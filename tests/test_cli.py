@@ -46,6 +46,8 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
             "source.weave",
             "--weavec",
             "bin/weavec",
+            "--model",
+            "z-ai/glm-5.2",
             "--max-age-days",
             "14",
             "--json-out",
@@ -56,8 +58,17 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
     assert args.report == Path("a.md")
     assert args.source == Path("source.weave")
     assert args.weavec == Path("bin/weavec")
+    assert args.model == "z-ai/glm-5.2"
     assert args.max_age_days == 14
     assert args.json_out == Path("validity.json")
+
+
+def test_verify_report_model_defaults_to_environment(monkeypatch) -> None:
+    monkeypatch.setenv("WEAVE_LLM_MODEL", "configured-model")
+
+    args = build_parser().parse_args(["verify-report", "a.md"])
+
+    assert args.model == "configured-model"
 
 
 def test_main_dispatches_capture() -> None:
@@ -76,6 +87,8 @@ def test_main_dispatches_report_verification() -> None:
                 "a.weave",
                 "--weavec",
                 "weavec",
+                "--model",
+                "z-ai/glm-5.2",
             ]
         )
     assert result == 2
@@ -83,6 +96,7 @@ def test_main_dispatches_report_verification() -> None:
         report=Path("a.md"),
         source=Path("a.weave"),
         weavec=Path("weavec"),
+        model="z-ai/glm-5.2",
         max_age_days=30,
         json_out=None,
     )

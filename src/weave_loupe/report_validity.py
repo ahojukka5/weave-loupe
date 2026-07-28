@@ -15,6 +15,7 @@ _VERSION_PREFIX = "- **weavec version:** `"
 _VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
 _COMPILER_BINARY_PREFIX = "- **weavec binary SHA-256:** `"
 _AUDITOR_PREFIX = "- **Auditor content SHA-256:** `"
+_MODEL_PREFIX = "- **LLM model:** `"
 _SOURCE_INPUT = re.compile(
     r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
     r"`(?P<sha256>[0-9a-f]{64})`$"
@@ -34,6 +35,7 @@ class ReportIdentity:
     version_source: str | None
     compiler_binary_sha256: str | None
     auditor_sha256: str | None
+    model: str | None
     source_path: str | None
     source_sha256: str | None
     runtime_path: str | None
@@ -70,6 +72,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
     version_source: str | None = None
     compiler_binary_sha256: str | None = None
     auditor_sha256: str | None = None
+    model: str | None = None
     source_path: str | None = None
     source_sha256: str | None = None
     runtime_path: str | None = None
@@ -95,6 +98,8 @@ def read_report_identity(report: Path) -> ReportIdentity:
             compiler_binary_sha256 = line[len(_COMPILER_BINARY_PREFIX) : -1]
         elif line.startswith(_AUDITOR_PREFIX) and line.endswith("`"):
             auditor_sha256 = line[len(_AUDITOR_PREFIX) : -1]
+        elif line.startswith(_MODEL_PREFIX) and line.endswith("`"):
+            model = line[len(_MODEL_PREFIX) : -1]
         elif in_inputs:
             source_match = _SOURCE_INPUT.fullmatch(line)
             if source_match is not None:
@@ -112,6 +117,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
         version_source=version_source,
         compiler_binary_sha256=compiler_binary_sha256,
         auditor_sha256=auditor_sha256,
+        model=model,
         source_path=source_path,
         source_sha256=source_sha256,
         runtime_path=runtime_path,
@@ -129,6 +135,7 @@ def evaluate_report(
     now: datetime,
     max_age: timedelta,
     force: bool = False,
+    current_model: str | None = None,
 ) -> ValidityResult:
     """Parse and evaluate one report against the current audit environment."""
     return evaluate_identity(
@@ -141,6 +148,7 @@ def evaluate_report(
         now=now,
         max_age=max_age,
         force=force,
+        current_model=current_model,
     )
 
 
@@ -155,6 +163,7 @@ def evaluate_identity(
     now: datetime,
     max_age: timedelta,
     force: bool = False,
+    current_model: str | None = None,
 ) -> ValidityResult:
     """Evaluate an already parsed identity against current inputs and tools."""
     reasons: list[str] = []
@@ -199,6 +208,14 @@ def evaluate_identity(
     elif identity.auditor_sha256 != auditor.sha256:
         reasons.append("audit implementation changed since audit")
 
+    if current_model is not None:
+        if identity.model is None:
+            reasons.append("report does not record LLM model")
+        elif identity.model != current_model:
+            reasons.append(
+                f"LLM model changed from {identity.model} to {current_model}"
+            )
+
     if identity.timestamp is not None and now - identity.timestamp >= max_age:
         reasons.append(f"report age is at least {max_age.days} days")
     if compiler_identity.development and identity.version != compiler_identity.display:
@@ -237,6 +254,7 @@ def _empty_identity() -> ReportIdentity:
         version_source=None,
         compiler_binary_sha256=None,
         auditor_sha256=None,
+        model=None,
         source_path=None,
         source_sha256=None,
         runtime_path=None,

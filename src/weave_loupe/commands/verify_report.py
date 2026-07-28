@@ -20,6 +20,7 @@ def run_verify_report(
     report: Path,
     source: Path | None,
     weavec: Path | None,
+    model: str | None,
     max_age_days: int,
     json_out: Path | None,
 ) -> int:
@@ -41,6 +42,7 @@ def run_verify_report(
             compiler_identity=compiler,
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
+            current_model=model,
             now=now,
             max_age=timedelta(days=max_age_days),
         )
@@ -50,6 +52,7 @@ def run_verify_report(
             compiler=compiler,
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor.metadata(),
+            model=model,
             max_age_days=max_age_days,
         )
         if json_out is not None:
@@ -72,6 +75,7 @@ def _result_document(
     compiler: CompilerVersion,
     compiler_binary_sha256: str,
     auditor: dict[str, Any],
+    model: str | None,
     max_age_days: int,
 ) -> dict[str, Any]:
     identity = asdict(result.identity)
@@ -92,6 +96,7 @@ def _result_document(
             "binary_sha256": compiler_binary_sha256,
         },
         "current_auditor": auditor,
+        "current_model": model,
     }
 
 

@@ -1,4 +1,4 @@
-"""Tests for compiler-binary and auditor-fingerprint revalidation."""
+"""Tests for compiler, auditor, and model revalidation."""
 
 from __future__ import annotations
 
@@ -46,6 +46,7 @@ def _report_identity(
     *,
     compiler_sha256: str | None = "a" * 64,
     auditor_sha256: str | None = "b" * 64,
+    model: str | None = "z-ai/glm-5.2",
 ) -> object:
     return module.ReportIdentity(
         timestamp=datetime(2026, 7, 28, tzinfo=UTC),
@@ -53,6 +54,7 @@ def _report_identity(
         version_source="command",
         compiler_binary_sha256=compiler_sha256,
         auditor_sha256=auditor_sha256,
+        model=model,
         source_path=str(source),
         source_sha256=sha256_file(source),
         runtime_path=None,
@@ -67,6 +69,7 @@ def _reason(
     *,
     compiler_sha256: str = "a" * 64,
     auditor: AuditorIdentity | None = None,
+    current_model: str | None = "z-ai/glm-5.2",
 ) -> str | None:
     return module._reaudit_reason(
         source=source,
@@ -74,6 +77,7 @@ def _reason(
         identity=_compiler(),
         compiler_binary_sha256=compiler_sha256,
         auditor=auditor or _auditor(),
+        current_model=current_model,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
         force=False,
@@ -83,7 +87,7 @@ def _reason(
 def test_exact_toolchain_identity_keeps_fresh_report_valid(tmp_path: Path) -> None:
     module = _load_script()
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     assert _reason(module, source, _report_identity(module, source)) is None
 
@@ -91,7 +95,7 @@ def test_exact_toolchain_identity_keeps_fresh_report_valid(tmp_path: Path) -> No
 def test_missing_compiler_binary_hash_requires_reaudit(tmp_path: Path) -> None:
     module = _load_script()
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     reason = _reason(
         module,
@@ -105,7 +109,7 @@ def test_missing_compiler_binary_hash_requires_reaudit(tmp_path: Path) -> None:
 def test_changed_compiler_binary_requires_reaudit(tmp_path: Path) -> None:
     module = _load_script()
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     reason = _reason(
         module,
@@ -120,7 +124,7 @@ def test_changed_compiler_binary_requires_reaudit(tmp_path: Path) -> None:
 def test_missing_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
     module = _load_script()
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     reason = _reason(
         module,
@@ -134,7 +138,7 @@ def test_missing_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
 def test_changed_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
     module = _load_script()
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     reason = _reason(
         module,
@@ -146,7 +150,35 @@ def test_changed_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
     assert reason == "audit implementation changed since audit"
 
 
-def test_report_parser_reads_toolchain_hashes(tmp_path: Path) -> None:
+def test_missing_model_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, model=None),
+    )
+
+    assert reason == "report does not record LLM model"
+
+
+def test_changed_model_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, model="old-model"),
+    )
+
+    assert reason == "LLM model changed from old-model to z-ai/glm-5.2"
+
+
+def test_report_parser_reads_toolchain_and_model_identity(tmp_path: Path) -> None:
     module = _load_script()
     report = tmp_path / "demo.md"
     report.write_text(
@@ -155,7 +187,8 @@ def test_report_parser_reads_toolchain_hashes(tmp_path: Path) -> None:
         f"- **Auditor content SHA-256:** `{'b' * 64}`\n"
         f"- **weavec binary SHA-256:** `{'a' * 64}`\n"
         "- **weavec version:** `weavec v0.3.0`\n"
-        "- **weavec version source:** `command`\n\n"
+        "- **weavec version source:** `command`\n"
+        "- **LLM model:** `z-ai/glm-5.2`\n\n"
         "## Audited inputs\n",
         encoding="utf-8",
     )
@@ -164,3 +197,4 @@ def test_report_parser_reads_toolchain_hashes(tmp_path: Path) -> None:
 
     assert identity.compiler_binary_sha256 == "a" * 64
     assert identity.auditor_sha256 == "b" * 64
+    assert identity.model == "z-ai/glm-5.2"
