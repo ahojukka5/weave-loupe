@@ -1,0 +1,166 @@
+"""Tests for compiler-binary and auditor-fingerprint revalidation."""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from types import ModuleType
+
+from weave_loupe.auditor_identity import AuditorIdentity, sha256_file
+from weave_loupe.compiler_version import CompilerVersion
+
+
+def _load_script() -> ModuleType:
+    path = Path(__file__).parents[1] / "scripts" / "reaudit_stale.py"
+    spec = importlib.util.spec_from_file_location("reaudit_toolchain_identity", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _compiler() -> CompilerVersion:
+    return CompilerVersion(
+        display="weavec v0.3.0",
+        base="v0.3.0",
+        git_sha=None,
+        development=False,
+        source="command",
+    )
+
+
+def _auditor(digest: str = "b" * 64) -> AuditorIdentity:
+    return AuditorIdentity(
+        format="weave-loupe-auditor-identity-v1",
+        sha256=digest,
+        files=(),
+    )
+
+
+def _report_identity(
+    module: ModuleType,
+    source: Path,
+    *,
+    compiler_sha256: str | None = "a" * 64,
+    auditor_sha256: str | None = "b" * 64,
+) -> object:
+    return module.ReportIdentity(
+        timestamp=datetime(2026, 7, 28, tzinfo=UTC),
+        version="weavec v0.3.0",
+        version_source="command",
+        compiler_binary_sha256=compiler_sha256,
+        auditor_sha256=auditor_sha256,
+        source_path=str(source),
+        source_sha256=sha256_file(source),
+        runtime_path=None,
+        runtime_sha256=None,
+    )
+
+
+def _reason(
+    module: ModuleType,
+    source: Path,
+    report_identity: object,
+    *,
+    compiler_sha256: str = "a" * 64,
+    auditor: AuditorIdentity | None = None,
+) -> str | None:
+    return module._reaudit_reason(
+        source=source,
+        report_identity=report_identity,
+        identity=_compiler(),
+        compiler_binary_sha256=compiler_sha256,
+        auditor=auditor or _auditor(),
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+        force=False,
+    )
+
+
+def test_exact_toolchain_identity_keeps_fresh_report_valid(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n")
+
+    assert _reason(module, source, _report_identity(module, source)) is None
+
+
+def test_missing_compiler_binary_hash_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, compiler_sha256=None),
+    )
+
+    assert reason == "report does not record compiler binary hash"
+
+
+def test_changed_compiler_binary_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source),
+        compiler_sha256="c" * 64,
+    )
+
+    assert reason == "compiler binary changed since audit"
+
+
+def test_missing_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, auditor_sha256=None),
+    )
+
+    assert reason == "report does not record auditor fingerprint"
+
+
+def test_changed_auditor_fingerprint_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source),
+        auditor=_auditor("d" * 64),
+    )
+
+    assert reason == "audit implementation changed since audit"
+
+
+def test_report_parser_reads_toolchain_hashes(tmp_path: Path) -> None:
+    module = _load_script()
+    report = tmp_path / "demo.md"
+    report.write_text(
+        "# report\n\n"
+        "- **Audit timestamp (UTC):** `2026-07-28T00:00:00+00:00`\n"
+        f"- **Auditor content SHA-256:** `{'b' * 64}`\n"
+        f"- **weavec binary SHA-256:** `{'a' * 64}`\n"
+        "- **weavec version:** `weavec v0.3.0`\n"
+        "- **weavec version source:** `command`\n\n"
+        "## Audited inputs\n",
+        encoding="utf-8",
+    )
+
+    identity = module._read_report_identity(report)
+
+    assert identity.compiler_binary_sha256 == "a" * 64
+    assert identity.auditor_sha256 == "b" * 64
