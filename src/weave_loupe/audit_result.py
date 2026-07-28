@@ -68,6 +68,7 @@ def collect_audit_metadata(
     sources: list[Path],
     weavec: Path | None,
     model: str,
+    llm_endpoint: str,
     bundle: Bundle,
     runtime_matrix: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -81,6 +82,13 @@ def collect_audit_metadata(
         "timestamp_utc": timestamp_utc,
         "validity": build_audit_validity(timestamp_utc),
         "model": model,
+        "llm": {
+            "requested_model": model,
+            "endpoint": llm_endpoint,
+            "provider_model": None,
+            "response_id": None,
+            "system_fingerprint": None,
+        },
         "source_repository": _git_metadata(_common_source_directory(sources)),
         "loupe_repository": _git_metadata(Path(__file__).resolve()),
         "auditor": auditor.metadata(),
@@ -122,6 +130,7 @@ def render_audit_report(
     auditor = _mapping(metadata.get("auditor"))
     weavec = _mapping(metadata.get("weavec"))
     weavec_repo = _mapping(weavec.get("repository"))
+    llm = _mapping(metadata.get("llm"))
     validity = _mapping(metadata.get("validity"))
     runtime_input = _mapping(metadata.get("runtime_input"))
     machine = _mapping(metadata.get("machine"))
@@ -148,7 +157,7 @@ def render_audit_report(
         "- **Audited input invalidation:** `any source or runtime matrix hash change`",
         "- **Compiler binary invalidation:** `any compiler binary hash change`",
         "- **Auditor invalidation:** `any audit implementation fingerprint change`",
-        "- **Model invalidation:** `any configured LLM model change`",
+        "- **Model invalidation:** `any configured LLM model or endpoint change`",
         "- **Development compiler invalidation:** `any compiler version change`",
         "- **Identity attestation upgrade:** "
         "`required when command identity becomes available`",
@@ -161,7 +170,12 @@ def render_audit_report(
         f"- **weavec version:** `{weavec.get('version', 'unavailable')}`",
         f"- **weavec build kind:** `{build_kind}`",
         f"- **weavec version source:** `{weavec.get('version_source', 'unavailable')}`",
-        f"- **LLM model:** `{metadata['model']}`",
+        f"- **LLM endpoint:** `{llm.get('endpoint', 'unavailable')}`",
+        f"- **LLM model:** `{llm.get('requested_model', metadata['model'])}`",
+        f"- **Provider-reported model:** `{llm.get('provider_model') or 'unavailable'}`",
+        f"- **Provider response ID:** `{llm.get('response_id') or 'unavailable'}`",
+        "- **Provider system fingerprint:** "
+        f"`{llm.get('system_fingerprint') or 'unavailable'}`",
     ]
     if github.get("run_id"):
         lines.extend(
