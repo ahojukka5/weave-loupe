@@ -17,6 +17,7 @@ from openai import (
     OpenAI,
     OpenAIError,
 )
+from openai.types.chat import ChatCompletion
 
 _DEFAULT_MAX_ATTEMPTS = 5
 _RETRYABLE_STATUS_CODES = frozenset({404, 408, 409, 425, 429, 500, 502, 503, 504})
@@ -168,7 +169,11 @@ def chat_completion(config: LlmConfig, prompt: str) -> LlmResponse:
     )
 
 
-def _create_completion(client: OpenAI, config: LlmConfig, prompt: str):
+def _create_completion(
+    client: OpenAI,
+    config: LlmConfig,
+    prompt: str,
+) -> ChatCompletion:
     for attempt in range(1, config.max_attempts + 1):
         try:
             return client.chat.completions.create(
