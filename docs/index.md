@@ -26,6 +26,8 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [Audit report validity](report-validity.md) — deterministic freshness checks,
+  complete stale reasons, exit codes, and machine-readable verification evidence.
 - [Fibonacci walkthrough](fibonacci.md) — capture a real compilation, inspect
   expected output, and open the generated HTML report.
 - [Bundle format](bundle-format.md) — layout and stability rules for
@@ -39,3 +41,6 @@ presentation format.
 - `loupe diff` compares structural LLVM metrics and stable trace actions.
 - `loupe audit` sends the complete evidence to an OpenAI-compatible model and,
   with `--verbose`, embeds the evidence in the generated Markdown report.
+- `loupe verify-report` verifies that a generated report still matches the current
+  source, runtime matrix, compiler, auditor, and validity period without compiling
+  or calling an LLM.
