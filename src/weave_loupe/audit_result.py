@@ -158,6 +158,7 @@ def render_audit_report(
         "- **Compiler binary invalidation:** `any compiler binary hash change`",
         "- **Auditor invalidation:** `any audit implementation fingerprint change`",
         "- **Model invalidation:** `any configured LLM model or endpoint change`",
+        "- **Request limit invalidation:** `any configured LLM max-token change`",
         "- **Development compiler invalidation:** `any compiler version change`",
         "- **Identity attestation upgrade:** "
         "`required when command identity becomes available`",
