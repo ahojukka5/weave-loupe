@@ -6,7 +6,6 @@ import hashlib
 from dataclasses import dataclass
 
 REPORT_CONTENT_PREFIX = "- **Report content SHA-256:** `"
-_INPUTS_HEADING = "## Audited inputs"
 _REPRODUCIBILITY_HEADING = "## Reproducibility"
 
 
@@ -29,7 +28,7 @@ class ReportIntegrity:
 
 def seal_audit_report(report: str) -> str:
     """Insert or replace the stable content seal in a generated report."""
-    canonical, _, _ = _without_envelope_seals(report)
+    canonical, _, _ = _without_reproducibility_seals(report)
     digest = _sha256_text(canonical)
     lines = canonical.splitlines()
     try:
@@ -49,7 +48,7 @@ def seal_audit_report(report: str) -> str:
 
 def inspect_report_integrity(report: str) -> ReportIntegrity:
     """Read the stable seal and recompute the canonical report content hash."""
-    canonical, recorded, count = _without_envelope_seals(report)
+    canonical, recorded, count = _without_reproducibility_seals(report)
     return ReportIntegrity(
         recorded_sha256=recorded,
         calculated_sha256=_sha256_text(canonical),
@@ -57,19 +56,21 @@ def inspect_report_integrity(report: str) -> ReportIntegrity:
     )
 
 
-def _without_envelope_seals(report: str) -> tuple[str, str | None, int]:
+def _without_reproducibility_seals(report: str) -> tuple[str, str | None, int]:
     lines = report.splitlines(keepends=True)
     kept: list[str] = []
     recorded: str | None = None
     count = 0
-    in_envelope = True
+    in_reproducibility = False
 
     for line in lines:
         plain = line.rstrip("\r\n")
-        if plain == _INPUTS_HEADING:
-            in_envelope = False
+        if plain == _REPRODUCIBILITY_HEADING:
+            in_reproducibility = True
+        elif plain.startswith("## "):
+            in_reproducibility = False
         is_seal = (
-            in_envelope
+            in_reproducibility
             and plain.startswith(REPORT_CONTENT_PREFIX)
             and plain.endswith("`")
         )
