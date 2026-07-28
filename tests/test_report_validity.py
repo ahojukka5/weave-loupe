@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -48,7 +49,7 @@ def _identity(source: Path) -> ReportIdentity:
 
 def test_exact_identity_is_valid(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
 
     result = evaluate_identity(
         report=source.with_suffix(".md"),
@@ -68,7 +69,7 @@ def test_exact_identity_is_valid(tmp_path: Path) -> None:
 
 def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
-    source.write_text("changed\n")
+    source.write_text("changed\n", encoding="utf-8")
     identity = ReportIdentity(
         timestamp=datetime(2026, 6, 1, tzinfo=UTC),
         version="weavec v0.3.0+git.old",
@@ -106,16 +107,13 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
 
 def test_runtime_path_and_content_are_verified(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
     runtime = source.with_suffix(".audit.json")
-    runtime.write_text('{"cases": []}\n')
-    identity = _identity(source)
-    identity = ReportIdentity(
-        **{
-            **identity.__dict__,
-            "runtime_path": str(tmp_path / "other.audit.json"),
-            "runtime_sha256": "f" * 64,
-        }
+    runtime.write_text('{"cases": []}\n', encoding="utf-8")
+    identity = replace(
+        _identity(source),
+        runtime_path=str(tmp_path / "other.audit.json"),
+        runtime_sha256="f" * 64,
     )
 
     result = evaluate_identity(
@@ -137,7 +135,7 @@ def test_runtime_path_and_content_are_verified(tmp_path: Path) -> None:
 
 def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
-    source.write_text("(program)\n")
+    source.write_text("(program)\n", encoding="utf-8")
     report = source.with_suffix(".md")
     report.write_text(
         "# report\n\n"
