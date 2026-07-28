@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from weave_loupe.auditor_identity import identify_auditor, sha256_file
-from weave_loupe.compiler_version import identify_weavec
+from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 from weave_loupe.report_validity import ValidityResult, evaluate_report
 from weave_loupe.weavec import WeavecError, resolve_weavec
 
@@ -29,6 +29,7 @@ def run_verify_report(
             raise ValueError("max_age_days must be positive")
         binary = resolve_weavec(weavec)
         compiler = identify_weavec(binary)
+        compiler_binary_sha256 = sha256_file(binary)
         auditor = identify_auditor()
         resolved_source = source or report.with_suffix(".weave")
         now = datetime.now(UTC)
@@ -36,7 +37,7 @@ def run_verify_report(
             report=report,
             source=resolved_source,
             compiler_identity=compiler,
-            compiler_binary_sha256=sha256_file(binary),
+            compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
             now=now,
             max_age=timedelta(days=max_age_days),
@@ -45,7 +46,7 @@ def run_verify_report(
             result=result,
             checked_at=now,
             compiler=compiler,
-            compiler_binary_sha256=sha256_file(binary),
+            compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor.metadata(),
             max_age_days=max_age_days,
         )
@@ -66,7 +67,7 @@ def _result_document(
     *,
     result: ValidityResult,
     checked_at: datetime,
-    compiler: Any,
+    compiler: CompilerVersion,
     compiler_binary_sha256: str,
     auditor: dict[str, Any],
     max_age_days: int,
