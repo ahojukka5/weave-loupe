@@ -22,6 +22,8 @@ def test_validity_envelope_sets_exact_thirty_day_deadline() -> None:
         "max_age_days": DEFAULT_AUDIT_MAX_AGE_DAYS,
         "revalidate_after_utc": "2026-08-26T21:30:00+00:00",
         "invalidate_on_input_hash_change": True,
+        "invalidate_on_compiler_binary_change": True,
+        "invalidate_on_auditor_fingerprint_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }
@@ -46,6 +48,7 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "model": "model",
         "source_repository": {"sha": "source", "state": "clean"},
         "loupe_repository": {"sha": "loupe"},
+        "auditor": {"sha256": "auditor"},
         "weavec": {
             "sha256": "binary",
             "version": "weavec v0.3.0+git.abc",
@@ -77,6 +80,12 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "Audited input invalidation:** `any source or runtime matrix hash change`"
         in report
     )
+    assert "Compiler binary invalidation:** `any compiler binary hash change`" in report
+    assert (
+        "Auditor invalidation:** `any audit implementation fingerprint change`"
+        in report
+    )
+    assert "Auditor content SHA-256:** `auditor`" in report
     assert (
         "Development compiler invalidation:** `any compiler version change`" in report
     )
