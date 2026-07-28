@@ -134,6 +134,14 @@ Reports also state whether the compiler is a release or development build and
 how the version was discovered. A report must never silently use `unknown` as
 the compiler version when a `VERSION` file and Git SHA are available.
 
+A version reported by the executable is stronger evidence than an identity
+inferred from the checkout around it: it proves what the audited binary itself
+claims to contain. When a compiler gains native `--version` support, scheduled
+auditing refreshes otherwise-fresh legacy reports whose identity source is
+`repository`, `version-file`, or missing. The replacement report therefore moves
+to `weavec version source: command` even when the displayed version string has
+not changed.
+
 ## Pull-request workflow
 
 The adversarial prompt requires a stage-by-stage verification matrix. An `OK`
@@ -161,16 +169,19 @@ state rather than an unaudited source change.
 report. A report is due when:
 
 - its timestamp is missing or at least 30 days old;
-- it is manually forced through `workflow_dispatch`; or
+- it is manually forced through `workflow_dispatch`;
 - the current compiler is a development build and its version differs from the
-  version recorded in the report.
+  version recorded in the report; or
+- the current executable reports its own version but the stored report used a
+  weaker inferred identity source.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
 evidence. Exit code `2` creates or updates a deduplicated issue in
 `ahojukka5/weavec` with the compiler identity, affected sources, and workflow
 link. Infrastructure failures fail the scheduled job but do not misclassify the
-compiler.
+compiler. Scheduled summaries record both the compiler version and the identity
+source used for due-report selection.
 
 Configure these repository secrets:
 
