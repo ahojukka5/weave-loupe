@@ -41,6 +41,7 @@ class ReportState:
     version_source: str | None
     compiler_binary_sha256: str | None
     auditor_sha256: str | None
+    model: str | None
     source_sha256: str | None
     runtime_sha256: str | None
     reason: str | None
@@ -97,6 +98,7 @@ def main() -> int:
         identity=identity,
         compiler_binary_sha256=compiler_binary_sha256,
         auditor=auditor,
+        model=args.model,
         now=now,
         max_age=timedelta(days=args.max_age_days),
         force=args.force,
@@ -129,6 +131,7 @@ def main() -> int:
                 identity=identity,
                 compiler_binary_sha256=compiler_binary_sha256,
                 auditor=auditor,
+                model=args.model,
                 states=states,
                 runs=runs,
                 now=now,
@@ -143,6 +146,7 @@ def main() -> int:
         failures = {
             "format": "weave-loupe-scheduled-failures-v1",
             "timestamp_utc": now.replace(microsecond=0).isoformat(),
+            "model": args.model,
             "compiler": {
                 **asdict(identity),
                 "binary_sha256": compiler_binary_sha256,
@@ -177,6 +181,7 @@ def _report_states(
     force: bool,
     compiler_binary_sha256: str | None = None,
     auditor: AuditorIdentity | None = None,
+    model: str | None = None,
 ) -> list[ReportState]:
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
@@ -189,6 +194,7 @@ def _report_states(
                 compiler_identity=identity,
                 compiler_binary_sha256=compiler_binary_sha256,
                 auditor=auditor,
+                current_model=model,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -198,6 +204,7 @@ def _report_states(
                 source=source,
                 report_identity=report_identity,
                 identity=identity,
+                current_model=model,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -211,6 +218,7 @@ def _report_states(
                 version_source=report_identity.version_source,
                 compiler_binary_sha256=report_identity.compiler_binary_sha256,
                 auditor_sha256=report_identity.auditor_sha256,
+                model=report_identity.model,
                 source_sha256=report_identity.source_sha256,
                 runtime_sha256=report_identity.runtime_sha256,
                 reason=reason,
@@ -229,6 +237,7 @@ def _reaudit_reason(
     force: bool,
     compiler_binary_sha256: str | None = None,
     auditor: AuditorIdentity | None = None,
+    current_model: str | None = None,
 ) -> str | None:
     """Compatibility wrapper for focused tests; production uses evaluate_report."""
     if compiler_binary_sha256 is not None and auditor is not None:
@@ -239,6 +248,7 @@ def _reaudit_reason(
             compiler_identity=identity,
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
+            current_model=current_model,
             now=now,
             max_age=max_age,
             force=force,
@@ -260,6 +270,11 @@ def _reaudit_reason(
             return "runtime matrix content changed since audit"
     elif report_identity.runtime_sha256 is not None:
         return "runtime matrix was removed since audit"
+    if current_model is not None:
+        if report_identity.model is None:
+            return "report does not record LLM model"
+        if report_identity.model != current_model:
+            return f"LLM model changed from {report_identity.model} to {current_model}"
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
     if identity.development and report_identity.version != identity.display:
@@ -320,6 +335,7 @@ def _render_summary(
     identity: CompilerVersion,
     compiler_binary_sha256: str,
     auditor: AuditorIdentity,
+    model: str,
     states: list[ReportState],
     runs: list[AuditRun],
     now: datetime,
@@ -338,6 +354,7 @@ def _render_summary(
         f"- **Compiler build kind:** `{build_kind}`",
         f"- **Compiler identity source:** `{identity.source}`",
         f"- **Auditor content SHA-256:** `{auditor.sha256}`",
+        f"- **LLM model:** `{model}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
         f"- **Passed:** `{passed}`",
