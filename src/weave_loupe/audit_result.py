@@ -69,6 +69,7 @@ def collect_audit_metadata(
     weavec: Path | None,
     model: str,
     bundle: Bundle,
+    runtime_matrix: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Collect source, compiler, runtime, and machine facts for one audit."""
     binary = resolve_weavec(weavec)
@@ -100,6 +101,7 @@ def collect_audit_metadata(
             }
             for source in sources
         ],
+        "runtime_input": _runtime_input_metadata(runtime_matrix),
         "bundle": {
             "format": bundle.manifest.get("format"),
             "compiler_exit_code": _compiler_exit_code(bundle),
@@ -118,6 +120,7 @@ def render_audit_report(
     weavec = _mapping(metadata.get("weavec"))
     weavec_repo = _mapping(weavec.get("repository"))
     validity = _mapping(metadata.get("validity"))
+    runtime_input = _mapping(metadata.get("runtime_input"))
     machine = _mapping(metadata.get("machine"))
     bundle = _mapping(metadata.get("bundle"))
     github = _mapping(metadata.get("github"))
@@ -181,8 +184,13 @@ def render_audit_report(
     for source in metadata.get("sources", []):
         item = _mapping(source)
         lines.append(
-            f"- `{item.get('path', 'unknown')}` — SHA-256 "
+            f"- Source `{item.get('path', 'unknown')}` — SHA-256 "
             f"`{item.get('sha256', 'unavailable')}`"
+        )
+    if runtime_input:
+        lines.append(
+            f"- Runtime matrix `{runtime_input.get('path', 'unknown')}` — SHA-256 "
+            f"`{runtime_input.get('sha256', 'unavailable')}`"
         )
 
     lines.extend(["", "## Captured evidence", ""])
@@ -216,6 +224,26 @@ def render_audit_report(
 def metadata_json(metadata: dict[str, Any]) -> str:
     """Serialize metadata for verbose diagnostics and tests."""
     return json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=False)
+
+
+def _runtime_input_metadata(
+    runtime_matrix: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(runtime_matrix, dict):
+        return None
+    if runtime_matrix.get("configured") is not True:
+        return None
+    path = runtime_matrix.get("sidecar")
+    digest = runtime_matrix.get("sidecar_sha256")
+    if not isinstance(path, str) or not isinstance(digest, str):
+        return None
+    case_count = runtime_matrix.get("case_count")
+    return {
+        "format": runtime_matrix.get("format"),
+        "path": path,
+        "sha256": digest,
+        "case_count": case_count if isinstance(case_count, int) else None,
+    }
 
 
 def _git_metadata(path: Path) -> dict[str, str]:
