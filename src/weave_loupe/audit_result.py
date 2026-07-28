@@ -139,8 +139,7 @@ def render_audit_report(
         f"`{validity.get('revalidate_after_utc', 'unavailable')}`",
         "- **Maximum audit age:** "
         f"`{validity.get('max_age_days', 'unavailable')}` days",
-        "- **Development compiler invalidation:** "
-        "`any compiler version change`",
+        "- **Development compiler invalidation:** `any compiler version change`",
         "- **Identity attestation upgrade:** "
         "`required when command identity becomes available`",
         f"- **Audited source Git SHA:** `{source_repo.get('sha', 'unavailable')}`",
