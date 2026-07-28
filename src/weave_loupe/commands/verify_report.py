@@ -23,6 +23,7 @@ def run_verify_report(
     weavec: Path | None,
     model: str | None,
     endpoint: str | None,
+    max_tokens: int | None,
     max_age_days: int,
     json_out: Path | None,
 ) -> int:
@@ -30,6 +31,8 @@ def run_verify_report(
     try:
         if max_age_days <= 0:
             raise ValueError("max_age_days must be positive")
+        if max_tokens is not None and max_tokens <= 0:
+            raise ValueError("max_tokens must be positive")
         if not report.is_file():
             raise ValueError(f"audit report not found: {report}")
         current_endpoint = (
@@ -49,6 +52,7 @@ def run_verify_report(
             auditor=auditor,
             current_model=model,
             current_endpoint=current_endpoint,
+            current_max_tokens=max_tokens,
             now=now,
             max_age=timedelta(days=max_age_days),
         )
@@ -60,6 +64,7 @@ def run_verify_report(
             auditor=auditor.metadata(),
             model=model,
             endpoint=current_endpoint,
+            max_tokens=max_tokens,
             max_age_days=max_age_days,
         )
         if json_out is not None:
@@ -84,6 +89,7 @@ def _result_document(
     auditor: dict[str, Any],
     model: str | None,
     endpoint: str | None,
+    max_tokens: int | None,
     max_age_days: int,
 ) -> dict[str, Any]:
     identity = asdict(result.identity)
@@ -106,6 +112,7 @@ def _result_document(
         "current_auditor": auditor,
         "current_model": model,
         "current_endpoint": endpoint,
+        "current_max_tokens": max_tokens,
     }
 
 

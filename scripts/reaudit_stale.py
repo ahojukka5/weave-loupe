@@ -44,6 +44,7 @@ class ReportState:
     auditor_sha256: str | None
     model: str | None
     endpoint: str | None
+    max_tokens: int | None
     source_sha256: str | None
     runtime_sha256: str | None
     reason: str | None
@@ -78,6 +79,7 @@ def main() -> int:
     parser.add_argument("--weavec", type=Path, required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--llm-endpoint", required=True)
+    parser.add_argument("--max-tokens", type=int, required=True)
     parser.add_argument("--source-root", type=Path, default=Path("docs/audit"))
     parser.add_argument(
         "--max-age-days",
@@ -92,6 +94,8 @@ def main() -> int:
     parser.add_argument("--now", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
+    if args.max_tokens <= 0:
+        parser.error("--max-tokens must be positive")
     now = parse_time(args.now) if args.now else datetime.now(UTC)
     endpoint = normalize_endpoint_identity(args.llm_endpoint)
     identity = identify_weavec(args.weavec)
@@ -104,6 +108,7 @@ def main() -> int:
         auditor=auditor,
         model=args.model,
         endpoint=endpoint,
+        max_tokens=args.max_tokens,
         now=now,
         max_age=timedelta(days=args.max_age_days),
         force=args.force,
@@ -119,6 +124,7 @@ def main() -> int:
                 candidate_root=candidate_root,
                 weavec=args.weavec,
                 model=args.model,
+                max_tokens=args.max_tokens,
                 logs_dir=args.logs_dir,
             )
             for state in due
@@ -138,6 +144,7 @@ def main() -> int:
                 auditor=auditor,
                 model=args.model,
                 endpoint=endpoint,
+                max_tokens=args.max_tokens,
                 states=states,
                 runs=runs,
                 now=now,
@@ -154,6 +161,7 @@ def main() -> int:
             "timestamp_utc": now.replace(microsecond=0).isoformat(),
             "model": args.model,
             "endpoint": endpoint,
+            "max_tokens": args.max_tokens,
             "compiler": {
                 **asdict(identity),
                 "binary_sha256": compiler_binary_sha256,
@@ -190,6 +198,7 @@ def _report_states(
     auditor: AuditorIdentity | None = None,
     model: str | None = None,
     endpoint: str | None = None,
+    max_tokens: int | None = None,
 ) -> list[ReportState]:
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
@@ -204,6 +213,7 @@ def _report_states(
                 auditor=auditor,
                 current_model=model,
                 current_endpoint=endpoint,
+                current_max_tokens=max_tokens,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -215,6 +225,7 @@ def _report_states(
                 identity=identity,
                 current_model=model,
                 current_endpoint=endpoint,
+                current_max_tokens=max_tokens,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -230,6 +241,7 @@ def _report_states(
                 auditor_sha256=report_identity.auditor_sha256,
                 model=report_identity.model,
                 endpoint=report_identity.endpoint,
+                max_tokens=report_identity.max_tokens,
                 source_sha256=report_identity.source_sha256,
                 runtime_sha256=report_identity.runtime_sha256,
                 reason=reason,
@@ -250,6 +262,7 @@ def _reaudit_reason(
     auditor: AuditorIdentity | None = None,
     current_model: str | None = None,
     current_endpoint: str | None = None,
+    current_max_tokens: int | None = None,
 ) -> str | None:
     """Compatibility wrapper for focused tests; production uses evaluate_report."""
     if compiler_binary_sha256 is not None and auditor is not None:
@@ -262,6 +275,7 @@ def _reaudit_reason(
             auditor=auditor,
             current_model=current_model,
             current_endpoint=current_endpoint,
+            current_max_tokens=current_max_tokens,
             now=now,
             max_age=max_age,
             force=force,
@@ -296,6 +310,14 @@ def _reaudit_reason(
                 f"LLM endpoint changed from {report_identity.endpoint} "
                 f"to {current_endpoint}"
             )
+    if current_max_tokens is not None:
+        if report_identity.max_tokens is None:
+            return "report does not record LLM max tokens"
+        if report_identity.max_tokens != current_max_tokens:
+            return (
+                f"LLM max tokens changed from {report_identity.max_tokens} "
+                f"to {current_max_tokens}"
+            )
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
     if identity.development and report_identity.version != identity.display:
@@ -317,6 +339,7 @@ def _audit(
     candidate_root: Path,
     weavec: Path,
     model: str,
+    max_tokens: int,
     logs_dir: Path,
 ) -> AuditOutcome:
     safe_name = "__".join(state.source.parts).replace(".weave", "")
@@ -333,6 +356,8 @@ def _audit(
         str(weavec),
         "--model",
         model,
+        "--max-tokens",
+        str(max_tokens),
         "--report-out",
         str(candidate),
         "--verbose",
@@ -358,6 +383,7 @@ def _render_summary(
     auditor: AuditorIdentity,
     model: str,
     endpoint: str,
+    max_tokens: int,
     states: list[ReportState],
     runs: list[AuditRun],
     now: datetime,
@@ -378,6 +404,7 @@ def _render_summary(
         f"- **Auditor content SHA-256:** `{auditor.sha256}`",
         f"- **LLM endpoint:** `{endpoint}`",
         f"- **LLM model:** `{model}`",
+        f"- **LLM max tokens:** `{max_tokens}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
         f"- **Passed:** `{passed}`",

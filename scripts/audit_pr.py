@@ -45,6 +45,7 @@ def main() -> int:
     parser.add_argument("--head", required=True)
     parser.add_argument("--weavec", type=Path, required=True)
     parser.add_argument("--model", required=True)
+    parser.add_argument("--max-tokens", type=int, required=True)
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--reports-list", type=Path, required=True)
     args = parser.parse_args()
@@ -62,6 +63,7 @@ def main() -> int:
                 candidate_root=candidate_root,
                 weavec=args.weavec,
                 model=args.model,
+                max_tokens=args.max_tokens,
             )
             for source in sources
         ]
@@ -119,7 +121,12 @@ def _audit_engine_changed(changed: list[Path]) -> bool:
 
 
 def _audit_file(
-    *, source: Path, candidate_root: Path, weavec: Path, model: str
+    *,
+    source: Path,
+    candidate_root: Path,
+    weavec: Path,
+    model: str,
+    max_tokens: int,
 ) -> FileAudit:
     report = source.with_suffix(".md")
     candidate = candidate_root / report.name
@@ -133,6 +140,8 @@ def _audit_file(
         str(weavec),
         "--model",
         model,
+        "--max-tokens",
+        str(max_tokens),
         "--report-out",
         str(candidate),
         "--verbose",

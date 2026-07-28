@@ -24,9 +24,18 @@ def _response(content: str) -> LlmResponse:
         content=content,
         requested_model="model",
         endpoint="https://example.test/v1",
+        max_tokens=64,
+        temperature=0.0,
+        prompt_sha256="c" * 64,
+        request_sha256="d" * 64,
         provider_model="model-20260728",
         response_id="chatcmpl-test",
         system_fingerprint="fp_test",
+        finish_reason="stop",
+        created=1785236400,
+        prompt_tokens=1000,
+        completion_tokens=200,
+        total_tokens=1200,
     )
 
 
@@ -96,9 +105,18 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "weavec build kind:** `development`" in report
     assert "LLM endpoint:** `https://example.test/v1`" in report
     assert "LLM model:** `model`" in report
+    assert "LLM max tokens:** `64`" in report
+    assert "LLM temperature:** `0.0`" in report
+    assert f"LLM prompt SHA-256:** `{'c' * 64}`" in report
+    assert f"LLM request SHA-256:** `{'d' * 64}`" in report
     assert "Provider-reported model:** `model-20260728`" in report
     assert "Provider response ID:** `chatcmpl-test`" in report
     assert "Provider system fingerprint:** `fp_test`" in report
+    assert "Provider finish reason:** `stop`" in report
+    assert "Provider created (Unix):** `1785236400`" in report
+    assert "Provider prompt tokens:** `1000`" in report
+    assert "Provider completion tokens:** `200`" in report
+    assert "Provider total tokens:** `1200`" in report
     assert "Machine and running conditions" in report
     assert capsys.readouterr().out == report
 

@@ -31,6 +31,7 @@ jobs:
       WEAVE_LLM_ENDPOINT: ${{ secrets.WEAVE_LLM_ENDPOINT || vars.WEAVE_LLM_ENDPOINT }}
       WEAVE_LLM_API_KEY: ${{ secrets.WEAVE_LLM_API_KEY || secrets.WEAVE_LLM_API_TOKEN }}
       WEAVE_LLM_MODEL: ${{ vars.WEAVE_LLM_MODEL || 'z-ai/glm-5.2' }}
+      WEAVE_LLM_MAX_TOKENS: ${{ vars.WEAVE_LLM_MAX_TOKENS || '4096' }}
 
     steps:
       - name: Check out pull request branch
@@ -127,6 +128,7 @@ jobs:
             --head "$head_sha" \
             --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
             --model "$WEAVE_LLM_MODEL" \
+            --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
             --summary build/weave-audit-summary.md \
             --reports-list build/weave-audit-reports.txt
           code=$?
@@ -147,6 +149,7 @@ jobs:
               --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
               --model "$WEAVE_LLM_MODEL" \
               --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
+              --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
               --json-out "build/report-validity/${name%.md}.json"
           done < build/weave-audit-reports.txt
           test "$count" -gt 0

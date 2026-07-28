@@ -27,6 +27,7 @@ def test_validity_envelope_sets_exact_thirty_day_deadline() -> None:
         "invalidate_on_auditor_fingerprint_change": True,
         "invalidate_on_model_change": True,
         "invalidate_on_endpoint_change": True,
+        "invalidate_on_max_tokens_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }
@@ -52,9 +53,18 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "llm": {
             "endpoint": "https://example.test/v1",
             "requested_model": "model",
+            "max_tokens": 4096,
+            "temperature": 0.0,
+            "prompt_sha256": "c" * 64,
+            "request_sha256": "d" * 64,
             "provider_model": "model-20260728",
             "response_id": "chatcmpl-test",
             "system_fingerprint": "fp_test",
+            "finish_reason": "stop",
+            "created": 1785236400,
+            "prompt_tokens": 1000,
+            "completion_tokens": 200,
+            "total_tokens": 1200,
         },
         "source_repository": {"sha": "source", "state": "clean"},
         "loupe_repository": {"sha": "loupe"},
@@ -83,6 +93,9 @@ def test_report_renders_human_visible_validity_scope() -> None:
         metadata=metadata,
         model_response="OK\nNo defect.",
     )
+    request_limit_invalidation = (
+        "Request limit invalidation:** `any configured LLM max-token change`"
+    )
 
     assert "Re-audit no later than (UTC):** `2026-08-26T21:30:00+00:00`" in report
     assert "Maximum audit age:** `30` days" in report
@@ -98,12 +111,22 @@ def test_report_renders_human_visible_validity_scope() -> None:
     assert (
         "Model invalidation:** `any configured LLM model or endpoint change`" in report
     )
+    assert request_limit_invalidation in report
     assert "Auditor content SHA-256:** `auditor`" in report
     assert "LLM endpoint:** `https://example.test/v1`" in report
     assert "LLM model:** `model`" in report
+    assert "LLM max tokens:** `4096`" in report
+    assert "LLM temperature:** `0.0`" in report
+    assert f"LLM prompt SHA-256:** `{'c' * 64}`" in report
+    assert f"LLM request SHA-256:** `{'d' * 64}`" in report
     assert "Provider-reported model:** `model-20260728`" in report
     assert "Provider response ID:** `chatcmpl-test`" in report
     assert "Provider system fingerprint:** `fp_test`" in report
+    assert "Provider finish reason:** `stop`" in report
+    assert "Provider created (Unix):** `1785236400`" in report
+    assert "Provider prompt tokens:** `1000`" in report
+    assert "Provider completion tokens:** `200`" in report
+    assert "Provider total tokens:** `1200`" in report
     assert (
         "Development compiler invalidation:** `any compiler version change`" in report
     )

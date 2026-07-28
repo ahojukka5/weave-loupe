@@ -42,8 +42,10 @@ Ask an OpenAI-compatible model to review the complete evidence:
 export WEAVE_LLM_ENDPOINT=https://integrate.api.nvidia.com/v1
 export WEAVE_LLM_API_KEY=...
 export WEAVE_LLM_MODEL=z-ai/glm-5.2
+export WEAVE_LLM_MAX_TOKENS=4096
 uv run loupe audit docs/audit/fibonacci.weave \
   --model "$WEAVE_LLM_MODEL" \
+  --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
   --verbose \
   --report-out docs/audit/fibonacci.md
 ```
@@ -51,36 +53,40 @@ uv run loupe audit docs/audit/fibonacci.weave \
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
-include the complete source, WIR, raw and optimized LLVM, assembly, linked native
-disassembly, optimization remarks, direct runtime observations, diagnostics,
-deterministic analysis, build manifest, and compiler trace, together with
-timestamps, Git SHAs, hashes, and machine specifications.
+include the complete source, readable WIR, raw and optimized LLVM, assembly,
+linked native disassembly, optimization remarks, direct runtime observations,
+diagnostics, deterministic analysis, build manifest, and compiler trace, together
+with timestamps, Git SHAs, hashes, and machine specifications.
 
-The report also records the normalized LLM endpoint, requested model, and any
-provider-returned model, response ID, and system fingerprint. URL credentials,
-query parameters, fragments, and API keys are never published.
+The report also records the normalized LLM endpoint, requested model, maximum
+tokens, temperature, exact prompt SHA-256, canonical request SHA-256, and any
+provider-returned model, response ID, system fingerprint, finish reason, creation
+time, and token usage. URL credentials, query parameters, fragments, and API keys
+are never published.
 
 Verify later that a report still covers the current source, runtime matrix,
-compiler executable, audit implementation, reviewer model and endpoint, complete
-published Markdown, and validity period without compiling or calling an LLM:
+compiler executable, audit implementation, reviewer request, complete published
+Markdown, and validity period without compiling or calling an LLM:
 
 ```sh
 uv run loupe verify-report docs/audit/fibonacci.md \
   --weavec /path/to/weavec \
   --model "$WEAVE_LLM_MODEL" \
   --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
+  --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
   --json-out build/fibonacci-validity.json
 ```
 
-`--model` and `--llm-endpoint` default to their matching environment variables.
-The verifier exits `0` for a valid report, `2` for a stale report, and `1` for an
-invalid invocation or infrastructure failure. A stale result lists every detected
-reason instead of hiding later mismatches behind the first one.
+Model and endpoint options default to their matching environment variables.
+Maximum-token comparison is explicit. The verifier exits `0` for a valid report,
+`2` for a stale report, and `1` for an invalid invocation or infrastructure
+failure. A stale result lists every detected reason instead of hiding later
+mismatches behind the first one.
 
 Generated reports contain a portable SHA-256 content seal covering the exact
-Markdown, including provider provenance, the model review, and verbose compiler
-evidence. This detects accidental or unsealed manual edits; it is not a digital
-signature and does not prove who produced a report.
+Markdown, including request and provider provenance, model review, and verbose
+compiler evidence. This detects accidental or unsealed manual edits; it is not a
+digital signature and does not prove who produced a report.
 
 An adjacent `foo.audit.json` file may define exact native executions for
 `foo.weave`: arguments, environment, standard input, expected exit status, and

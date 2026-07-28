@@ -158,6 +158,7 @@ def render_audit_report(
         "- **Compiler binary invalidation:** `any compiler binary hash change`",
         "- **Auditor invalidation:** `any audit implementation fingerprint change`",
         "- **Model invalidation:** `any configured LLM model or endpoint change`",
+        "- **Request limit invalidation:** `any configured LLM max-token change`",
         "- **Development compiler invalidation:** `any compiler version change`",
         "- **Identity attestation upgrade:** "
         "`required when command identity becomes available`",
@@ -172,11 +173,20 @@ def render_audit_report(
         f"- **weavec version source:** `{weavec.get('version_source', 'unavailable')}`",
         f"- **LLM endpoint:** `{llm.get('endpoint', 'unavailable')}`",
         f"- **LLM model:** `{llm.get('requested_model', metadata['model'])}`",
-        "- **Provider-reported model:** "
-        f"`{llm.get('provider_model') or 'unavailable'}`",
-        f"- **Provider response ID:** `{llm.get('response_id') or 'unavailable'}`",
+        f"- **LLM max tokens:** `{_report_value(llm.get('max_tokens'))}`",
+        f"- **LLM temperature:** `{_report_value(llm.get('temperature'))}`",
+        f"- **LLM prompt SHA-256:** `{_report_value(llm.get('prompt_sha256'))}`",
+        f"- **LLM request SHA-256:** `{_report_value(llm.get('request_sha256'))}`",
+        f"- **Provider-reported model:** `{_report_value(llm.get('provider_model'))}`",
+        f"- **Provider response ID:** `{_report_value(llm.get('response_id'))}`",
         "- **Provider system fingerprint:** "
-        f"`{llm.get('system_fingerprint') or 'unavailable'}`",
+        f"`{_report_value(llm.get('system_fingerprint'))}`",
+        f"- **Provider finish reason:** `{_report_value(llm.get('finish_reason'))}`",
+        f"- **Provider created (Unix):** `{_report_value(llm.get('created'))}`",
+        f"- **Provider prompt tokens:** `{_report_value(llm.get('prompt_tokens'))}`",
+        "- **Provider completion tokens:** "
+        f"`{_report_value(llm.get('completion_tokens'))}`",
+        f"- **Provider total tokens:** `{_report_value(llm.get('total_tokens'))}`",
     ]
     if github.get("run_id"):
         lines.extend(
@@ -385,3 +395,7 @@ def _github_metadata() -> dict[str, str]:
 
 def _mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
+
+
+def _report_value(value: Any) -> str:
+    return "unavailable" if value is None else str(value)

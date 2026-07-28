@@ -1,4 +1,4 @@
-"""Tests for compiler, auditor, model, and endpoint revalidation."""
+"""Tests for compiler, auditor, and reviewer request revalidation."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from weave_loupe.compiler_version import CompilerVersion
 
 _MODEL = "z-ai/glm-5.2"
 _ENDPOINT = "https://example.test/v1"
+_MAX_TOKENS = 4096
 
 
 def _load_script() -> ModuleType:
@@ -51,6 +52,7 @@ def _report_identity(
     auditor_sha256: str | None = "b" * 64,
     model: str | None = _MODEL,
     endpoint: str | None = _ENDPOINT,
+    max_tokens: int | None = _MAX_TOKENS,
 ) -> object:
     return module.ReportIdentity(
         timestamp=datetime(2026, 7, 28, tzinfo=UTC),
@@ -64,6 +66,7 @@ def _report_identity(
         runtime_path=None,
         runtime_sha256=None,
         endpoint=endpoint,
+        max_tokens=max_tokens,
     )
 
 
@@ -76,6 +79,7 @@ def _reason(
     auditor: AuditorIdentity | None = None,
     current_model: str | None = _MODEL,
     current_endpoint: str | None = _ENDPOINT,
+    current_max_tokens: int | None = _MAX_TOKENS,
 ) -> str | None:
     return module._reaudit_reason(
         source=source,
@@ -85,6 +89,7 @@ def _reason(
         auditor=auditor or _auditor(),
         current_model=current_model,
         current_endpoint=current_endpoint,
+        current_max_tokens=current_max_tokens,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
         force=False,
@@ -162,11 +167,7 @@ def test_missing_model_requires_reaudit(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
     source.write_text("(program)\n", encoding="utf-8")
 
-    reason = _reason(
-        module,
-        source,
-        _report_identity(module, source, model=None),
-    )
+    reason = _reason(module, source, _report_identity(module, source, model=None))
 
     assert reason == "report does not record LLM model"
 
@@ -190,11 +191,7 @@ def test_missing_endpoint_requires_reaudit(tmp_path: Path) -> None:
     source = tmp_path / "demo.weave"
     source.write_text("(program)\n", encoding="utf-8")
 
-    reason = _reason(
-        module,
-        source,
-        _report_identity(module, source, endpoint=None),
-    )
+    reason = _reason(module, source, _report_identity(module, source, endpoint=None))
 
     assert reason == "report does not record LLM endpoint"
 
@@ -220,7 +217,31 @@ def test_changed_endpoint_requires_reaudit(tmp_path: Path) -> None:
     )
 
 
-def test_report_parser_reads_toolchain_and_provider_identity(tmp_path: Path) -> None:
+def test_missing_max_tokens_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(module, source, _report_identity(module, source, max_tokens=None))
+
+    assert reason == "report does not record LLM max tokens"
+
+
+def test_changed_max_tokens_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, max_tokens=2048),
+    )
+
+    assert reason == "LLM max tokens changed from 2048 to 4096"
+
+
+def test_report_parser_reads_toolchain_and_request_identity(tmp_path: Path) -> None:
     module = _load_script()
     report = tmp_path / "demo.md"
     report.write_text(
@@ -232,9 +253,18 @@ def test_report_parser_reads_toolchain_and_provider_identity(tmp_path: Path) -> 
         "- **weavec version source:** `command`\n"
         f"- **LLM endpoint:** `{_ENDPOINT}`\n"
         f"- **LLM model:** `{_MODEL}`\n"
+        f"- **LLM max tokens:** `{_MAX_TOKENS}`\n"
+        "- **LLM temperature:** `0.0`\n"
+        f"- **LLM prompt SHA-256:** `{'c' * 64}`\n"
+        f"- **LLM request SHA-256:** `{'d' * 64}`\n"
         "- **Provider-reported model:** `z-ai/glm-5.2-20260728`\n"
         "- **Provider response ID:** `chatcmpl-test`\n"
-        "- **Provider system fingerprint:** `fp_test`\n\n"
+        "- **Provider system fingerprint:** `fp_test`\n"
+        "- **Provider finish reason:** `stop`\n"
+        "- **Provider created (Unix):** `1785236400`\n"
+        "- **Provider prompt tokens:** `1000`\n"
+        "- **Provider completion tokens:** `200`\n"
+        "- **Provider total tokens:** `1200`\n\n"
         "## Audited inputs\n",
         encoding="utf-8",
     )
@@ -245,6 +275,15 @@ def test_report_parser_reads_toolchain_and_provider_identity(tmp_path: Path) -> 
     assert identity.auditor_sha256 == "b" * 64
     assert identity.endpoint == _ENDPOINT
     assert identity.model == _MODEL
+    assert identity.max_tokens == _MAX_TOKENS
+    assert identity.temperature == 0.0
+    assert identity.prompt_sha256 == "c" * 64
+    assert identity.request_sha256 == "d" * 64
     assert identity.provider_model == "z-ai/glm-5.2-20260728"
     assert identity.response_id == "chatcmpl-test"
     assert identity.system_fingerprint == "fp_test"
+    assert identity.finish_reason == "stop"
+    assert identity.created == 1785236400
+    assert identity.prompt_tokens == 1000
+    assert identity.completion_tokens == 200
+    assert identity.total_tokens == 1200

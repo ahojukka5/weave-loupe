@@ -2,8 +2,8 @@
 
 A passing audit report is not a permanent statement. It is valid only while its
 recorded inputs, complete generated Markdown, compiler executable, auditor
-implementation, reviewer model and provider endpoint, compiler identity, and
-maximum age still match the current environment.
+implementation, reviewer endpoint, model and request limits, compiler identity,
+and maximum age still match the current environment.
 
 Use the deterministic verifier without recompiling or contacting an LLM:
 
@@ -11,7 +11,8 @@ Use the deterministic verifier without recompiling or contacting an LLM:
 uv run loupe verify-report docs/audit/fibonacci.md \
   --weavec /path/to/weavec \
   --model z-ai/glm-5.2 \
-  --llm-endpoint https://integrate.api.nvidia.com/v1
+  --llm-endpoint https://integrate.api.nvidia.com/v1 \
+  --max-tokens 4096
 ```
 
 The audited source defaults to the adjacent `.weave` file. Supply it explicitly
@@ -22,14 +23,16 @@ uv run loupe verify-report archived/report.md \
   --source docs/audit/fibonacci.weave \
   --weavec /path/to/weavec \
   --model z-ai/glm-5.2 \
-  --llm-endpoint https://integrate.api.nvidia.com/v1
+  --llm-endpoint https://integrate.api.nvidia.com/v1 \
+  --max-tokens 4096
 ```
 
 `--model` and `--llm-endpoint` default to `WEAVE_LLM_MODEL` and
-`WEAVE_LLM_ENDPOINT` when set. A standalone invocation may omit either value, in
-which case that identity comparison is disabled. Pull-request and scheduled
-workflows always provide both, so repository-owned reports cannot remain valid
-after the requested model or provider endpoint changes.
+`WEAVE_LLM_ENDPOINT` when set. `--max-tokens` enables comparison with the exact
+maximum completion size recorded in the report. A standalone invocation may omit
+any reviewer-request value, in which case only that comparison is disabled.
+Pull-request and scheduled workflows always provide all three, so repository-owned
+reports cannot remain valid after endpoint, model, or response-limit changes.
 
 Endpoint comparison uses a public normalized identity. Credentials, query strings,
 and fragments are removed, the hostname is lower-cased, trailing slashes are
@@ -48,6 +51,29 @@ A stale result prints every detected reason. This matters when several things
 changed together—for example, both the source and compiler executable—because a
 single first failure would hide the complete re-audit scope.
 
+## Exact reviewer request
+
+Each report records:
+
+- normalized endpoint, requested model, maximum tokens, and temperature;
+- SHA-256 of the exact UTF-8 prompt;
+- SHA-256 of a canonical request envelope containing endpoint, model, user message,
+  maximum tokens, and temperature;
+- provider model, response ID, and system fingerprint when supplied;
+- finish reason and provider creation timestamp when supplied; and
+- prompt, completion, and total token counts when supplied.
+
+The prompt hash distinguishes any evidence or prompt-template change. The request
+hash also distinguishes endpoint or generation-setting changes. These values are
+provenance anchors for the request that produced the verdict. The offline verifier
+does not reconstruct the historical prompt from current code because machine,
+compiler, report, and evidence metadata may legitimately differ later.
+
+Maximum tokens is checked directly because a smaller limit can truncate an
+otherwise identical review. Temperature remains fixed by the auditor implementation;
+a code change alters the auditor fingerprint and therefore invalidates older
+reports automatically.
+
 ## Complete report content
 
 The final generated Markdown contains one stable line:
@@ -56,12 +82,12 @@ The final generated Markdown contains one stable line:
 - **Report content SHA-256:** `<64 lowercase hexadecimal characters>`
 ```
 
-Loupe calculates it only after verbose source-to-native evidence and provider
+Loupe calculates it only after verbose source-to-native evidence and request and
 completion provenance have been inserted. The hash therefore covers the verdict,
-model narrative, requested model, endpoint, provider-reported model, response ID,
-system fingerprint, source, WIR, LLVM, assembly, executable disassembly, runtime
-observations, diagnostics, analysis, build manifest, compiler trace, and all other
-published Markdown. Only the seal line itself is excluded from its own calculation.
+model narrative, request hashes and settings, provider telemetry, source, WIR,
+LLVM, assembly, executable disassembly, runtime observations, diagnostics,
+analysis, build manifest, compiler trace, and all other published Markdown. Only
+the seal line itself is excluded from its own calculation.
 
 Verification rejects a missing, malformed, duplicated, or mismatched seal. A
 seal-looking line inside model-authored prose remains part of the hashed content
@@ -85,12 +111,13 @@ metadata claims. It verifies:
 - content fingerprint of the audit implementation and locked dependencies;
 - configured LLM model, when supplied;
 - configured LLM endpoint, when supplied;
+- configured maximum completion size, when supplied;
 - development compiler version; and
 - migration to command-attested compiler identity when available.
 
-Provider-reported model, response ID, and system fingerprint are preserved as
-provenance for the exact completion. They cannot be independently queried by the
-offline verifier and are therefore not treated as current-environment inputs.
+Provider telemetry and prompt and request hashes are preserved as provenance for
+the exact historical request. They cannot be independently queried from the
+offline provider and are therefore not treated as current-environment inputs.
 
 The report is stale when any enabled condition fails. The default maximum age is
 30 days and may be changed with `--max-age-days`.
@@ -104,14 +131,17 @@ uv run loupe verify-report docs/audit/fibonacci.md \
   --weavec /path/to/weavec \
   --model z-ai/glm-5.2 \
   --llm-endpoint https://integrate.api.nvidia.com/v1 \
+  --max-tokens 4096 \
   --json-out build/fibonacci-validity.json
 ```
 
 The `weave-loupe-report-verification-v1` document contains the checked time,
-policy lifetime, report and source paths, all stale reasons, the identity parsed
-from the report—including its content SHA-256, endpoint, requested model, provider
-model, response ID, and system fingerprint—the current compiler identity and
-binary hash, the current auditor fingerprint, current model, and current endpoint.
+policy lifetime, report and source paths, all stale reasons, and the full stable
+identity parsed from the report. That identity includes content, prompt, and
+request SHA-256 values; endpoint, model, maximum tokens, and temperature; provider
+model, response ID, system fingerprint, finish reason, creation timestamp, and
+token usage. The document also records the current compiler identity and binary
+hash, auditor fingerprint, endpoint, model, and maximum-token value.
 
 The JSON file is written for both valid and stale results. It is suitable for CI,
 release qualification, dashboards, and archival evidence.
