@@ -9,7 +9,13 @@ import httpx
 import pytest
 from openai import APIStatusError
 
-from weave_loupe.llm import LlmConfig, LlmError, chat_completion, load_config
+from weave_loupe.llm import (
+    LlmConfig,
+    LlmError,
+    chat_completion,
+    load_config,
+    normalize_endpoint_identity,
+)
 
 
 def test_load_config_requires_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -38,7 +44,20 @@ def test_load_config_upgrades_http_to_https(
     assert config.max_tokens == 32
 
 
-def test_chat_completion_returns_message_content() -> None:
+def test_endpoint_identity_removes_private_url_components() -> None:
+    endpoint = normalize_endpoint_identity(
+        "https://user:secret@Example.TEST:8443/v1/?token=hidden#fragment"
+    )
+
+    assert endpoint == "https://example.test:8443/v1"
+
+
+def test_endpoint_identity_rejects_non_http_transport() -> None:
+    with pytest.raises(ValueError, match="HTTPS"):
+        normalize_endpoint_identity("ftp://example.test/v1")
+
+
+def test_chat_completion_returns_provider_metadata() -> None:
     config = LlmConfig(
         endpoint="https://example.test/v1",
         api_key="secret",
@@ -46,15 +65,30 @@ def test_chat_completion_returns_message_content() -> None:
         max_tokens=16,
     )
     response = SimpleNamespace(
-        choices=[SimpleNamespace(message=SimpleNamespace(content="OK"))]
+        id="chatcmpl-test",
+        model="z-ai/glm-5.2-20260701",
+        system_fingerprint="fp_test",
+        choices=[SimpleNamespace(message=SimpleNamespace(content="OK"))],
     )
     client = MagicMock()
     client.chat.completions.create.return_value = response
 
     with patch("weave_loupe.llm.OpenAI", return_value=client) as openai_cls:
-        content = chat_completion(config, "Say OK")
+        completion = chat_completion(config, "Say OK")
 
-    assert content == "OK"
+    assert completion.content == "OK"
+    assert completion.requested_model == "z-ai/glm-5.2"
+    assert completion.endpoint == "https://example.test/v1"
+    assert completion.provider_model == "z-ai/glm-5.2-20260701"
+    assert completion.response_id == "chatcmpl-test"
+    assert completion.system_fingerprint == "fp_test"
+    assert completion.metadata() == {
+        "requested_model": "z-ai/glm-5.2",
+        "endpoint": "https://example.test/v1",
+        "provider_model": "z-ai/glm-5.2-20260701",
+        "response_id": "chatcmpl-test",
+        "system_fingerprint": "fp_test",
+    }
     openai_cls.assert_called_once_with(
         api_key="secret",
         base_url="https://example.test/v1",
@@ -66,6 +100,26 @@ def test_chat_completion_returns_message_content() -> None:
         max_tokens=16,
         temperature=0.0,
     )
+
+
+def test_chat_completion_accepts_missing_optional_attestation() -> None:
+    config = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="z-ai/glm-5.2",
+    )
+    response = SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content="OK"))]
+    )
+    client = MagicMock()
+    client.chat.completions.create.return_value = response
+
+    with patch("weave_loupe.llm.OpenAI", return_value=client):
+        completion = chat_completion(config, "prompt")
+
+    assert completion.provider_model is None
+    assert completion.response_id is None
+    assert completion.system_fingerprint is None
 
 
 def test_chat_completion_wraps_api_error() -> None:
