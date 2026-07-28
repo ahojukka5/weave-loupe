@@ -60,7 +60,9 @@ def load_native_budget(path: Path) -> NativeBudget | None:
     if not isinstance(document, dict):
         raise NativeBudgetError("audit sidecar must be a JSON object")
     if document.get("format") != RUNTIME_CASES_FORMAT:
-        raise NativeBudgetError(f"audit sidecar format must be {RUNTIME_CASES_FORMAT!r}")
+        raise NativeBudgetError(
+            f"audit sidecar format must be {RUNTIME_CASES_FORMAT!r}"
+        )
 
     raw_budget = document.get("native_budget")
     if raw_budget is None:
