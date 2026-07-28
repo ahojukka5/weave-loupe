@@ -258,7 +258,13 @@ def _read_report_identity(report: Path) -> ReportIdentity:
     source_sha256: str | None = None
     runtime_path: str | None = None
     runtime_sha256: str | None = None
+    in_inputs = False
     for line in lines:
+        if line == "## Audited inputs":
+            in_inputs = True
+            continue
+        if in_inputs and line.startswith("## "):
+            in_inputs = False
         if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
             try:
                 timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
@@ -268,7 +274,7 @@ def _read_report_identity(report: Path) -> ReportIdentity:
             version = line[len(_VERSION_PREFIX) : -1]
         elif line.startswith(_VERSION_SOURCE_PREFIX) and line.endswith("`"):
             version_source = line[len(_VERSION_SOURCE_PREFIX) : -1]
-        else:
+        elif in_inputs:
             source_match = _SOURCE_INPUT.fullmatch(line)
             if source_match is not None:
                 source_path = source_match.group("path")
