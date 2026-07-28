@@ -11,13 +11,14 @@ Each source, audit sidecar, and report are kept together:
 
 The audit sidecar is optional. It may contain runtime cases, a native optimization
 budget, or both. Runtime cases execute the exact linked artifact with every
-declared argument, environment, input, and expected result. Native budgets bound
-program-owned function counts and per-function instructions, padding, direct
-calls, and indirect calls.
+declared argument, environment, input, and expected result. Native contracts bound
+program-owned function counts and per-function instructions, padding, direct and
+indirect calls, and may require specific call targets and loop backedges.
 
-Observed runtime mismatches or exceeded final-code limits deterministically fail
-the gate even when the model returns `OK`. Budget evaluation also fails closed
-when linked disassembly or complete program-owned reachability is unavailable.
+Observed runtime mismatches, exceeded final-code limits, unmet structural minima,
+or missing required calls deterministically fail the gate even when the model
+returns `OK`. Contract evaluation also fails closed when linked disassembly or
+complete program-owned reachability is unavailable.
 
 Generated reports are workflow-owned evidence, not hand-maintained prose. Change
 the `.weave` source, its optional `.audit.json` sidecar, or the audit implementation
@@ -36,16 +37,22 @@ complete source-to-native evidence chain:
 5. target assembly
 6. linked executable disassembly
 7. LLVM optimization remarks
-8. native optimization budget and observed metrics
+8. native optimization contract and observed metrics
 9. native runtime execution matrix
 10. diagnostics and deterministic analysis
 11. build manifest and compiler trace
 
 The constant Fibonacci contract requires exactly one program-owned `main`, two
-non-padding instructions, no calls, and no dead code. The runtime-input contract
-allows the scalar loop and its two required C-library calls while bounding the
-instruction count, padding, and indirect calls. Lower counts continue to pass;
-regressions above the reviewed ceilings do not.
+non-padding instructions, no calls, no dead code, and no backward conditional
+branches.
+
+The runtime-input contract requires exactly one backward conditional branch in
+`main`, proving the scalar recurrence loop remains in the linked executable. It
+also requires direct calls to `getenv@plt` and `atoi@plt`, forbids indirect calls
+and dead program functions, and bounds instructions and padding. Nine runtime
+cases independently verify observable behavior. A compiler cannot satisfy the
+gate merely by producing some small program that happens to return the checked
+values.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider

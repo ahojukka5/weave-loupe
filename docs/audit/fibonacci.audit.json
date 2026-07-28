@@ -13,7 +13,8 @@
         "max_instructions": 2,
         "max_padding_instructions": 0,
         "max_direct_calls": 0,
-        "max_indirect_calls": 0
+        "max_indirect_calls": 0,
+        "max_backward_conditional_branches": 0
       }
     }
   },

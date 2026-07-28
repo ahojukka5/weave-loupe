@@ -18,16 +18,39 @@ _GLOBAL_LIMITS = {
     "max_unreachable_program_functions": "unreachable_program_functions",
     "max_unreachable_program_instructions": "unreachable_program_instructions",
 }
-_FUNCTION_LIMITS = {
+_FUNCTION_MAXIMUMS = {
     "max_instructions": "instructions",
     "max_padding_instructions": "padding_instructions",
     "max_direct_calls": "direct_calls",
     "max_indirect_calls": "indirect_calls",
+    "max_backward_conditional_branches": "backward_conditional_branches",
 }
+_FUNCTION_MINIMUMS = {
+    "min_backward_conditional_branches": "backward_conditional_branches",
+}
+_REQUIRED_DIRECT_CALLS = "required_direct_calls"
 
 
 class NativeBudgetError(ValueError):
     """Raised when a native optimization budget is invalid."""
+
+
+@dataclass(frozen=True)
+class FunctionContract:
+    """Validated limits and required native structure for one function."""
+
+    maximums: dict[str, int]
+    minimums: dict[str, int]
+    required_direct_calls: tuple[str, ...]
+
+    def metadata(self) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            **dict(sorted(self.maximums.items())),
+            **dict(sorted(self.minimums.items())),
+        }
+        if self.required_direct_calls:
+            result[_REQUIRED_DIRECT_CALLS] = list(self.required_direct_calls)
+        return result
 
 
 @dataclass(frozen=True)
@@ -36,7 +59,7 @@ class NativeBudget:
 
     path: Path
     global_limits: dict[str, int]
-    function_limits: dict[str, dict[str, int]]
+    function_contracts: dict[str, FunctionContract]
 
 
 def discover_native_budget(sources: list[Path]) -> NativeBudget | None:
@@ -86,13 +109,13 @@ def load_native_budget(path: Path) -> NativeBudget | None:
         for key in _GLOBAL_LIMITS
         if key in raw_budget
     }
-    function_limits = _parse_function_limits(raw_budget.get("functions", {}))
-    if not global_limits and not function_limits:
+    function_contracts = _parse_function_contracts(raw_budget.get("functions", {}))
+    if not global_limits and not function_contracts:
         raise NativeBudgetError("native_budget must contain at least one limit")
     return NativeBudget(
         path=path,
         global_limits=global_limits,
-        function_limits=function_limits,
+        function_contracts=function_contracts,
     )
 
 
@@ -132,25 +155,38 @@ def evaluate_native_budget(
 
     raw_functions = native.get("functions")
     functions = raw_functions if isinstance(raw_functions, dict) else {}
-    observed_functions: dict[str, dict[str, int | bool]] = {}
-    for name, limits in budget.function_limits.items():
+    observed_functions: dict[str, dict[str, Any]] = {}
+    for name, contract in budget.function_contracts.items():
         raw_details = functions.get(name)
         if not isinstance(raw_details, dict):
             observed_functions[name] = {"present": False}
             failures.append(f"required native function {name!r} is missing")
             continue
         observed_metrics = _observed_function_metrics(raw_details)
-        observed_functions[name] = {"present": True, **observed_metrics}
-        for limit_name, observed_name in _FUNCTION_LIMITS.items():
-            maximum = limits.get(limit_name)
-            if maximum is None:
-                continue
-            value = observed_metrics[observed_name]
-            if value > maximum:
-                failures.append(
-                    f"function {name!r} {_display_name(observed_name)} {value} "
-                    f"exceeds maximum {maximum}"
-                )
+        observed_calls = _string_set(raw_details.get("direct_calls"))
+        observed_functions[name] = {
+            "present": True,
+            **observed_metrics,
+            "direct_call_targets": sorted(observed_calls),
+        }
+        _check_function_maximums(
+            name=name,
+            contract=contract,
+            observed=observed_metrics,
+            failures=failures,
+        )
+        _check_function_minimums(
+            name=name,
+            contract=contract,
+            observed=observed_metrics,
+            failures=failures,
+        )
+        missing_calls = sorted(set(contract.required_direct_calls) - observed_calls)
+        if missing_calls:
+            failures.append(
+                f"function {name!r} missing required direct calls: "
+                + ", ".join(missing_calls)
+            )
 
     return {
         "format": _NATIVE_BUDGET_RESULT_FORMAT,
@@ -161,8 +197,8 @@ def evaluate_native_budget(
         "limits": {
             **dict(sorted(budget.global_limits.items())),
             "functions": {
-                name: dict(sorted(limits.items()))
-                for name, limits in sorted(budget.function_limits.items())
+                name: contract.metadata()
+                for name, contract in sorted(budget.function_contracts.items())
             },
         },
         "observed": {
@@ -173,37 +209,103 @@ def evaluate_native_budget(
     }
 
 
-def _parse_function_limits(value: object) -> dict[str, dict[str, int]]:
+def _parse_function_contracts(value: object) -> dict[str, FunctionContract]:
     if not isinstance(value, dict):
         raise NativeBudgetError("native_budget.functions must be a JSON object")
-    parsed: dict[str, dict[str, int]] = {}
-    for name, raw_limits in value.items():
+    parsed: dict[str, FunctionContract] = {}
+    allowed = {
+        *_FUNCTION_MAXIMUMS,
+        *_FUNCTION_MINIMUMS,
+        _REQUIRED_DIRECT_CALLS,
+    }
+    for name, raw_contract in value.items():
         if not isinstance(name, str) or not name.strip():
             raise NativeBudgetError("native_budget function names must be non-empty")
-        if not isinstance(raw_limits, dict):
+        if not isinstance(raw_contract, dict):
             raise NativeBudgetError(
                 f"native_budget function {name!r} limits must be an object"
             )
-        unknown = sorted(set(raw_limits) - set(_FUNCTION_LIMITS))
+        unknown = sorted(set(raw_contract) - allowed)
         if unknown:
             raise NativeBudgetError(
                 f"native_budget function {name!r} contains unknown fields: "
                 + ", ".join(unknown)
             )
-        limits = {
+        maximums = {
             key: _nonnegative_integer(
-                raw_limits[key],
+                raw_contract[key],
                 f"native_budget.functions.{name}.{key}",
             )
-            for key in _FUNCTION_LIMITS
-            if key in raw_limits
+            for key in _FUNCTION_MAXIMUMS
+            if key in raw_contract
         }
-        if not limits:
-            raise NativeBudgetError(
-                f"native_budget function {name!r} must contain at least one limit"
+        minimums = {
+            key: _nonnegative_integer(
+                raw_contract[key],
+                f"native_budget.functions.{name}.{key}",
             )
-        parsed[name] = limits
+            for key in _FUNCTION_MINIMUMS
+            if key in raw_contract
+        }
+        required_calls = _required_call_list(
+            raw_contract.get(_REQUIRED_DIRECT_CALLS, []),
+            f"native_budget.functions.{name}.{_REQUIRED_DIRECT_CALLS}",
+        )
+        if not maximums and not minimums and not required_calls:
+            raise NativeBudgetError(
+                f"native_budget function {name!r} must contain at least one contract"
+            )
+        minimum = minimums.get("min_backward_conditional_branches")
+        maximum = maximums.get("max_backward_conditional_branches")
+        if minimum is not None and maximum is not None and minimum > maximum:
+            raise NativeBudgetError(
+                f"native_budget function {name!r} backward branch minimum "
+                "must not exceed its maximum"
+            )
+        parsed[name] = FunctionContract(
+            maximums=maximums,
+            minimums=minimums,
+            required_direct_calls=required_calls,
+        )
     return dict(sorted(parsed.items()))
+
+
+def _check_function_maximums(
+    *,
+    name: str,
+    contract: FunctionContract,
+    observed: dict[str, int],
+    failures: list[str],
+) -> None:
+    for contract_name, observed_name in _FUNCTION_MAXIMUMS.items():
+        maximum = contract.maximums.get(contract_name)
+        if maximum is None:
+            continue
+        value = observed[observed_name]
+        if value > maximum:
+            failures.append(
+                f"function {name!r} {_display_name(observed_name)} {value} "
+                f"exceeds maximum {maximum}"
+            )
+
+
+def _check_function_minimums(
+    *,
+    name: str,
+    contract: FunctionContract,
+    observed: dict[str, int],
+    failures: list[str],
+) -> None:
+    for contract_name, observed_name in _FUNCTION_MINIMUMS.items():
+        minimum = contract.minimums.get(contract_name)
+        if minimum is None:
+            continue
+        value = observed[observed_name]
+        if value < minimum:
+            failures.append(
+                f"function {name!r} {_display_name(observed_name)} {value} "
+                f"is below minimum {minimum}"
+            )
 
 
 def _observed_global_metrics(native: dict[str, Any]) -> dict[str, int]:
@@ -229,7 +331,21 @@ def _observed_function_metrics(details: dict[str, Any]) -> dict[str, int]:
         ),
         "direct_calls": _list_length(details.get("direct_calls")),
         "indirect_calls": _nonnegative_observation(details.get("indirect_calls")),
+        "backward_conditional_branches": _nonnegative_observation(
+            details.get("backward_conditional_branches")
+        ),
     }
+
+
+def _required_call_list(value: object, name: str) -> tuple[str, ...]:
+    if not isinstance(value, list) or not all(
+        isinstance(item, str) and item.strip() for item in value
+    ):
+        raise NativeBudgetError(f"{name} must be a list of non-empty strings")
+    calls = [item.strip() for item in value]
+    if len(calls) != len(set(calls)):
+        raise NativeBudgetError(f"{name} must not contain duplicates")
+    return tuple(sorted(calls))
 
 
 def _nonnegative_integer(value: object, name: str) -> int:
@@ -246,6 +362,12 @@ def _nonnegative_observation(value: object) -> int:
 
 def _list_length(value: object) -> int:
     return len(value) if isinstance(value, list) else 0
+
+
+def _string_set(value: object) -> set[str]:
+    if not isinstance(value, list):
+        return set()
+    return {item for item in value if isinstance(item, str) and item}
 
 
 def _display_name(value: str) -> str:

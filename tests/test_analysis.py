@@ -97,6 +97,49 @@ define i32 @fib(i32 %n) {
     assert native["unreachable_program_functions"] == []
 
 
+def test_analyze_native_counts_conditional_backedges_and_call_targets() -> None:
+    optimized_llvm = """define i32 @main() {
+  ret i32 0
+}
+"""
+    disassembly = """0000000000001150 <main>:
+    1150: e8 db fe ff ff callq 0x1030 <getenv@plt>
+    1155: 74 09 je 0x1160 <main+0x10>
+    1157: eb 07 jmp 0x1160 <main+0x10>
+    1159: 83 c0 01 addl $0x1, %eax
+    115c: 39 d8 cmpl %ebx, %eax
+    115e: 7e f9 jle 0x1159 <main+0x9>
+    1160: c3 retq
+"""
+
+    native = analyze_native(disassembly, optimized_llvm)
+    main = native["functions"]["main"]
+
+    assert main["direct_calls"] == ["getenv@plt"]
+    assert main["conditional_branches"] == 2
+    assert main["backward_branches"] == 1
+    assert main["backward_conditional_branches"] == 1
+
+
+def test_analyze_native_recognizes_aarch64_conditional_backedge() -> None:
+    optimized_llvm = """define i32 @main() {
+  ret i32 0
+}
+"""
+    disassembly = """0000000000000100 <main>:
+     100: 1f 20 03 d5 nop
+     104: 00 00 00 54 b.eq 0x100 <main>
+     108: c0 03 5f d6 ret
+"""
+
+    native = analyze_native(disassembly, optimized_llvm)
+    main = native["functions"]["main"]
+
+    assert main["padding_instructions"] == 1
+    assert main["conditional_branches"] == 1
+    assert main["backward_conditional_branches"] == 1
+
+
 def test_analyze_trace_groups_actions() -> None:
     summary = analyze_trace(
         {
