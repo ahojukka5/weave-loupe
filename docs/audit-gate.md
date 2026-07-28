@@ -142,6 +142,33 @@ auditing refreshes otherwise-fresh legacy reports whose identity source is
 to `weavec version source: command` even when the displayed version string has
 not changed.
 
+The compiler binary SHA-256 is an independent identity. Two executables may claim
+the same source version while differing because of build flags, toolchains,
+packaging, corruption, or tampering. Daily maintenance therefore refreshes a
+report whenever the rebuilt compiler bytes differ from the audited binary, even
+when `weavec --version` is unchanged.
+
+## Auditor implementation identity
+
+Every report also records `weave-loupe-auditor-identity-v1`, a content fingerprint
+of the implementation that produced the verdict. The fingerprint covers:
+
+- all Python modules under `src/weave_loupe/`;
+- `scripts/audit_pr.py` and `scripts/reaudit_stale.py`;
+- `pyproject.toml`; and
+- `uv.lock`.
+
+Paths and exact bytes are hashed in deterministic order. The identity is stable
+across rebases, squash merges, and report-only commits because it does not depend
+on Git history. It changes when review prompts, deterministic gates, evidence
+analysis, report rendering, maintenance logic, declared dependencies, or locked
+dependency versions change.
+
+A fresh report made by an older auditor is re-run immediately. This prevents a
+fixed analysis bug or strengthened policy from leaving previously passing reports
+trusted until their calendar deadline. Documentation and generated reports are
+excluded because they cannot change audit decisions.
+
 ## Audited input identity
 
 The stable `Audited inputs` section names every source and configured runtime
@@ -186,22 +213,24 @@ report. A report is due when:
 - it is manually forced through `workflow_dispatch`;
 - its source hash is missing or differs from the current source;
 - an adjacent runtime matrix was added, changed, or removed;
+- its compiler binary hash is missing or differs from the current executable;
+- its auditor fingerprint is missing or differs from the current implementation;
 - the current compiler is a development build and its version differs from the
   version recorded in the report; or
 - the current executable reports its own version but the stored report used a
   weaker inferred identity source.
 
-Input hashes are checked before age and compiler identity. A one-minute-old report
-therefore cannot remain green after its audited source or runtime expectations
-change outside the pull-request workflow.
+Input and toolchain hashes are checked before age and compiler lineage. A
+one-minute-old report therefore cannot remain green after its program, runtime
+expectations, compiler executable, or auditor implementation changes.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
 evidence. Exit code `2` creates or updates a deduplicated issue in
 `ahojukka5/weavec` with the compiler identity, affected sources, and workflow
 link. Infrastructure failures fail the scheduled job but do not misclassify the
-compiler. Scheduled summaries record both the compiler version and the identity
-source used for due-report selection.
+compiler. Scheduled summaries and failure JSON record the compiler version,
+compiler binary hash, identity source, and auditor content fingerprint.
 
 Configure these repository secrets:
 
