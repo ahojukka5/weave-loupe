@@ -68,12 +68,20 @@ def _without_envelope_seals(report: str) -> tuple[str, str | None, int]:
         plain = line.rstrip("\r\n")
         if plain == _INPUTS_HEADING:
             in_envelope = False
-        if in_envelope and plain.startswith(REPORT_CONTENT_PREFIX) and plain.endswith("`"):
+        is_seal = (
+            in_envelope
+            and plain.startswith(REPORT_CONTENT_PREFIX)
+            and plain.endswith("`")
+        )
+        if is_seal:
             count += 1
             value = plain[len(REPORT_CONTENT_PREFIX) : -1]
-            if len(value) == 64 and all(character in "0123456789abcdef" for character in value):
-                if recorded is None:
-                    recorded = value
+            if (
+                recorded is None
+                and len(value) == 64
+                and all(character in "0123456789abcdef" for character in value)
+            ):
+                recorded = value
             continue
         kept.append(line)
 
