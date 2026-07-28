@@ -155,14 +155,16 @@ of the implementation that produced the verdict. The fingerprint covers:
 
 - all Python modules under `src/weave_loupe/`;
 - `scripts/audit_pr.py` and `scripts/reaudit_stale.py`;
+- `.github/workflows/weave-audit.yml` and
+  `.github/workflows/scheduled-reaudit.yml`;
 - `pyproject.toml`; and
 - `uv.lock`.
 
 Paths and exact bytes are hashed in deterministic order. The identity is stable
 across rebases, squash merges, and report-only commits because it does not depend
 on Git history. It changes when review prompts, deterministic gates, evidence
-analysis, report rendering, maintenance logic, declared dependencies, or locked
-dependency versions change.
+analysis, report rendering, maintenance logic, workflow control, declared
+dependencies, or locked dependency versions change.
 
 A fresh report made by an older auditor is re-run immediately. This prevents a
 fixed analysis bug or strengthened policy from leaving previously passing reports
@@ -193,16 +195,24 @@ absence of avoidable compiler overhead in final native code. Missing essential
 evidence produces `FAILED: insufficient-evidence: ...` rather than a speculative
 pass.
 
-The `Weave audit` workflow audits every added, copied, modified, or renamed
-`.weave` file in a pull request and maps changed `*.audit.json` sidecars back to
-their adjacent sources. Changes to the audit engine run the canonical programs
-under `docs/audit/` as a self-test. Each successful `foo.weave` audit produces
-`foo.md`; reports are committed only when every audited source passes. The
-workflow updates one persistent PR comment and uploads complete evidence.
+The `Weave audit` workflow audits every added, copied, modified, renamed, or
+relevant deleted `.weave` or `*.audit.json` input. A changed generated `foo.md`
+report also maps back to `foo.weave`, including report deletion. Manual report
+edits are therefore replaced by a fresh source-to-native audit rather than being
+accepted as trusted generated evidence. Ordinary documentation such as
+`docs/audit/README.md` has no adjacent source and is skipped before compiler or
+LLM setup.
+
+Changes to the audit engine run the canonical programs under `docs/audit/` as a
+self-test. Each successful `foo.weave` audit produces `foo.md`; reports are
+committed only when every audited source passes and each new report passes
+`loupe verify-report`. The workflow updates one persistent PR comment and uploads
+complete audit and validity evidence.
 
 A report records the exact code commit that was audited. The automated report
 commit contains only generated reports, so its parent is the reproducible audited
-state rather than an unaudited source change.
+state rather than an unaudited source change. The pull-request workflow recognizes
+that report-only follow-up commit and avoids repeating the expensive model audit.
 
 ## Scheduled re-audits
 
