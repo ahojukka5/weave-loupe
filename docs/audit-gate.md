@@ -20,6 +20,7 @@ report file; an existing output at that path is removed to prevent stale evidenc
 from being mistaken for a pass.
 
 ```sh
+export WEAVE_LLM_ENDPOINT=https://integrate.api.nvidia.com/v1
 uv run loupe audit docs/audit/fibonacci.weave \
   --weavec /path/to/weavec \
   --model z-ai/glm-5.2 \
@@ -119,8 +120,8 @@ The upper bound keeps every accepted Fibonacci result representable as signed
 ## Reproducible compiler identity
 
 Every report records the UTC timestamp, source and Loupe Git SHAs, compiler
-repository SHA, compiler binary hash, model, machine details, and a normalized
-weavec version.
+repository SHA, compiler binary hash, reviewer endpoint and model, provider
+completion identity, machine details, and a normalized weavec version.
 
 The preferred identity comes from `weavec --version`. For older binaries Loupe
 uses the repository `VERSION` file and Git metadata:
@@ -148,18 +149,29 @@ packaging, corruption, or tampering. Daily maintenance therefore refreshes a
 report whenever the rebuilt compiler bytes differ from the audited binary, even
 when `weavec --version` is unchanged.
 
-## Reviewer model identity
+## Reviewer model and provider identity
 
-The configured model is part of the verdict identity. Different models, model
-versions, providers, or routing aliases can inspect the same evidence and reach
-different conclusions. A report therefore records the exact model string passed
-to `loupe audit`, and repository workflows invalidate the report when their
-configured model differs.
+The configured endpoint and requested model are part of the verdict identity.
+Different models, model versions, providers, or routing aliases can inspect the
+same evidence and reach different conclusions. A report therefore records:
 
-`loupe verify-report --model MODEL` checks this without making a model request.
-The option defaults to `WEAVE_LLM_MODEL` when present. Standalone users may omit
-the model check, but the pull-request and scheduled workflows always provide the
-active configured model.
+- the normalized endpoint;
+- the exact model string passed to `loupe audit`;
+- the model string returned by the provider, when supplied;
+- the provider response ID, when supplied; and
+- the provider system fingerprint, when supplied.
+
+Endpoint normalization strips credentials, query strings, and fragments, removes
+trailing slashes, lower-cases the host, and upgrades plain HTTP to HTTPS. API keys
+are never published. Missing provider response fields are recorded as
+`unavailable` rather than inferred.
+
+`loupe verify-report --model MODEL --llm-endpoint ENDPOINT` checks the configured
+identity without making a model request. The options default to
+`WEAVE_LLM_MODEL` and `WEAVE_LLM_ENDPOINT`. Standalone users may omit either
+comparison, but pull-request and scheduled workflows always provide both.
+Provider-returned fields are immutable completion provenance covered by the report
+content seal; the offline verifier cannot query them independently.
 
 ## Auditor implementation identity
 
@@ -219,8 +231,8 @@ LLM setup.
 Changes to the audit engine run the canonical programs under `docs/audit/` as a
 self-test. Each successful `foo.weave` audit produces `foo.md`; reports are
 committed only when every audited source passes and each new report passes
-`loupe verify-report` with the same configured model. The workflow updates one
-persistent PR comment and uploads complete audit and validity evidence.
+`loupe verify-report` with the same configured endpoint and model. The workflow
+updates one persistent PR comment and uploads complete audit and validity evidence.
 
 A report records the exact code commit that was audited. The automated report
 commit contains only generated reports, so its parent is the reproducible audited
@@ -239,23 +251,25 @@ report. A report is due when:
 - its compiler binary hash is missing or differs from the current executable;
 - its auditor fingerprint is missing or differs from the current implementation;
 - its recorded model is missing or differs from the configured model;
+- its recorded endpoint is missing or differs from the configured endpoint;
 - the current compiler is a development build and its version differs from the
   version recorded in the report; or
 - the current executable reports its own version but the stored report used a
   weaker inferred identity source.
 
-Input, toolchain, and model identities are checked before age and compiler lineage.
-A one-minute-old report therefore cannot remain green after its program, runtime
-expectations, compiler executable, auditor implementation, or configured reviewer
-changes.
+Input, toolchain, endpoint, and model identities are checked before age and compiler
+lineage. A one-minute-old report therefore cannot remain green after its program,
+runtime expectations, compiler executable, auditor implementation, endpoint, or
+requested reviewer changes.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
 evidence. Exit code `2` creates or updates a deduplicated issue in
-`ahojukka5/weavec` with the compiler identity, affected sources, and workflow
-link. Infrastructure failures fail the scheduled job but do not misclassify the
-compiler. Scheduled summaries and failure JSON record the model, compiler version,
-compiler binary hash, identity source, and auditor content fingerprint.
+`ahojukka5/weavec` with the compiler identity, affected sources, reviewer endpoint
+and model, and workflow link. Infrastructure failures fail the scheduled job but
+do not misclassify the compiler. Scheduled summaries and failure JSON record the
+endpoint, model, compiler version, compiler binary hash, identity source, and
+auditor content fingerprint.
 
 Configure these repository secrets:
 

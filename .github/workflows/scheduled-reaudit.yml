@@ -75,6 +75,7 @@ jobs:
           uv run python scripts/reaudit_stale.py \
             --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
             --model "$WEAVE_LLM_MODEL" \
+            --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
             --max-age-days 30 \
             --summary build/scheduled-audit/summary.md \
             --reports-list build/scheduled-audit/reports.txt \
@@ -130,6 +131,8 @@ jobs:
             const body = `${marker}\n## Scheduled Loupe audit failure\n\n` +
               `- **Detected:** \`${data.timestamp_utc}\`\n` +
               `- **Compiler:** \`${data.compiler.display}\`\n` +
+              `- **LLM endpoint:** \`${data.endpoint}\`\n` +
+              `- **LLM model:** \`${data.model}\`\n` +
               `- **Workflow:** ${runUrl}\n\n` +
               `The current compiler failed one or more previously passing ` +
               `source-to-native audits. The workflow artifact contains the ` +

@@ -11,9 +11,16 @@ from weave_loupe.commands.verify_report import run_verify_report
 from weave_loupe.report_integrity import seal_audit_report
 
 _MODEL = "z-ai/glm-5.2"
+_ENDPOINT = "https://example.test/v1"
 
 
-def _write_report(source: Path, compiler: Path, *, model: str = _MODEL) -> Path:
+def _write_report(
+    source: Path,
+    compiler: Path,
+    *,
+    model: str = _MODEL,
+    endpoint: str = _ENDPOINT,
+) -> Path:
     report = source.with_suffix(".md")
     timestamp = datetime.now(UTC).replace(microsecond=0).isoformat()
     content = (
@@ -24,7 +31,11 @@ def _write_report(source: Path, compiler: Path, *, model: str = _MODEL) -> Path:
         f"- **weavec binary SHA-256:** `{sha256_file(compiler)}`\n"
         "- **weavec version:** `weavec v0.3.0+git.test123`\n"
         "- **weavec version source:** `command`\n"
-        f"- **LLM model:** `{model}`\n\n"
+        f"- **LLM endpoint:** `{endpoint}`\n"
+        f"- **LLM model:** `{model}`\n"
+        "- **Provider-reported model:** `z-ai/glm-5.2-20260728`\n"
+        "- **Provider response ID:** `chatcmpl-test`\n"
+        "- **Provider system fingerprint:** `fp_test`\n\n"
         "## Audited inputs\n\n"
         f"- Source `{source}` — SHA-256 `{sha256_file(source)}`\n\n"
         "## Captured evidence\n"
@@ -47,6 +58,7 @@ def test_verify_report_accepts_exact_current_identity(
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
+        endpoint=_ENDPOINT,
         max_age_days=30,
         json_out=json_out,
     )
@@ -62,7 +74,12 @@ def test_verify_report_accepts_exact_current_identity(
     assert document["current_compiler"]["binary_sha256"] == sha256_file(fake_weavec)
     assert document["current_auditor"]["sha256"] == identify_auditor().sha256
     assert document["current_model"] == _MODEL
+    assert document["current_endpoint"] == _ENDPOINT
     assert document["report_identity"]["model"] == _MODEL
+    assert document["report_identity"]["endpoint"] == _ENDPOINT
+    assert document["report_identity"]["provider_model"] == ("z-ai/glm-5.2-20260728")
+    assert document["report_identity"]["response_id"] == "chatcmpl-test"
+    assert document["report_identity"]["system_fingerprint"] == "fp_test"
     assert len(document["report_identity"]["report_content_sha256"]) == 64
 
 
@@ -71,7 +88,12 @@ def test_verify_report_lists_all_stale_reasons(
     fake_weavec: Path,
     capsys,
 ) -> None:
-    report = _write_report(source_file, fake_weavec, model="old-model")
+    report = _write_report(
+        source_file,
+        fake_weavec,
+        model="old-model",
+        endpoint="https://old.example.test/v1",
+    )
     source_file.write_text("changed\n", encoding="utf-8")
 
     code = run_verify_report(
@@ -79,6 +101,7 @@ def test_verify_report_lists_all_stale_reasons(
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
+        endpoint=_ENDPOINT,
         max_age_days=30,
         json_out=None,
     )
@@ -88,6 +111,33 @@ def test_verify_report_lists_all_stale_reasons(
     assert captured.out.startswith(f"STALE: {report}\n")
     assert "- source content changed since audit\n" in captured.out
     assert f"- LLM model changed from old-model to {_MODEL}\n" in captured.out
+    assert (
+        "- LLM endpoint changed from https://old.example.test/v1 "
+        "to https://example.test/v1\n"
+    ) in captured.out
+    assert captured.err == ""
+
+
+def test_verify_report_normalizes_current_endpoint(
+    source_file: Path,
+    fake_weavec: Path,
+    capsys,
+) -> None:
+    report = _write_report(source_file, fake_weavec)
+
+    code = run_verify_report(
+        report=report,
+        source=None,
+        weavec=fake_weavec,
+        model=_MODEL,
+        endpoint="http://user:secret@EXAMPLE.test/v1/?token=hidden",
+        max_age_days=30,
+        json_out=None,
+    )
+
+    captured = capsys.readouterr()
+    assert code == 0
+    assert captured.out == f"VALID: {report}\n"
     assert captured.err == ""
 
 
@@ -107,6 +157,7 @@ def test_verify_report_rejects_changed_markdown_content(
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
+        endpoint=_ENDPOINT,
         max_age_days=30,
         json_out=None,
     )
@@ -118,18 +169,24 @@ def test_verify_report_rejects_changed_markdown_content(
     assert captured.err == ""
 
 
-def test_verify_report_can_skip_model_comparison(
+def test_verify_report_can_skip_model_and_endpoint_comparison(
     source_file: Path,
     fake_weavec: Path,
     capsys,
 ) -> None:
-    report = _write_report(source_file, fake_weavec, model="archived-model")
+    report = _write_report(
+        source_file,
+        fake_weavec,
+        model="archived-model",
+        endpoint="https://archived.example.test/v1",
+    )
 
     code = run_verify_report(
         report=report,
         source=None,
         weavec=fake_weavec,
         model=None,
+        endpoint=None,
         max_age_days=30,
         json_out=None,
     )
@@ -151,6 +208,7 @@ def test_verify_report_rejects_invalid_maximum_age(
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
+        endpoint=_ENDPOINT,
         max_age_days=0,
         json_out=None,
     )
@@ -173,6 +231,7 @@ def test_verify_report_rejects_missing_report(
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
+        endpoint=_ENDPOINT,
         max_age_days=30,
         json_out=None,
     )

@@ -102,10 +102,12 @@ def run_audit(
             analysis_text = json.dumps(
                 analysis, indent=2, sort_keys=True, ensure_ascii=False
             )
+            config = load_config(model=model, max_tokens=max_tokens)
             metadata = collect_audit_metadata(
                 sources=weave_files,
                 weavec=weavec,
                 model=model,
+                llm_endpoint=config.endpoint,
                 bundle=bundle,
                 runtime_matrix=runtime_matrix,
             )
@@ -123,8 +125,9 @@ def run_audit(
                 metadata_json=metadata_json(metadata),
             )
 
-            config = load_config(model=model, max_tokens=max_tokens)
-            response = chat_completion(config, prompt)
+            completion = chat_completion(config, prompt)
+            response = completion.content
+            metadata["llm"] = completion.metadata()
             model_verdict = parse_audit_response(response)
             verdict = apply_deterministic_gate(model_verdict, analysis)
             report = render_audit_report(

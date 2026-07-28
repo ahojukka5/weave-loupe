@@ -14,6 +14,9 @@ from weave_loupe.report_validity import (
     read_report_identity,
 )
 
+_MODEL = "z-ai/glm-5.2"
+_ENDPOINT = "https://example.test/v1"
+
 
 def _compiler() -> CompilerVersion:
     return CompilerVersion(
@@ -40,11 +43,15 @@ def _identity(source: Path) -> ReportIdentity:
         version_source="command",
         compiler_binary_sha256="a" * 64,
         auditor_sha256="b" * 64,
-        model="z-ai/glm-5.2",
+        model=_MODEL,
         source_path=str(source),
         source_sha256=sha256_file(source),
         runtime_path=None,
         runtime_sha256=None,
+        endpoint=_ENDPOINT,
+        provider_model="z-ai/glm-5.2-20260728",
+        response_id="chatcmpl-test",
+        system_fingerprint="fp_test",
     )
 
 
@@ -59,7 +66,8 @@ def test_exact_identity_is_valid(tmp_path: Path) -> None:
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
-        current_model="z-ai/glm-5.2",
+        current_model=_MODEL,
+        current_endpoint=_ENDPOINT,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -83,6 +91,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         source_sha256="e" * 64,
         runtime_path=None,
         runtime_sha256=None,
+        endpoint="https://old.example.test/v1",
     )
 
     result = evaluate_identity(
@@ -93,6 +102,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
         current_model="new-model",
+        current_endpoint=_ENDPOINT,
         now=datetime(2026, 7, 28, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -103,6 +113,8 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         "compiler binary changed since audit",
         "audit implementation changed since audit",
         "LLM model changed from old-model to new-model",
+        "LLM endpoint changed from https://old.example.test/v1 "
+        "to https://example.test/v1",
         "report age is at least 30 days",
         "development compiler changed from weavec v0.3.0+git.old "
         "to weavec v0.3.0+git.abc",
@@ -121,7 +133,7 @@ def test_missing_and_changed_models_are_stale(tmp_path: Path) -> None:
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
-        current_model="z-ai/glm-5.2",
+        current_model=_MODEL,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -132,23 +144,59 @@ def test_missing_and_changed_models_are_stale(tmp_path: Path) -> None:
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
-        current_model="z-ai/glm-5.2",
+        current_model=_MODEL,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
 
     assert missing.reasons == ("report does not record LLM model",)
-    assert changed.reasons == ("LLM model changed from old-model to z-ai/glm-5.2",)
+    assert changed.reasons == (f"LLM model changed from old-model to {_MODEL}",)
 
 
-def test_model_check_is_optional_for_standalone_verification(tmp_path: Path) -> None:
+def test_missing_and_changed_endpoints_are_stale(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    missing = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), endpoint=None),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_endpoint=_ENDPOINT,
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+    changed = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), endpoint="https://old.example.test/v1"),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_endpoint=_ENDPOINT,
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+
+    assert missing.reasons == ("report does not record LLM endpoint",)
+    assert changed.reasons == (
+        "LLM endpoint changed from https://old.example.test/v1 "
+        "to https://example.test/v1",
+    )
+
+
+def test_model_and_endpoint_checks_are_optional_for_standalone_use(
+    tmp_path: Path,
+) -> None:
     source = tmp_path / "demo.weave"
     source.write_text("(program)\n", encoding="utf-8")
 
     result = evaluate_identity(
         report=source.with_suffix(".md"),
         source=source,
-        identity=replace(_identity(source), model=None),
+        identity=replace(_identity(source), model=None, endpoint=None),
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
@@ -198,12 +246,18 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
         f"- **weavec binary SHA-256:** `{'a' * 64}`\n"
         "- **weavec version:** `weavec v0.3.0+git.abc`\n"
         "- **weavec version source:** `command`\n"
-        "- **LLM model:** `z-ai/glm-5.2`\n\n"
+        f"- **LLM endpoint:** `{_ENDPOINT}`\n"
+        f"- **LLM model:** `{_MODEL}`\n"
+        "- **Provider-reported model:** `z-ai/glm-5.2-20260728`\n"
+        "- **Provider response ID:** `chatcmpl-test`\n"
+        "- **Provider system fingerprint:** `fp_test`\n\n"
         "## Audited inputs\n\n"
         f"- Source `{source}` — SHA-256 `{sha256_file(source)}`\n\n"
         "## LLM review\n\n"
         f"- Source `{source}` — SHA-256 `{'0' * 64}`\n"
-        "- **LLM model:** `spoofed-model`\n",
+        "- **LLM endpoint:** `https://spoofed.test/v1`\n"
+        "- **LLM model:** `spoofed-model`\n"
+        "- **Provider-reported model:** `spoofed-provider`\n",
         encoding="utf-8",
     )
 
@@ -212,4 +266,8 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
     assert identity.source_sha256 == sha256_file(source)
     assert identity.compiler_binary_sha256 == "a" * 64
     assert identity.auditor_sha256 == "b" * 64
-    assert identity.model == "z-ai/glm-5.2"
+    assert identity.endpoint == _ENDPOINT
+    assert identity.model == _MODEL
+    assert identity.provider_model == "z-ai/glm-5.2-20260728"
+    assert identity.response_id == "chatcmpl-test"
+    assert identity.system_fingerprint == "fp_test"

@@ -26,6 +26,7 @@ def test_validity_envelope_sets_exact_thirty_day_deadline() -> None:
         "invalidate_on_compiler_binary_change": True,
         "invalidate_on_auditor_fingerprint_change": True,
         "invalidate_on_model_change": True,
+        "invalidate_on_endpoint_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }
@@ -48,6 +49,13 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "timestamp_utc": timestamp,
         "validity": build_audit_validity(timestamp),
         "model": "model",
+        "llm": {
+            "endpoint": "https://example.test/v1",
+            "requested_model": "model",
+            "provider_model": "model-20260728",
+            "response_id": "chatcmpl-test",
+            "system_fingerprint": "fp_test",
+        },
         "source_repository": {"sha": "source", "state": "clean"},
         "loupe_repository": {"sha": "loupe"},
         "auditor": {"sha256": "auditor"},
@@ -87,8 +95,15 @@ def test_report_renders_human_visible_validity_scope() -> None:
         "Auditor invalidation:** `any audit implementation fingerprint change`"
         in report
     )
-    assert "Model invalidation:** `any configured LLM model change`" in report
+    assert (
+        "Model invalidation:** `any configured LLM model or endpoint change`" in report
+    )
     assert "Auditor content SHA-256:** `auditor`" in report
+    assert "LLM endpoint:** `https://example.test/v1`" in report
+    assert "LLM model:** `model`" in report
+    assert "Provider-reported model:** `model-20260728`" in report
+    assert "Provider response ID:** `chatcmpl-test`" in report
+    assert "Provider system fingerprint:** `fp_test`" in report
     assert (
         "Development compiler invalidation:** `any compiler version change`" in report
     )

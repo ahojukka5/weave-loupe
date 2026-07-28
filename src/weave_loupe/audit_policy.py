@@ -28,6 +28,7 @@ def build_audit_validity(
         "invalidate_on_compiler_binary_change": True,
         "invalidate_on_auditor_fingerprint_change": True,
         "invalidate_on_model_change": True,
+        "invalidate_on_endpoint_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }

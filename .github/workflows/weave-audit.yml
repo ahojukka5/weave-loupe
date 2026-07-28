@@ -146,6 +146,7 @@ jobs:
             uv run loupe verify-report "$report" \
               --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
               --model "$WEAVE_LLM_MODEL" \
+              --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
               --json-out "build/report-validity/${name%.md}.json"
           done < build/weave-audit-reports.txt
           test "$count" -gt 0
