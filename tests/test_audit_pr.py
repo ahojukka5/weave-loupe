@@ -40,7 +40,9 @@ def test_changed_or_deleted_report_selects_adjacent_source(
     assert selected == [Path("demo.weave")]
 
 
-def test_non_generated_markdown_is_not_selected(tmp_path: Path, monkeypatch: Any) -> None:
+def test_non_generated_markdown_is_not_selected(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
     readme = tmp_path / "README.md"
     readme.write_text("documentation\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
