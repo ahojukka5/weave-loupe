@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from weave_loupe.commands.audit import run_audit
-from weave_loupe.llm import LlmConfig
+from weave_loupe.llm import LlmConfig, LlmResponse
 
 
 def _config() -> LlmConfig:
@@ -16,6 +16,17 @@ def _config() -> LlmConfig:
         api_key="secret",
         model="model",
         max_tokens=64,
+    )
+
+
+def _response(content: str) -> LlmResponse:
+    return LlmResponse(
+        content=content,
+        requested_model="model",
+        endpoint="https://example.test/v1",
+        provider_model="model-20260728",
+        response_id="chatcmpl-test",
+        system_fingerprint="fp_test",
     )
 
 
@@ -50,7 +61,7 @@ def test_audit_writes_report_only_for_ok_verdict(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value="OK\n## Summary\nNo blocking defect found.",
+            return_value=_response("OK\n## Summary\nNo blocking defect found."),
         ) as chat,
     ):
         code = run_audit(
@@ -74,6 +85,7 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "typed-integer-wrap" in prompt
     assert "identity_adds" in prompt
     assert '"configured": false' in prompt
+    assert '"endpoint": "https://example.test/v1"' in prompt
     raw_wir = wir_path.read_text(encoding="utf-8")
     assert "weavec-source-span-v1" in raw_wir
     report = report_path.read_text(encoding="utf-8")
@@ -82,6 +94,11 @@ def test_audit_writes_report_only_for_ok_verdict(
     assert "weavec binary SHA-256" in report
     assert "weavec v0.3.0+git.test123" in report
     assert "weavec build kind:** `development`" in report
+    assert "LLM endpoint:** `https://example.test/v1`" in report
+    assert "LLM model:** `model`" in report
+    assert "Provider-reported model:** `model-20260728`" in report
+    assert "Provider response ID:** `chatcmpl-test`" in report
+    assert "Provider system fingerprint:** `fp_test`" in report
     assert "Machine and running conditions" in report
     assert capsys.readouterr().out == report
 
@@ -95,7 +112,7 @@ def test_audit_executes_passing_runtime_matrix(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value="OK\n## Summary\nNative execution agrees.",
+            return_value=_response("OK\n## Summary\nNative execution agrees."),
         ) as chat,
     ):
         code = run_audit(
@@ -130,7 +147,7 @@ def test_runtime_mismatch_overrides_model_ok_and_removes_report(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value="OK\n## Summary\nStatic evidence looks valid.",
+            return_value=_response("OK\n## Summary\nStatic evidence looks valid."),
         ),
     ):
         code = run_audit(
@@ -162,7 +179,7 @@ def test_audit_failure_returns_nonzero_and_removes_stale_report(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value=(
+            return_value=_response(
                 "FAILED: memory-leakage: allocation is not released\n"
                 "## Blocking findings\nConcrete evidence."
             ),
@@ -193,7 +210,7 @@ def test_audit_rejects_malformed_verdict(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value="Looks fine to me.",
+            return_value=_response("Looks fine to me."),
         ),
     ):
         code = run_audit(
@@ -218,7 +235,7 @@ def test_audit_verbose_embeds_cleaned_wir(
         patch("weave_loupe.commands.audit.load_config", return_value=_config()),
         patch(
             "weave_loupe.commands.audit.chat_completion",
-            return_value="OK\n## Summary\nNo defect.",
+            return_value=_response("OK\n## Summary\nNo defect."),
         ),
     ):
         code = run_audit(
