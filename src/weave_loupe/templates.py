@@ -6,7 +6,8 @@ AUDIT_REPORT_TEMPLATE = """\
 ## Summary
 State the concrete audit conclusion. Attribute each important observation to
 Weave source, cleaned WIR, raw LLVM, optimized LLVM, target assembly, linked
-executable disassembly, direct runtime execution, or the optimization record.
+executable disassembly, direct runtime execution, the native optimization budget,
+or the optimization record.
 
 ## Verification matrix
 For every row below, write `PASS`, `FAIL`, or `UNVERIFIED` and cite concrete
@@ -22,6 +23,7 @@ artifact evidence. Do not omit a row.
 - Memory safety, lifetime, leaks, and undefined behavior
 - Target compatibility and native instruction validity
 - Native runtime cases and expected observable behavior
+- Configured native optimization budget and observed final-code metrics
 - Compiler-generated overhead remaining in final native code
 
 An `UNVERIFIED` result is acceptable only for a genuinely nonessential property.
@@ -32,9 +34,10 @@ unverifiable from the supplied evidence, the gate must fail with code
 ## Blocking findings
 List every finding that justifies a failed gate: incorrect behavior, invalid SSA
 or IR, undefined behavior, memory unsafety or leakage, target incompatibility,
-ABI violation, failed runtime expectations, or substantial compiler-generated
-overhead that remains in optimized LLVM or final machine code. Use `None found.`
-only when every essential verification-matrix row has affirmative evidence.
+ABI violation, failed runtime expectations, exceeded native optimization limits,
+or substantial compiler-generated overhead that remains in optimized LLVM or final
+machine code. Use `None found.` only when every essential verification-matrix row
+has affirmative evidence.
 
 For each finding use:
 
@@ -78,13 +81,21 @@ linked executable disassembly, and any direct runtime matrix in the complete
 analysis JSON. Inspect final native code instruction by instruction, including
 calls, returns, signed comparisons, arithmetic width, register values, stack
 behavior, ABI rules, and control-flow edges. Cross-check all stages against each
-other, the deterministic analysis, runtime observations, and optimization
-remarks.
+other, the deterministic analysis, runtime observations, native optimization
+budget, and optimization remarks.
 
 A configured runtime matrix is direct evidence from executing the exact linked
 artifact. Its expected values come from a versioned, hash-addressed sidecar. Any
 failed case is a semantic defect even when the static artifacts look plausible.
 When no matrix is configured, do not invent runtime observations.
+
+A configured native optimization budget is a versioned maximum contract for
+measured linked-executable properties. Verify its limits against the observed
+native metrics in the complete analysis JSON. Any exceeded limit is a final-code
+quality regression. A passing budget does not by itself prove theoretical
+optimality: still inspect the disassembly and identify avoidable overhead that the
+current ceiling permits. Improvements below the ceiling remain welcome and do not
+require weakening the budget.
 
 The WIR shown below is a review projection of the exact captured artifact. Only
 source-file and source-span provenance comments are hidden, and whitespace is
@@ -93,15 +104,15 @@ hash-addressed in the bundle and may be exported separately for debugging.
 
 Return FAILED when the evidence supports a merge-blocking defect: incorrect
 behavior, invalid SSA or LLVM IR, undefined behavior, memory unsafety or memory
-leakage, target incompatibility, ABI violation, failed runtime expectations, or
-substantial compiler-generated overhead that remains in optimized LLVM or final
-machine code. Also return FAILED with code `insufficient-evidence` when an
-essential correctness, safety, ABI, or final-code-quality claim cannot actually
-be verified from the supplied artifacts. A speculative idea, style preference,
-source-level algorithm alternative, or inefficiency that disappears during LLVM
-optimization is non-blocking. Do not invent problems, but do not soften or omit
-supported problems merely because the program is small or the optimizer
-produced compact code.
+leakage, target incompatibility, ABI violation, failed runtime expectations,
+exceeded native optimization limits, or substantial compiler-generated overhead
+that remains in optimized LLVM or final machine code. Also return FAILED with code
+`insufficient-evidence` when an essential correctness, safety, ABI, or
+final-code-quality claim cannot actually be verified from the supplied artifacts.
+A speculative idea, style preference, source-level algorithm alternative, or
+inefficiency that disappears during LLVM optimization is non-blocking. Do not
+invent problems, but do not soften or omit supported problems merely because the
+program is small or the optimizer produced compact code.
 
 An OK verdict requires affirmative artifact evidence for every essential row in
 the verification matrix. A concise final program such as `mov constant; ret` is
