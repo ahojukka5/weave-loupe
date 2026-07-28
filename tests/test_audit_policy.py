@@ -22,6 +22,7 @@ def test_validity_envelope_sets_exact_thirty_day_deadline() -> None:
         "max_age_days": DEFAULT_AUDIT_MAX_AGE_DAYS,
         "revalidate_after_utc": "2026-08-26T21:30:00+00:00",
         "invalidate_on_input_hash_change": True,
+        "invalidate_on_report_content_change": True,
         "invalidate_on_compiler_binary_change": True,
         "invalidate_on_auditor_fingerprint_change": True,
         "invalidate_on_model_change": True,
