@@ -20,6 +20,7 @@ from weave_loupe.auditor_identity import (
     sha256_file,
 )
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
+from weave_loupe.llm import normalize_endpoint_identity
 from weave_loupe.report_validity import (
     ReportIdentity,
     evaluate_identity,
@@ -42,6 +43,7 @@ class ReportState:
     compiler_binary_sha256: str | None
     auditor_sha256: str | None
     model: str | None
+    endpoint: str | None
     source_sha256: str | None
     runtime_sha256: str | None
     reason: str | None
@@ -75,6 +77,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--weavec", type=Path, required=True)
     parser.add_argument("--model", required=True)
+    parser.add_argument("--llm-endpoint", required=True)
     parser.add_argument("--source-root", type=Path, default=Path("docs/audit"))
     parser.add_argument(
         "--max-age-days",
@@ -90,6 +93,7 @@ def main() -> int:
     args = parser.parse_args()
 
     now = parse_time(args.now) if args.now else datetime.now(UTC)
+    endpoint = normalize_endpoint_identity(args.llm_endpoint)
     identity = identify_weavec(args.weavec)
     compiler_binary_sha256 = sha256_file(args.weavec)
     auditor = identify_auditor()
@@ -99,6 +103,7 @@ def main() -> int:
         compiler_binary_sha256=compiler_binary_sha256,
         auditor=auditor,
         model=args.model,
+        endpoint=endpoint,
         now=now,
         max_age=timedelta(days=args.max_age_days),
         force=args.force,
@@ -132,6 +137,7 @@ def main() -> int:
                 compiler_binary_sha256=compiler_binary_sha256,
                 auditor=auditor,
                 model=args.model,
+                endpoint=endpoint,
                 states=states,
                 runs=runs,
                 now=now,
@@ -147,6 +153,7 @@ def main() -> int:
             "format": "weave-loupe-scheduled-failures-v1",
             "timestamp_utc": now.replace(microsecond=0).isoformat(),
             "model": args.model,
+            "endpoint": endpoint,
             "compiler": {
                 **asdict(identity),
                 "binary_sha256": compiler_binary_sha256,
@@ -182,6 +189,7 @@ def _report_states(
     compiler_binary_sha256: str | None = None,
     auditor: AuditorIdentity | None = None,
     model: str | None = None,
+    endpoint: str | None = None,
 ) -> list[ReportState]:
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
@@ -195,6 +203,7 @@ def _report_states(
                 compiler_binary_sha256=compiler_binary_sha256,
                 auditor=auditor,
                 current_model=model,
+                current_endpoint=endpoint,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -205,6 +214,7 @@ def _report_states(
                 report_identity=report_identity,
                 identity=identity,
                 current_model=model,
+                current_endpoint=endpoint,
                 now=now,
                 max_age=max_age,
                 force=force,
@@ -219,6 +229,7 @@ def _report_states(
                 compiler_binary_sha256=report_identity.compiler_binary_sha256,
                 auditor_sha256=report_identity.auditor_sha256,
                 model=report_identity.model,
+                endpoint=report_identity.endpoint,
                 source_sha256=report_identity.source_sha256,
                 runtime_sha256=report_identity.runtime_sha256,
                 reason=reason,
@@ -238,6 +249,7 @@ def _reaudit_reason(
     compiler_binary_sha256: str | None = None,
     auditor: AuditorIdentity | None = None,
     current_model: str | None = None,
+    current_endpoint: str | None = None,
 ) -> str | None:
     """Compatibility wrapper for focused tests; production uses evaluate_report."""
     if compiler_binary_sha256 is not None and auditor is not None:
@@ -249,6 +261,7 @@ def _reaudit_reason(
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
             current_model=current_model,
+            current_endpoint=current_endpoint,
             now=now,
             max_age=max_age,
             force=force,
@@ -275,6 +288,14 @@ def _reaudit_reason(
             return "report does not record LLM model"
         if report_identity.model != current_model:
             return f"LLM model changed from {report_identity.model} to {current_model}"
+    if current_endpoint is not None:
+        if report_identity.endpoint is None:
+            return "report does not record LLM endpoint"
+        if report_identity.endpoint != current_endpoint:
+            return (
+                f"LLM endpoint changed from {report_identity.endpoint} "
+                f"to {current_endpoint}"
+            )
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
     if identity.development and report_identity.version != identity.display:
@@ -336,6 +357,7 @@ def _render_summary(
     compiler_binary_sha256: str,
     auditor: AuditorIdentity,
     model: str,
+    endpoint: str,
     states: list[ReportState],
     runs: list[AuditRun],
     now: datetime,
@@ -354,6 +376,7 @@ def _render_summary(
         f"- **Compiler build kind:** `{build_kind}`",
         f"- **Compiler identity source:** `{identity.source}`",
         f"- **Auditor content SHA-256:** `{auditor.sha256}`",
+        f"- **LLM endpoint:** `{endpoint}`",
         f"- **LLM model:** `{model}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
