@@ -102,3 +102,24 @@ def test_verify_report_rejects_invalid_maximum_age(
     assert code == 1
     assert captured.out == ""
     assert "max_age_days must be positive" in captured.err
+
+
+def test_verify_report_rejects_missing_report(
+    tmp_path: Path,
+    fake_weavec: Path,
+    capsys,
+) -> None:
+    report = tmp_path / "missing.md"
+
+    code = run_verify_report(
+        report=report,
+        source=None,
+        weavec=fake_weavec,
+        max_age_days=30,
+        json_out=None,
+    )
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert captured.out == ""
+    assert f"audit report not found: {report}" in captured.err
