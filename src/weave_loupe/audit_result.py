@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import platform
@@ -15,6 +14,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from weave_loupe.audit_policy import build_audit_validity
+from weave_loupe.auditor_identity import identify_auditor, sha256_file
 from weave_loupe.bundle import Bundle
 from weave_loupe.compiler_version import identify_weavec
 from weave_loupe.weavec import resolve_weavec
@@ -71,9 +71,10 @@ def collect_audit_metadata(
     bundle: Bundle,
     runtime_matrix: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Collect source, compiler, runtime, and machine facts for one audit."""
+    """Collect source, compiler, auditor, runtime, and machine facts."""
     binary = resolve_weavec(weavec)
     identity = identify_weavec(binary)
+    auditor = identify_auditor()
     timestamp_utc = datetime.now(UTC).replace(microsecond=0).isoformat()
     return {
         "format": "weave-loupe-audit-metadata-v1",
@@ -82,9 +83,10 @@ def collect_audit_metadata(
         "model": model,
         "source_repository": _git_metadata(_common_source_directory(sources)),
         "loupe_repository": _git_metadata(Path(__file__).resolve()),
+        "auditor": auditor.metadata(),
         "weavec": {
             "path": str(binary),
-            "sha256": _sha256(binary),
+            "sha256": sha256_file(binary),
             "version": identity.display,
             "base_version": identity.base,
             "git_sha": identity.git_sha,
@@ -96,7 +98,7 @@ def collect_audit_metadata(
         "sources": [
             {
                 "path": str(source),
-                "sha256": _sha256(source),
+                "sha256": sha256_file(source),
                 "size": source.stat().st_size,
             }
             for source in sources
@@ -117,6 +119,7 @@ def render_audit_report(
     """Render a stable Markdown envelope around the model's review."""
     source_repo = _mapping(metadata.get("source_repository"))
     loupe_repo = _mapping(metadata.get("loupe_repository"))
+    auditor = _mapping(metadata.get("auditor"))
     weavec = _mapping(metadata.get("weavec"))
     weavec_repo = _mapping(weavec.get("repository"))
     validity = _mapping(metadata.get("validity"))
@@ -143,12 +146,15 @@ def render_audit_report(
         "- **Maximum audit age:** "
         f"`{validity.get('max_age_days', 'unavailable')}` days",
         "- **Audited input invalidation:** `any source or runtime matrix hash change`",
+        "- **Compiler binary invalidation:** `any compiler binary hash change`",
+        "- **Auditor invalidation:** `any audit implementation fingerprint change`",
         "- **Development compiler invalidation:** `any compiler version change`",
         "- **Identity attestation upgrade:** "
         "`required when command identity becomes available`",
         f"- **Audited source Git SHA:** `{source_repo.get('sha', 'unavailable')}`",
         f"- **Source tree state:** `{source_repo.get('state', 'unavailable')}`",
         f"- **Weave Loupe Git SHA:** `{loupe_repo.get('sha', 'unavailable')}`",
+        f"- **Auditor content SHA-256:** `{auditor.get('sha256', 'unavailable')}`",
         f"- **weavec Git SHA:** `{weavec_repo.get('sha', 'unavailable')}`",
         f"- **weavec binary SHA-256:** `{weavec.get('sha256', 'unavailable')}`",
         f"- **weavec version:** `{weavec.get('version', 'unavailable')}`",
@@ -321,14 +327,6 @@ def _memory_bytes() -> int:
     return 0
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
 def _common_source_directory(sources: list[Path]) -> Path:
     if not sources:
         return Path.cwd()
@@ -347,7 +345,7 @@ def _artifact_hashes(bundle: Bundle) -> dict[str, str]:
             continue
         path = bundle.artifact_path(name)
         if path is not None:
-            hashes[name] = _sha256(path)
+            hashes[name] = sha256_file(path)
     return hashes
 
 
