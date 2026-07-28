@@ -142,6 +142,20 @@ auditing refreshes otherwise-fresh legacy reports whose identity source is
 to `weavec version source: command` even when the displayed version string has
 not changed.
 
+## Audited input identity
+
+The stable `Audited inputs` section names every source and configured runtime
+matrix with its SHA-256. These hashes define the exact semantic claim reviewed by
+the model and exercised by native runtime cases. The report is invalid as soon as
+any source hash changes, a runtime matrix is added or removed, or a matrix hash
+changes. This rule applies even when the report is younger than 30 days and the
+compiler version is unchanged.
+
+Older reports with an unlabelled source line remain readable during migration,
+but a report without an auditable source hash is refreshed rather than trusted.
+The scheduled checker parses only the stable input section, so hashes inside raw
+model prose or embedded analysis JSON cannot accidentally satisfy the gate.
+
 ## Pull-request workflow
 
 The adversarial prompt requires a stage-by-stage verification matrix. An `OK`
@@ -170,10 +184,16 @@ report. A report is due when:
 
 - its timestamp is missing or at least 30 days old;
 - it is manually forced through `workflow_dispatch`;
+- its source hash is missing or differs from the current source;
+- an adjacent runtime matrix was added, changed, or removed;
 - the current compiler is a development build and its version differs from the
   version recorded in the report; or
 - the current executable reports its own version but the stored report used a
   weaker inferred identity source.
+
+Input hashes are checked before age and compiler identity. A one-minute-old report
+therefore cannot remain green after its audited source or runtime expectations
+change outside the pull-request workflow.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
