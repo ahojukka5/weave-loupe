@@ -19,7 +19,11 @@ _VERSION_PREFIX = "- **weavec version:** `"
 _VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
 _COMPILER_BINARY_PREFIX = "- **weavec binary SHA-256:** `"
 _AUDITOR_PREFIX = "- **Auditor content SHA-256:** `"
+_ENDPOINT_PREFIX = "- **LLM endpoint:** `"
 _MODEL_PREFIX = "- **LLM model:** `"
+_PROVIDER_MODEL_PREFIX = "- **Provider-reported model:** `"
+_RESPONSE_ID_PREFIX = "- **Provider response ID:** `"
+_SYSTEM_FINGERPRINT_PREFIX = "- **Provider system fingerprint:** `"
 _SOURCE_INPUT = re.compile(
     r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
     r"`(?P<sha256>[0-9a-f]{64})`$"
@@ -45,6 +49,10 @@ class ReportIdentity:
     runtime_path: str | None
     runtime_sha256: str | None
     report_content_sha256: str | None = None
+    endpoint: str | None = None
+    provider_model: str | None = None
+    response_id: str | None = None
+    system_fingerprint: str | None = None
 
 
 @dataclass(frozen=True)
@@ -77,7 +85,11 @@ def read_report_identity(report: Path) -> ReportIdentity:
     version_source: str | None = None
     compiler_binary_sha256: str | None = None
     auditor_sha256: str | None = None
+    endpoint: str | None = None
     model: str | None = None
+    provider_model: str | None = None
+    response_id: str | None = None
+    system_fingerprint: str | None = None
     source_path: str | None = None
     source_sha256: str | None = None
     runtime_path: str | None = None
@@ -104,8 +116,20 @@ def read_report_identity(report: Path) -> ReportIdentity:
             compiler_binary_sha256 = line[len(_COMPILER_BINARY_PREFIX) : -1]
         elif line.startswith(_AUDITOR_PREFIX) and line.endswith("`"):
             auditor_sha256 = line[len(_AUDITOR_PREFIX) : -1]
+        elif line.startswith(_ENDPOINT_PREFIX) and line.endswith("`"):
+            endpoint = line[len(_ENDPOINT_PREFIX) : -1]
         elif line.startswith(_MODEL_PREFIX) and line.endswith("`"):
             model = line[len(_MODEL_PREFIX) : -1]
+        elif line.startswith(_PROVIDER_MODEL_PREFIX) and line.endswith("`"):
+            provider_model = _available_value(
+                line[len(_PROVIDER_MODEL_PREFIX) : -1]
+            )
+        elif line.startswith(_RESPONSE_ID_PREFIX) and line.endswith("`"):
+            response_id = _available_value(line[len(_RESPONSE_ID_PREFIX) : -1])
+        elif line.startswith(_SYSTEM_FINGERPRINT_PREFIX) and line.endswith("`"):
+            system_fingerprint = _available_value(
+                line[len(_SYSTEM_FINGERPRINT_PREFIX) : -1]
+            )
         elif line.startswith(REPORT_CONTENT_PREFIX) and line.endswith("`"):
             report_content_sha256 = line[len(REPORT_CONTENT_PREFIX) : -1]
         elif in_inputs:
@@ -131,6 +155,10 @@ def read_report_identity(report: Path) -> ReportIdentity:
         runtime_path=runtime_path,
         runtime_sha256=runtime_sha256,
         report_content_sha256=report_content_sha256,
+        endpoint=endpoint,
+        provider_model=provider_model,
+        response_id=response_id,
+        system_fingerprint=system_fingerprint,
     )
 
 
@@ -145,6 +173,7 @@ def evaluate_report(
     max_age: timedelta,
     force: bool = False,
     current_model: str | None = None,
+    current_endpoint: str | None = None,
 ) -> ValidityResult:
     """Parse and evaluate one report against the current audit environment."""
     identity = read_report_identity(report)
@@ -159,6 +188,7 @@ def evaluate_report(
         max_age=max_age,
         force=force,
         current_model=current_model,
+        current_endpoint=current_endpoint,
     )
     if force:
         return result
@@ -190,6 +220,7 @@ def evaluate_identity(
     max_age: timedelta,
     force: bool = False,
     current_model: str | None = None,
+    current_endpoint: str | None = None,
 ) -> ValidityResult:
     """Evaluate an already parsed identity against current inputs and tools."""
     reasons: list[str] = []
@@ -242,6 +273,14 @@ def evaluate_identity(
                 f"LLM model changed from {identity.model} to {current_model}"
             )
 
+    if current_endpoint is not None:
+        if identity.endpoint is None:
+            reasons.append("report does not record LLM endpoint")
+        elif identity.endpoint != current_endpoint:
+            reasons.append(
+                f"LLM endpoint changed from {identity.endpoint} to {current_endpoint}"
+            )
+
     if identity.timestamp is not None and now - identity.timestamp >= max_age:
         reasons.append(f"report age is at least {max_age.days} days")
     if compiler_identity.development and identity.version != compiler_identity.display:
@@ -273,6 +312,10 @@ def _same_path(recorded: str, current: Path) -> bool:
         return False
 
 
+def _available_value(value: str) -> str | None:
+    return None if value == "unavailable" else value
+
+
 def _empty_identity() -> ReportIdentity:
     return ReportIdentity(
         timestamp=None,
@@ -285,5 +328,4 @@ def _empty_identity() -> ReportIdentity:
         source_sha256=None,
         runtime_path=None,
         runtime_sha256=None,
-        report_content_sha256=None,
     )
