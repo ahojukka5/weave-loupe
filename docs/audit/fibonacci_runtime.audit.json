@@ -13,7 +13,13 @@
         "max_instructions": 32,
         "max_padding_instructions": 1,
         "max_direct_calls": 2,
-        "max_indirect_calls": 0
+        "max_indirect_calls": 0,
+        "min_backward_conditional_branches": 1,
+        "max_backward_conditional_branches": 1,
+        "required_direct_calls": [
+          "atoi@plt",
+          "getenv@plt"
+        ]
       }
     }
   },
