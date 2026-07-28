@@ -121,9 +121,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
         elif line.startswith(_MODEL_PREFIX) and line.endswith("`"):
             model = line[len(_MODEL_PREFIX) : -1]
         elif line.startswith(_PROVIDER_MODEL_PREFIX) and line.endswith("`"):
-            provider_model = _available_value(
-                line[len(_PROVIDER_MODEL_PREFIX) : -1]
-            )
+            provider_model = _available_value(line[len(_PROVIDER_MODEL_PREFIX) : -1])
         elif line.startswith(_RESPONSE_ID_PREFIX) and line.endswith("`"):
             response_id = _available_value(line[len(_RESPONSE_ID_PREFIX) : -1])
         elif line.startswith(_SYSTEM_FINGERPRINT_PREFIX) and line.endswith("`"):
