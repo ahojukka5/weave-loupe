@@ -171,9 +171,7 @@ def test_missing_and_changed_endpoints_are_stale(tmp_path: Path) -> None:
     changed = evaluate_identity(
         report=source.with_suffix(".md"),
         source=source,
-        identity=replace(
-            _identity(source), endpoint="https://old.example.test/v1"
-        ),
+        identity=replace(_identity(source), endpoint="https://old.example.test/v1"),
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
