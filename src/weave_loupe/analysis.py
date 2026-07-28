@@ -183,9 +183,7 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
             "indirect_calls": details["indirect_calls"],
             "conditional_branches": details["conditional_branches"],
             "backward_branches": details["backward_branches"],
-            "backward_conditional_branches": details[
-                "backward_conditional_branches"
-            ],
+            "backward_conditional_branches": details["backward_conditional_branches"],
         }
 
     return {
