@@ -9,6 +9,10 @@ from pathlib import Path
 
 from weave_loupe.auditor_identity import AuditorIdentity, sha256_file
 from weave_loupe.compiler_version import CompilerVersion
+from weave_loupe.report_integrity import (
+    REPORT_CONTENT_PREFIX,
+    inspect_report_integrity,
+)
 
 _TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
 _VERSION_PREFIX = "- **weavec version:** `"
@@ -40,6 +44,7 @@ class ReportIdentity:
     source_sha256: str | None
     runtime_path: str | None
     runtime_sha256: str | None
+    report_content_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -77,6 +82,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
     source_sha256: str | None = None
     runtime_path: str | None = None
     runtime_sha256: str | None = None
+    report_content_sha256: str | None = None
     in_inputs = False
 
     for line in lines:
@@ -100,6 +106,8 @@ def read_report_identity(report: Path) -> ReportIdentity:
             auditor_sha256 = line[len(_AUDITOR_PREFIX) : -1]
         elif line.startswith(_MODEL_PREFIX) and line.endswith("`"):
             model = line[len(_MODEL_PREFIX) : -1]
+        elif line.startswith(REPORT_CONTENT_PREFIX) and line.endswith("`"):
+            report_content_sha256 = line[len(REPORT_CONTENT_PREFIX) : -1]
         elif in_inputs:
             source_match = _SOURCE_INPUT.fullmatch(line)
             if source_match is not None:
@@ -122,6 +130,7 @@ def read_report_identity(report: Path) -> ReportIdentity:
         source_sha256=source_sha256,
         runtime_path=runtime_path,
         runtime_sha256=runtime_sha256,
+        report_content_sha256=report_content_sha256,
     )
 
 
@@ -138,10 +147,11 @@ def evaluate_report(
     current_model: str | None = None,
 ) -> ValidityResult:
     """Parse and evaluate one report against the current audit environment."""
-    return evaluate_identity(
+    identity = read_report_identity(report)
+    result = evaluate_identity(
         report=report,
         source=source,
-        identity=read_report_identity(report),
+        identity=identity,
         compiler_identity=compiler_identity,
         compiler_binary_sha256=compiler_binary_sha256,
         auditor=auditor,
@@ -150,6 +160,22 @@ def evaluate_report(
         force=force,
         current_model=current_model,
     )
+    if force:
+        return result
+
+    try:
+        integrity = inspect_report_integrity(report.read_text(encoding="utf-8"))
+    except OSError:
+        return result
+
+    reasons = list(result.reasons)
+    if integrity.seal_count == 0:
+        reasons.append("report does not record content hash")
+    elif integrity.seal_count > 1:
+        reasons.append("report records multiple content hashes")
+    elif not integrity.valid:
+        reasons.append("report content changed since audit")
+    return ValidityResult(report, source, identity, tuple(reasons))
 
 
 def evaluate_identity(
@@ -259,4 +285,5 @@ def _empty_identity() -> ReportIdentity:
         source_sha256=None,
         runtime_path=None,
         runtime_sha256=None,
+        report_content_sha256=None,
     )
