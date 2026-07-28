@@ -57,8 +57,8 @@ deterministic analysis, build manifest, and compiler trace, together with
 timestamps, Git SHAs, hashes, and machine specifications.
 
 Verify later that a report still covers the current source, runtime matrix,
-compiler executable, audit implementation, reviewer model, and validity period
-without compiling or calling an LLM:
+compiler executable, audit implementation, reviewer model, complete published
+Markdown, and validity period without compiling or calling an LLM:
 
 ```sh
 uv run loupe verify-report docs/audit/fibonacci.md \
@@ -71,6 +71,11 @@ uv run loupe verify-report docs/audit/fibonacci.md \
 The verifier exits `0` for a valid report, `2` for a stale report, and `1` for an
 invalid invocation or infrastructure failure. A stale result lists every detected
 reason instead of hiding later mismatches behind the first one.
+
+Generated reports contain a portable SHA-256 content seal covering the exact
+Markdown, including the model review and verbose compiler evidence. This detects
+accidental or unsealed manual edits; it is not a digital signature and does not
+prove who produced a report.
 
 An adjacent `foo.audit.json` file may define exact native executions for
 `foo.weave`: arguments, environment, standard input, expected exit status, and
