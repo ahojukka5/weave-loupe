@@ -93,6 +93,9 @@ def test_report_renders_human_visible_validity_scope() -> None:
         metadata=metadata,
         model_response="OK\nNo defect.",
     )
+    request_limit_invalidation = (
+        "Request limit invalidation:** `any configured LLM max-token change`"
+    )
 
     assert "Re-audit no later than (UTC):** `2026-08-26T21:30:00+00:00`" in report
     assert "Maximum audit age:** `30` days" in report
@@ -108,10 +111,7 @@ def test_report_renders_human_visible_validity_scope() -> None:
     assert (
         "Model invalidation:** `any configured LLM model or endpoint change`" in report
     )
-    assert (
-        "Request limit invalidation:** `any configured LLM max-token change`"
-        in report
-    )
+    assert request_limit_invalidation in report
     assert "Auditor content SHA-256:** `auditor`" in report
     assert "LLM endpoint:** `https://example.test/v1`" in report
     assert "LLM model:** `model`" in report
