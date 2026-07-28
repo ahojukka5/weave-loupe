@@ -11,6 +11,7 @@ from typing import Any
 
 from weave_loupe.auditor_identity import identify_auditor, sha256_file
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
+from weave_loupe.llm import normalize_endpoint_identity
 from weave_loupe.report_validity import ValidityResult, evaluate_report
 from weave_loupe.weavec import WeavecError, resolve_weavec
 
@@ -21,6 +22,7 @@ def run_verify_report(
     source: Path | None,
     weavec: Path | None,
     model: str | None,
+    endpoint: str | None,
     max_age_days: int,
     json_out: Path | None,
 ) -> int:
@@ -30,6 +32,9 @@ def run_verify_report(
             raise ValueError("max_age_days must be positive")
         if not report.is_file():
             raise ValueError(f"audit report not found: {report}")
+        current_endpoint = (
+            normalize_endpoint_identity(endpoint) if endpoint is not None else None
+        )
         binary = resolve_weavec(weavec)
         compiler = identify_weavec(binary)
         compiler_binary_sha256 = sha256_file(binary)
@@ -43,6 +48,7 @@ def run_verify_report(
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
             current_model=model,
+            current_endpoint=current_endpoint,
             now=now,
             max_age=timedelta(days=max_age_days),
         )
@@ -53,6 +59,7 @@ def run_verify_report(
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor.metadata(),
             model=model,
+            endpoint=current_endpoint,
             max_age_days=max_age_days,
         )
         if json_out is not None:
@@ -76,6 +83,7 @@ def _result_document(
     compiler_binary_sha256: str,
     auditor: dict[str, Any],
     model: str | None,
+    endpoint: str | None,
     max_age_days: int,
 ) -> dict[str, Any]:
     identity = asdict(result.identity)
@@ -97,6 +105,7 @@ def _result_document(
         },
         "current_auditor": auditor,
         "current_model": model,
+        "current_endpoint": endpoint,
     }
 
 
