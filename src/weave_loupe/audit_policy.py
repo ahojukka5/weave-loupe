@@ -23,6 +23,7 @@ def build_audit_validity(
         "format": AUDIT_VALIDITY_FORMAT,
         "max_age_days": max_age_days,
         "revalidate_after_utc": revalidate_after.replace(microsecond=0).isoformat(),
+        "invalidate_on_input_hash_change": True,
         "invalidate_on_development_version_change": True,
         "require_command_identity_when_available": True,
     }

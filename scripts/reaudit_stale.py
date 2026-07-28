@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -19,6 +21,14 @@ from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 _TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
 _VERSION_PREFIX = "- **weavec version:** `"
 _VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
+_SOURCE_INPUT = re.compile(
+    r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
+    r"`(?P<sha256>[0-9a-f]{64})`$"
+)
+_RUNTIME_INPUT = re.compile(
+    r"^- Runtime matrix `(?P<path>[^`]+\.audit\.json)` — SHA-256 "
+    r"`(?P<sha256>[0-9a-f]{64})`$"
+)
 
 
 @dataclass(frozen=True)
@@ -26,6 +36,10 @@ class ReportIdentity:
     timestamp: datetime | None
     version: str | None
     version_source: str | None
+    source_path: str | None
+    source_sha256: str | None
+    runtime_path: str | None
+    runtime_sha256: str | None
 
 
 @dataclass(frozen=True)
@@ -35,6 +49,8 @@ class ReportState:
     timestamp: datetime | None
     version: str | None
     version_source: str | None
+    source_sha256: str | None
+    runtime_sha256: str | None
     reason: str | None
 
 
@@ -157,25 +173,14 @@ def _report_states(
     for source in sorted(source_root.rglob("*.weave")):
         report = source.with_suffix(".md")
         report_identity = _read_report_identity(report)
-        reason: str | None = None
-        if force:
-            reason = "manual force"
-        elif report_identity.timestamp is None:
-            reason = "missing or unparseable report timestamp"
-        elif now - report_identity.timestamp >= max_age:
-            reason = f"report age is at least {max_age.days} days"
-        elif identity.development and report_identity.version != identity.display:
-            reason = (
-                "development compiler changed from "
-                f"{report_identity.version or 'unknown'} to {identity.display}"
-            )
-        elif (
-            identity.source == "command" and report_identity.version_source != "command"
-        ):
-            reason = (
-                "compiler identity source changed from "
-                f"{report_identity.version_source or 'unknown'} to command"
-            )
+        reason = _reaudit_reason(
+            source=source,
+            report_identity=report_identity,
+            identity=identity,
+            now=now,
+            max_age=max_age,
+            force=force,
+        )
         states.append(
             ReportState(
                 source=source,
@@ -183,21 +188,83 @@ def _report_states(
                 timestamp=report_identity.timestamp,
                 version=report_identity.version,
                 version_source=report_identity.version_source,
+                source_sha256=report_identity.source_sha256,
+                runtime_sha256=report_identity.runtime_sha256,
                 reason=reason,
             )
         )
     return states
 
 
+def _reaudit_reason(
+    *,
+    source: Path,
+    report_identity: ReportIdentity,
+    identity: CompilerVersion,
+    now: datetime,
+    max_age: timedelta,
+    force: bool,
+) -> str | None:
+    if force:
+        return "manual force"
+    if report_identity.timestamp is None:
+        return "missing or unparseable report timestamp"
+    if report_identity.source_sha256 is None:
+        return "report does not record audited source hash"
+    if _sha256(source) != report_identity.source_sha256:
+        return "source content changed since audit"
+
+    runtime = source.with_suffix(".audit.json")
+    if runtime.is_file():
+        if report_identity.runtime_sha256 is None:
+            return "runtime matrix was added or not recorded"
+        if _sha256(runtime) != report_identity.runtime_sha256:
+            return "runtime matrix content changed since audit"
+    elif report_identity.runtime_sha256 is not None:
+        return "runtime matrix was removed since audit"
+
+    if now - report_identity.timestamp >= max_age:
+        return f"report age is at least {max_age.days} days"
+    if identity.development and report_identity.version != identity.display:
+        return (
+            "development compiler changed from "
+            f"{report_identity.version or 'unknown'} to {identity.display}"
+        )
+    if identity.source == "command" and report_identity.version_source != "command":
+        return (
+            "compiler identity source changed from "
+            f"{report_identity.version_source or 'unknown'} to command"
+        )
+    return None
+
+
 def _read_report_identity(report: Path) -> ReportIdentity:
     try:
         lines = report.read_text(encoding="utf-8").splitlines()
     except OSError:
-        return ReportIdentity(timestamp=None, version=None, version_source=None)
+        return ReportIdentity(
+            timestamp=None,
+            version=None,
+            version_source=None,
+            source_path=None,
+            source_sha256=None,
+            runtime_path=None,
+            runtime_sha256=None,
+        )
     timestamp: datetime | None = None
     version: str | None = None
     version_source: str | None = None
+    source_path: str | None = None
+    source_sha256: str | None = None
+    runtime_path: str | None = None
+    runtime_sha256: str | None = None
+    in_inputs = False
     for line in lines:
+        if line == "## Audited inputs":
+            in_inputs = True
+            continue
+        if in_inputs and line.startswith("## "):
+            break
         if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
             try:
                 timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
@@ -207,12 +274,24 @@ def _read_report_identity(report: Path) -> ReportIdentity:
             version = line[len(_VERSION_PREFIX) : -1]
         elif line.startswith(_VERSION_SOURCE_PREFIX) and line.endswith("`"):
             version_source = line[len(_VERSION_SOURCE_PREFIX) : -1]
-        if timestamp is not None and version is not None and version_source is not None:
-            break
+        elif in_inputs:
+            source_match = _SOURCE_INPUT.fullmatch(line)
+            if source_match is not None:
+                source_path = source_match.group("path")
+                source_sha256 = source_match.group("sha256")
+                continue
+            runtime_match = _RUNTIME_INPUT.fullmatch(line)
+            if runtime_match is not None:
+                runtime_path = runtime_match.group("path")
+                runtime_sha256 = runtime_match.group("sha256")
     return ReportIdentity(
         timestamp=timestamp,
         version=version,
         version_source=version_source,
+        source_path=source_path,
+        source_sha256=source_sha256,
+        runtime_path=runtime_path,
+        runtime_sha256=runtime_sha256,
     )
 
 
@@ -221,6 +300,14 @@ def _parse_time(value: str) -> datetime:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _audit(

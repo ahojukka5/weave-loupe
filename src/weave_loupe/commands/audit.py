@@ -106,6 +106,7 @@ def run_audit(
                 weavec=weavec,
                 model=model,
                 bundle=bundle,
+                runtime_matrix=runtime_matrix,
             )
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
