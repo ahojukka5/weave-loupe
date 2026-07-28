@@ -6,6 +6,7 @@ on:
     paths:
       - "**/*.weave"
       - "**/*.audit.json"
+      - "docs/audit/**/*.md"
       - "src/weave_loupe/**"
       - "scripts/audit_pr.py"
       - "scripts/reaudit_stale.py"
@@ -39,15 +40,44 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.WEAVE_GITHUB_TOKEN }}
 
-      - name: Detect generated-report commit
+      - name: Detect audit scope
         id: guard
         shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           subject="$(git log -1 --pretty=%s)"
           if [[ "$subject" == "docs(audit): update generated reports" ]]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
+            echo "reason=generated report commit" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          required=false
+          while IFS= read -r path; do
+            [[ -n "$path" ]] || continue
+            case "$path" in
+              *.weave|*.audit.json|src/weave_loupe/*|scripts/audit_pr.py|scripts/reaudit_stale.py|.github/workflows/weave-audit.yml|.github/workflows/scheduled-reaudit.yml|pyproject.toml|uv.lock)
+                required=true
+                break
+                ;;
+              docs/audit/*.md|docs/audit/**/*.md)
+                source="${path%.md}.weave"
+                if [[ -f "$source" ]] || \
+                   git cat-file -e "$BASE_SHA:$source" 2>/dev/null; then
+                  required=true
+                  break
+                fi
+                ;;
+            esac
+          done < <(git diff --name-only --diff-filter=ACMRD "$BASE_SHA" HEAD)
+
+          if [[ "$required" == true ]]; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "reason=auditable change" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "reason=no generated report or compiler audit change" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check out weavec

@@ -8,6 +8,14 @@ from pathlib import Path
 from typing import Any
 
 AUDITOR_IDENTITY_FORMAT = "weave-loupe-auditor-identity-v1"
+_AUDIT_CONTROL_FILES = (
+    "scripts/audit_pr.py",
+    "scripts/reaudit_stale.py",
+    ".github/workflows/weave-audit.yml",
+    ".github/workflows/scheduled-reaudit.yml",
+    "pyproject.toml",
+    "uv.lock",
+)
 
 
 @dataclass(frozen=True)
@@ -50,13 +58,8 @@ def identify_auditor(anchor: Path | None = None) -> AuditorIdentity:
         paths = sorted(package.rglob("*.py"))
         paths.extend(
             path
-            for path in (
-                root / "scripts" / "audit_pr.py",
-                root / "scripts" / "reaudit_stale.py",
-                root / "pyproject.toml",
-                root / "uv.lock",
-            )
-            if path.is_file()
+            for relative in _AUDIT_CONTROL_FILES
+            if (path := root / relative).is_file()
         )
         paths = sorted(set(paths))
         relative_to = root
