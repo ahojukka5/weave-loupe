@@ -26,6 +26,7 @@ jobs:
       WEAVE_LLM_ENDPOINT: ${{ secrets.WEAVE_LLM_ENDPOINT || vars.WEAVE_LLM_ENDPOINT }}
       WEAVE_LLM_API_KEY: ${{ secrets.WEAVE_LLM_API_KEY || secrets.WEAVE_LLM_API_TOKEN }}
       WEAVE_LLM_MODEL: ${{ vars.WEAVE_LLM_MODEL || 'z-ai/glm-5.2' }}
+      WEAVE_LLM_MAX_TOKENS: ${{ vars.WEAVE_LLM_MAX_TOKENS || '4096' }}
 
     steps:
       - name: Check out Weave Loupe
@@ -76,6 +77,7 @@ jobs:
             --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
             --model "$WEAVE_LLM_MODEL" \
             --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
+            --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
             --max-age-days 30 \
             --summary build/scheduled-audit/summary.md \
             --reports-list build/scheduled-audit/reports.txt \
@@ -133,6 +135,7 @@ jobs:
               `- **Compiler:** \`${data.compiler.display}\`\n` +
               `- **LLM endpoint:** \`${data.endpoint}\`\n` +
               `- **LLM model:** \`${data.model}\`\n` +
+              `- **LLM max tokens:** \`${data.max_tokens}\`\n` +
               `- **Workflow:** ${runUrl}\n\n` +
               `The current compiler failed one or more previously passing ` +
               `source-to-native audits. The workflow artifact contains the ` +
