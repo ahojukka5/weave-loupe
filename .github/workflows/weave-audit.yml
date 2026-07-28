@@ -145,6 +145,7 @@ jobs:
             name="${report//\//__}"
             uv run loupe verify-report "$report" \
               --weavec "$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec" \
+              --model "$WEAVE_LLM_MODEL" \
               --json-out "build/report-validity/${name%.md}.json"
           done < build/weave-audit-reports.txt
           test "$count" -gt 0
