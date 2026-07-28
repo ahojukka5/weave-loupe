@@ -73,7 +73,6 @@ def test_report_renders_human_visible_validity_scope() -> None:
     assert "Re-audit no later than (UTC):** `2026-08-26T21:30:00+00:00`" in report
     assert "Maximum audit age:** `30` days" in report
     assert (
-        "Development compiler invalidation:** `any compiler version change`"
-        in report
+        "Development compiler invalidation:** `any compiler version change`" in report
     )
     assert "Identity attestation upgrade:** `required" in report
