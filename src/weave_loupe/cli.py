@@ -10,6 +10,7 @@ from weave_loupe.commands.audit import run_audit
 from weave_loupe.commands.capture import run_capture
 from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.report import run_report
+from weave_loupe.commands.verify_report import run_verify_report
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -67,6 +68,21 @@ def build_parser() -> argparse.ArgumentParser:
             "native disassembly, diagnostics, and analysis in the Markdown report."
         ),
     )
+
+    verify = subparsers.add_parser(
+        "verify-report",
+        help="Check whether a generated audit report is still valid.",
+    )
+    verify.add_argument("report", type=Path)
+    verify.add_argument(
+        "--source",
+        type=Path,
+        default=None,
+        help="Audited source; defaults to the adjacent .weave file.",
+    )
+    verify.add_argument("--weavec", type=Path, default=None)
+    verify.add_argument("--max-age-days", type=int, default=30)
+    verify.add_argument("--json-out", type=Path, default=None)
     return parser
 
 
@@ -103,6 +119,14 @@ def main(argv: list[str] | None = None) -> int:
             report_out=args.report_out,
             max_tokens=args.max_tokens,
             verbose=args.verbose,
+        )
+    if args.command == "verify-report":
+        return run_verify_report(
+            report=args.report,
+            source=args.source,
+            weavec=args.weavec,
+            max_age_days=args.max_age_days,
+            json_out=args.json_out,
         )
     parser.error(f"unknown command: {args.command}")
     return 2
