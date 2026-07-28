@@ -1,4 +1,4 @@
-"""Tests for compiler, auditor, and model revalidation."""
+"""Tests for compiler, auditor, model, and endpoint revalidation."""
 
 from __future__ import annotations
 
@@ -10,6 +10,9 @@ from types import ModuleType
 
 from weave_loupe.auditor_identity import AuditorIdentity, sha256_file
 from weave_loupe.compiler_version import CompilerVersion
+
+_MODEL = "z-ai/glm-5.2"
+_ENDPOINT = "https://example.test/v1"
 
 
 def _load_script() -> ModuleType:
@@ -46,7 +49,8 @@ def _report_identity(
     *,
     compiler_sha256: str | None = "a" * 64,
     auditor_sha256: str | None = "b" * 64,
-    model: str | None = "z-ai/glm-5.2",
+    model: str | None = _MODEL,
+    endpoint: str | None = _ENDPOINT,
 ) -> object:
     return module.ReportIdentity(
         timestamp=datetime(2026, 7, 28, tzinfo=UTC),
@@ -59,6 +63,7 @@ def _report_identity(
         source_sha256=sha256_file(source),
         runtime_path=None,
         runtime_sha256=None,
+        endpoint=endpoint,
     )
 
 
@@ -69,7 +74,8 @@ def _reason(
     *,
     compiler_sha256: str = "a" * 64,
     auditor: AuditorIdentity | None = None,
-    current_model: str | None = "z-ai/glm-5.2",
+    current_model: str | None = _MODEL,
+    current_endpoint: str | None = _ENDPOINT,
 ) -> str | None:
     return module._reaudit_reason(
         source=source,
@@ -78,6 +84,7 @@ def _reason(
         compiler_binary_sha256=compiler_sha256,
         auditor=auditor or _auditor(),
         current_model=current_model,
+        current_endpoint=current_endpoint,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
         force=False,
@@ -175,10 +182,45 @@ def test_changed_model_requires_reaudit(tmp_path: Path) -> None:
         _report_identity(module, source, model="old-model"),
     )
 
-    assert reason == "LLM model changed from old-model to z-ai/glm-5.2"
+    assert reason == f"LLM model changed from old-model to {_MODEL}"
 
 
-def test_report_parser_reads_toolchain_and_model_identity(tmp_path: Path) -> None:
+def test_missing_endpoint_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(module, source, endpoint=None),
+    )
+
+    assert reason == "report does not record LLM endpoint"
+
+
+def test_changed_endpoint_requires_reaudit(tmp_path: Path) -> None:
+    module = _load_script()
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    reason = _reason(
+        module,
+        source,
+        _report_identity(
+            module,
+            source,
+            endpoint="https://old.example.test/v1",
+        ),
+    )
+
+    assert reason == (
+        "LLM endpoint changed from https://old.example.test/v1 "
+        "to https://example.test/v1"
+    )
+
+
+def test_report_parser_reads_toolchain_and_provider_identity(tmp_path: Path) -> None:
     module = _load_script()
     report = tmp_path / "demo.md"
     report.write_text(
@@ -188,7 +230,11 @@ def test_report_parser_reads_toolchain_and_model_identity(tmp_path: Path) -> Non
         f"- **weavec binary SHA-256:** `{'a' * 64}`\n"
         "- **weavec version:** `weavec v0.3.0`\n"
         "- **weavec version source:** `command`\n"
-        "- **LLM model:** `z-ai/glm-5.2`\n\n"
+        f"- **LLM endpoint:** `{_ENDPOINT}`\n"
+        f"- **LLM model:** `{_MODEL}`\n"
+        "- **Provider-reported model:** `z-ai/glm-5.2-20260728`\n"
+        "- **Provider response ID:** `chatcmpl-test`\n"
+        "- **Provider system fingerprint:** `fp_test`\n\n"
         "## Audited inputs\n",
         encoding="utf-8",
     )
@@ -197,4 +243,8 @@ def test_report_parser_reads_toolchain_and_model_identity(tmp_path: Path) -> Non
 
     assert identity.compiler_binary_sha256 == "a" * 64
     assert identity.auditor_sha256 == "b" * 64
-    assert identity.model == "z-ai/glm-5.2"
+    assert identity.endpoint == _ENDPOINT
+    assert identity.model == _MODEL
+    assert identity.provider_model == "z-ai/glm-5.2-20260728"
+    assert identity.response_id == "chatcmpl-test"
+    assert identity.system_fingerprint == "fp_test"
