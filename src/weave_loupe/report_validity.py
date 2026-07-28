@@ -21,9 +21,18 @@ _COMPILER_BINARY_PREFIX = "- **weavec binary SHA-256:** `"
 _AUDITOR_PREFIX = "- **Auditor content SHA-256:** `"
 _ENDPOINT_PREFIX = "- **LLM endpoint:** `"
 _MODEL_PREFIX = "- **LLM model:** `"
+_MAX_TOKENS_PREFIX = "- **LLM max tokens:** `"
+_TEMPERATURE_PREFIX = "- **LLM temperature:** `"
+_PROMPT_SHA256_PREFIX = "- **LLM prompt SHA-256:** `"
+_REQUEST_SHA256_PREFIX = "- **LLM request SHA-256:** `"
 _PROVIDER_MODEL_PREFIX = "- **Provider-reported model:** `"
 _RESPONSE_ID_PREFIX = "- **Provider response ID:** `"
 _SYSTEM_FINGERPRINT_PREFIX = "- **Provider system fingerprint:** `"
+_FINISH_REASON_PREFIX = "- **Provider finish reason:** `"
+_CREATED_PREFIX = "- **Provider created (Unix):** `"
+_PROMPT_TOKENS_PREFIX = "- **Provider prompt tokens:** `"
+_COMPLETION_TOKENS_PREFIX = "- **Provider completion tokens:** `"
+_TOTAL_TOKENS_PREFIX = "- **Provider total tokens:** `"
 _SOURCE_INPUT = re.compile(
     r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
     r"`(?P<sha256>[0-9a-f]{64})`$"
@@ -53,6 +62,15 @@ class ReportIdentity:
     provider_model: str | None = None
     response_id: str | None = None
     system_fingerprint: str | None = None
+    max_tokens: int | None = None
+    temperature: float | None = None
+    prompt_sha256: str | None = None
+    request_sha256: str | None = None
+    finish_reason: str | None = None
+    created: int | None = None
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -87,9 +105,18 @@ def read_report_identity(report: Path) -> ReportIdentity:
     auditor_sha256: str | None = None
     endpoint: str | None = None
     model: str | None = None
+    max_tokens: int | None = None
+    temperature: float | None = None
+    prompt_sha256: str | None = None
+    request_sha256: str | None = None
     provider_model: str | None = None
     response_id: str | None = None
     system_fingerprint: str | None = None
+    finish_reason: str | None = None
+    created: int | None = None
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    total_tokens: int | None = None
     source_path: str | None = None
     source_sha256: str | None = None
     runtime_path: str | None = None
@@ -120,6 +147,14 @@ def read_report_identity(report: Path) -> ReportIdentity:
             endpoint = line[len(_ENDPOINT_PREFIX) : -1]
         elif line.startswith(_MODEL_PREFIX) and line.endswith("`"):
             model = line[len(_MODEL_PREFIX) : -1]
+        elif line.startswith(_MAX_TOKENS_PREFIX) and line.endswith("`"):
+            max_tokens = _optional_int(line[len(_MAX_TOKENS_PREFIX) : -1])
+        elif line.startswith(_TEMPERATURE_PREFIX) and line.endswith("`"):
+            temperature = _optional_float(line[len(_TEMPERATURE_PREFIX) : -1])
+        elif line.startswith(_PROMPT_SHA256_PREFIX) and line.endswith("`"):
+            prompt_sha256 = _optional_sha256(line[len(_PROMPT_SHA256_PREFIX) : -1])
+        elif line.startswith(_REQUEST_SHA256_PREFIX) and line.endswith("`"):
+            request_sha256 = _optional_sha256(line[len(_REQUEST_SHA256_PREFIX) : -1])
         elif line.startswith(_PROVIDER_MODEL_PREFIX) and line.endswith("`"):
             provider_model = _available_value(line[len(_PROVIDER_MODEL_PREFIX) : -1])
         elif line.startswith(_RESPONSE_ID_PREFIX) and line.endswith("`"):
@@ -128,6 +163,18 @@ def read_report_identity(report: Path) -> ReportIdentity:
             system_fingerprint = _available_value(
                 line[len(_SYSTEM_FINGERPRINT_PREFIX) : -1]
             )
+        elif line.startswith(_FINISH_REASON_PREFIX) and line.endswith("`"):
+            finish_reason = _available_value(line[len(_FINISH_REASON_PREFIX) : -1])
+        elif line.startswith(_CREATED_PREFIX) and line.endswith("`"):
+            created = _optional_int(line[len(_CREATED_PREFIX) : -1])
+        elif line.startswith(_PROMPT_TOKENS_PREFIX) and line.endswith("`"):
+            prompt_tokens = _optional_int(line[len(_PROMPT_TOKENS_PREFIX) : -1])
+        elif line.startswith(_COMPLETION_TOKENS_PREFIX) and line.endswith("`"):
+            completion_tokens = _optional_int(
+                line[len(_COMPLETION_TOKENS_PREFIX) : -1]
+            )
+        elif line.startswith(_TOTAL_TOKENS_PREFIX) and line.endswith("`"):
+            total_tokens = _optional_int(line[len(_TOTAL_TOKENS_PREFIX) : -1])
         elif line.startswith(REPORT_CONTENT_PREFIX) and line.endswith("`"):
             report_content_sha256 = line[len(REPORT_CONTENT_PREFIX) : -1]
         elif in_inputs:
@@ -157,6 +204,15 @@ def read_report_identity(report: Path) -> ReportIdentity:
         provider_model=provider_model,
         response_id=response_id,
         system_fingerprint=system_fingerprint,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        prompt_sha256=prompt_sha256,
+        request_sha256=request_sha256,
+        finish_reason=finish_reason,
+        created=created,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
     )
 
 
@@ -172,6 +228,7 @@ def evaluate_report(
     force: bool = False,
     current_model: str | None = None,
     current_endpoint: str | None = None,
+    current_max_tokens: int | None = None,
 ) -> ValidityResult:
     """Parse and evaluate one report against the current audit environment."""
     identity = read_report_identity(report)
@@ -187,6 +244,7 @@ def evaluate_report(
         force=force,
         current_model=current_model,
         current_endpoint=current_endpoint,
+        current_max_tokens=current_max_tokens,
     )
     if force:
         return result
@@ -219,6 +277,7 @@ def evaluate_identity(
     force: bool = False,
     current_model: str | None = None,
     current_endpoint: str | None = None,
+    current_max_tokens: int | None = None,
 ) -> ValidityResult:
     """Evaluate an already parsed identity against current inputs and tools."""
     reasons: list[str] = []
@@ -279,6 +338,15 @@ def evaluate_identity(
                 f"LLM endpoint changed from {identity.endpoint} to {current_endpoint}"
             )
 
+    if current_max_tokens is not None:
+        if identity.max_tokens is None:
+            reasons.append("report does not record LLM max tokens")
+        elif identity.max_tokens != current_max_tokens:
+            reasons.append(
+                f"LLM max tokens changed from {identity.max_tokens} "
+                f"to {current_max_tokens}"
+            )
+
     if identity.timestamp is not None and now - identity.timestamp >= max_age:
         reasons.append(f"report age is at least {max_age.days} days")
     if compiler_identity.development and identity.version != compiler_identity.display:
@@ -312,6 +380,30 @@ def _same_path(recorded: str, current: Path) -> bool:
 
 def _available_value(value: str) -> str | None:
     return None if value == "unavailable" else value
+
+
+def _optional_int(value: str) -> int | None:
+    if value == "unavailable":
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def _optional_float(value: str) -> float | None:
+    if value == "unavailable":
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def _optional_sha256(value: str) -> str | None:
+    if len(value) == 64 and all(character in "0123456789abcdef" for character in value):
+        return value
+    return None
 
 
 def _empty_identity() -> ReportIdentity:
