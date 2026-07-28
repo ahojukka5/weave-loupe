@@ -13,6 +13,7 @@ from pathlib import Path
 
 COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
 _RUNTIME_SIDECAR_SUFFIX = ".audit.json"
+_REPORT_SUFFIX = ".md"
 AUDIT_ENGINE_PATHS = (
     "src/weave_loupe/",
     "scripts/audit_pr.py",
@@ -87,7 +88,7 @@ def main() -> int:
 
 def _changed_paths(base: str, head: str) -> list[Path]:
     completed = subprocess.run(
-        ["git", "diff", "--name-only", "--diff-filter=ACMR", base, head],
+        ["git", "diff", "--name-only", "--diff-filter=ACMRD", base, head],
         capture_output=True,
         text=True,
         check=True,
@@ -99,10 +100,12 @@ def _changed_weave_sources(changed: list[Path]) -> list[Path]:
     sources = {path for path in changed if path.suffix == ".weave" and path.is_file()}
     for path in changed:
         name = str(path)
-        if not name.endswith(_RUNTIME_SIDECAR_SUFFIX):
-            continue
-        source = Path(name[: -len(_RUNTIME_SIDECAR_SUFFIX)] + ".weave")
-        if source.is_file():
+        source: Path | None = None
+        if name.endswith(_RUNTIME_SIDECAR_SUFFIX):
+            source = Path(name[: -len(_RUNTIME_SIDECAR_SUFFIX)] + ".weave")
+        elif name.endswith(_REPORT_SUFFIX):
+            source = path.with_suffix(".weave")
+        if source is not None and source.is_file():
             sources.add(source)
     return sorted(sources)
 
