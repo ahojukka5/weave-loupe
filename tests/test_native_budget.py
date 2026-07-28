@@ -45,6 +45,7 @@ def _native() -> dict[str, object]:
                 "padding_instructions": 0,
                 "direct_calls": [],
                 "indirect_calls": 0,
+                "backward_conditional_branches": 0,
             }
         },
     }
@@ -66,6 +67,7 @@ def test_native_budget_accepts_exact_final_code(tmp_path: Path) -> None:
                     "max_padding_instructions": 0,
                     "max_direct_calls": 0,
                     "max_indirect_calls": 0,
+                    "max_backward_conditional_branches": 0,
                 }
             },
         },
@@ -85,7 +87,70 @@ def test_native_budget_accepts_exact_final_code(tmp_path: Path) -> None:
         "padding_instructions": 0,
         "direct_calls": 0,
         "indirect_calls": 0,
+        "backward_conditional_branches": 0,
+        "direct_call_targets": [],
     }
+
+
+def test_native_budget_accepts_required_loop_and_call_targets(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+    _write_budget(
+        source,
+        {
+            "functions": {
+                "main": {
+                    "min_backward_conditional_branches": 1,
+                    "max_backward_conditional_branches": 1,
+                    "required_direct_calls": ["getenv@plt", "atoi@plt"],
+                }
+            }
+        },
+    )
+    native = _native()
+    main = native["functions"]["main"]
+    main["backward_conditional_branches"] = 1
+    main["direct_calls"] = ["getenv@plt", "atoi@plt"]
+
+    result = evaluate_native_budget(sources=[source], native_analysis=native)
+
+    assert result["passed"] is True
+    assert result["limits"]["functions"]["main"] == {
+        "max_backward_conditional_branches": 1,
+        "min_backward_conditional_branches": 1,
+        "required_direct_calls": ["atoi@plt", "getenv@plt"],
+    }
+    assert result["observed"]["functions"]["main"]["direct_call_targets"] == [
+        "atoi@plt",
+        "getenv@plt",
+    ]
+
+
+def test_native_budget_reports_missing_loop_and_call_target(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+    _write_budget(
+        source,
+        {
+            "functions": {
+                "main": {
+                    "min_backward_conditional_branches": 1,
+                    "required_direct_calls": ["atoi@plt", "getenv@plt"],
+                }
+            }
+        },
+    )
+    native = _native()
+    main = native["functions"]["main"]
+    main["direct_calls"] = ["getenv@plt"]
+
+    result = evaluate_native_budget(sources=[source], native_analysis=native)
+
+    assert result["passed"] is False
+    assert result["failures"] == [
+        "function 'main' backward conditional branches 0 is below minimum 1",
+        "function 'main' missing required direct calls: atoi@plt",
+    ]
 
 
 def test_native_budget_reports_every_exceeded_limit(tmp_path: Path) -> None:
@@ -164,4 +229,39 @@ def test_native_budget_rejects_unknown_and_negative_limits(tmp_path: Path) -> No
 
     sidecar = _write_budget(source, {"max_program_owned_functions": -1})
     with pytest.raises(NativeBudgetError, match="non-negative integer"):
+        load_native_budget(sidecar)
+
+
+def test_native_budget_rejects_impossible_branch_range(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+    sidecar = _write_budget(
+        source,
+        {
+            "functions": {
+                "main": {
+                    "min_backward_conditional_branches": 2,
+                    "max_backward_conditional_branches": 1,
+                }
+            }
+        },
+    )
+
+    with pytest.raises(NativeBudgetError, match="minimum must not exceed"):
+        load_native_budget(sidecar)
+
+
+def test_native_budget_rejects_duplicate_required_calls(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+    sidecar = _write_budget(
+        source,
+        {
+            "functions": {
+                "main": {"required_direct_calls": ["getenv@plt", "getenv@plt"]}
+            }
+        },
+    )
+
+    with pytest.raises(NativeBudgetError, match="must not contain duplicates"):
         load_native_budget(sidecar)
