@@ -175,3 +175,47 @@ def test_runtime_cases_require_captured_executable(
             bundle=load_bundle(bundle_path),
             sources=[source_file],
         )
+
+
+def test_budget_only_sidecar_does_not_require_runtime_executable(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    _write_sidecar(
+        source_file,
+        {
+            "format": "weave-loupe-runtime-cases-v1",
+            "native_budget": {
+                "format": "weave-loupe-native-budget-v1",
+                "max_program_owned_functions": 1,
+            },
+        },
+    )
+    bundle_path = tmp_path / "audit.loupe"
+    capture_bundle(
+        sources=[source_file],
+        output=bundle_path,
+        weavec=fake_weavec,
+        include_executable=False,
+    )
+
+    result = execute_runtime_cases(
+        bundle=load_bundle(bundle_path),
+        sources=[source_file],
+    )
+
+    assert result["configured"] is True
+    assert result["passed"] is True
+    assert result["case_count"] == 0
+    assert result["cases"] == []
+    assert result["executable_sha256"] is None
+
+
+def test_empty_audit_sidecar_is_rejected(tmp_path: Path) -> None:
+    sidecar = tmp_path / "demo.audit.json"
+    sidecar.write_text(
+        json.dumps({"format": "weave-loupe-runtime-cases-v1"}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeCasesError, match="runtime cases or a native_budget"):
+        load_runtime_cases(sidecar)

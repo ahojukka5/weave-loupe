@@ -59,6 +59,31 @@ def test_runtime_mismatch_overrides_model_ok() -> None:
     assert "correct lowering or code generation" in verdict.body
 
 
+def test_native_budget_overrun_overrides_model_ok() -> None:
+    analysis = {
+        "runtime": {"configured": True, "passed": True, "cases": []},
+        "native_budget": {
+            "configured": True,
+            "passed": False,
+            "failures": [
+                "function 'main' instructions 5 exceeds maximum 2",
+                "function 'main' direct calls 1 exceeds maximum 0",
+            ],
+        },
+    }
+
+    verdict = apply_deterministic_gate(_ok_verdict(), analysis)
+
+    assert not verdict.passed
+    assert verdict.code == "native-budget-exceeded"
+    assert verdict.reason == (
+        "native optimization budget exceeded: "
+        "function 'main' instructions 5 exceeds maximum 2"
+    )
+    assert "direct calls 1 exceeds maximum 0" in verdict.body
+    assert "explicit final-code quality contract" in verdict.body
+
+
 def test_deterministic_gate_preserves_model_failure() -> None:
     model_verdict = AuditVerdict(
         status="FAILED",
@@ -74,6 +99,7 @@ def test_deterministic_gate_accepts_reachable_program_code() -> None:
     model_verdict = _ok_verdict()
     analysis = {
         "runtime": {"configured": True, "passed": True, "cases": []},
+        "native_budget": {"configured": True, "passed": True, "failures": []},
         "native": {
             "reachability_complete": True,
             "unreachable_program_functions": [],

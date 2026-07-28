@@ -29,10 +29,10 @@ uv run loupe audit docs/audit/fibonacci.weave \
 ```
 
 `--verbose` embeds source, readable WIR, raw LLVM, optimized LLVM, target
-assembly, linked executable disassembly, optimization remarks, direct runtime
-observations, diagnostics, deterministic analysis, build manifest, and compiler
-trace. This lets a human inspect the same source-to-native evidence independently
-of the LLM verdict.
+assembly, linked executable disassembly, optimization remarks, native
+optimization budget, direct runtime observations, diagnostics, deterministic
+analysis, build manifest, and compiler trace. This lets a human inspect the same
+source-to-native evidence independently of the LLM verdict.
 
 ## Readable WIR projection
 
@@ -89,23 +89,64 @@ and failures. A mismatch triggers Loupe's deterministic gate with
 behavior. Invalid sidecars and unavailable executables are infrastructure
 failures rather than compiler findings.
 
+## Native optimization budgets
+
+The same sidecar may contain a versioned `native_budget` that limits measured
+properties of the linked executable:
+
+```json
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "native_budget": {
+    "format": "weave-loupe-native-budget-v1",
+    "max_program_owned_functions": 1,
+    "max_unreachable_program_functions": 0,
+    "max_unreachable_program_instructions": 0,
+    "functions": {
+      "main": {
+        "max_instructions": 2,
+        "max_padding_instructions": 0,
+        "max_direct_calls": 0,
+        "max_indirect_calls": 0
+      }
+    }
+  }
+}
+```
+
+Runtime cases and native limits may be combined, and a budget-only sidecar is
+valid. Limits are maximums: smaller final code continues to pass. Unknown fields,
+negative values, missing named functions, unavailable disassembly, and incomplete
+program-owned reachability fail closed.
+
+An exceeded contract triggers `native-budget-exceeded` even when the reviewing
+model returns `OK`. The failure lists every exceeded limit. The model is also
+required to inspect the disassembly independently because a passing ceiling
+prevents regressions but does not prove that no better sequence exists.
+
+See [Native optimization budgets](native-budgets.md) for the complete schema and
+review guidance.
+
 Changes to `foo.audit.json` automatically re-audit `foo.weave` in pull requests.
 Scheduled re-audits discover the sidecar through the source and therefore repeat
-the same native execution matrix.
+the same runtime matrix and final-code contract.
 
 ## Canonical audit corpus
 
 The checked-in corpus contains complementary Fibonacci programs:
 
 - `docs/audit/fibonacci.weave` passes the constant input `10`. It verifies
-  inlining, constant propagation, loop deletion, and dead-code elimination; the
-  ideal final program is a two-instruction `main` returning `55`. Its runtime
-  matrix also executes the linked binary and requires exit status `55`.
+  inlining, constant propagation, loop deletion, and dead-code elimination. Its
+  contract requires exactly one program-owned `main`, two non-padding
+  instructions, no calls, and no dead code. Its runtime case requires exit status
+  `55`.
 - `docs/audit/fibonacci_runtime.weave` reads `WEAVE_AUDIT_N` at runtime. The
   compiler may still inline functions and promote variables to SSA, but it cannot
   replace the input-dependent Fibonacci computation with one constant return.
   Its matrix covers missing input, base cases, ordinary values, range fallbacks,
-  and the fixture's documented non-numeric `atoi` behavior.
+  and the fixture's documented non-numeric `atoi` behavior. Its budget permits
+  the scalar loop and two required library calls while bounding instruction,
+  padding, function, and indirect-call overhead.
 
 For a local runtime check:
 
@@ -157,21 +198,28 @@ same evidence and reach different conclusions. A report therefore records:
 
 - the normalized endpoint;
 - the exact model string passed to `loupe audit`;
+- the configured maximum completion size and temperature;
+- the exact prompt and canonical request SHA-256 values;
 - the model string returned by the provider, when supplied;
-- the provider response ID, when supplied; and
-- the provider system fingerprint, when supplied.
+- the provider response ID and system fingerprint, when supplied; and
+- the provider finish reason, creation time, and token usage, when supplied.
 
 Endpoint normalization strips credentials, query strings, and fragments, removes
 trailing slashes, lower-cases the host, and upgrades plain HTTP to HTTPS. API keys
 are never published. Missing provider response fields are recorded as
 `unavailable` rather than inferred.
 
-`loupe verify-report --model MODEL --llm-endpoint ENDPOINT` checks the configured
-identity without making a model request. The options default to
-`WEAVE_LLM_MODEL` and `WEAVE_LLM_ENDPOINT`. Standalone users may omit either
-comparison, but pull-request and scheduled workflows always provide both.
-Provider-returned fields are immutable completion provenance covered by the report
-content seal; the offline verifier cannot query them independently.
+`loupe verify-report --model MODEL --llm-endpoint ENDPOINT --max-tokens N` checks
+the configured identity without making a model request. Model and endpoint options
+default to `WEAVE_LLM_MODEL` and `WEAVE_LLM_ENDPOINT`; maximum-token comparison is
+explicit. Pull-request and scheduled workflows provide all three. Provider-returned
+fields are immutable completion provenance covered by the report content seal; the
+offline verifier cannot query them independently.
+
+The client retries bounded transient routing, throttling, timeout, connection, and
+server failures. Permanent client errors fail immediately. Retry behavior changes
+availability, not the request identity: every attempt uses the same prompt and
+canonical request envelope.
 
 ## Auditor implementation identity
 
@@ -198,12 +246,12 @@ excluded because they cannot change audit decisions.
 
 ## Audited input identity
 
-The stable `Audited inputs` section names every source and configured runtime
-matrix with its SHA-256. These hashes define the exact semantic claim reviewed by
-the model and exercised by native runtime cases. The report is invalid as soon as
-any source hash changes, a runtime matrix is added or removed, or a matrix hash
-changes. This rule applies even when the report is younger than 30 days and the
-compiler version is unchanged.
+The stable `Audited inputs` section names every source and configured audit
+sidecar with its SHA-256. These hashes define the exact semantic and final-code
+claims reviewed by the model, exercised by runtime cases, and enforced by native
+budgets. The report is invalid as soon as any source hash changes, a sidecar is
+added or removed, or a sidecar hash changes. This applies even when the report is
+younger than 30 days and the compiler version is unchanged.
 
 Older reports with an unlabelled source line remain readable during migration,
 but a report without an auditable source hash is refreshed rather than trusted.
@@ -215,10 +263,10 @@ model prose or embedded analysis JSON cannot accidentally satisfy the gate.
 The adversarial prompt requires a stage-by-stage verification matrix. An `OK`
 verdict requires affirmative evidence for source semantics, Weave-to-WIR and
 WIR-to-LLVM preservation, LLVM validity, arithmetic behavior, ABI and register
-use, memory safety, target compatibility, configured runtime cases, and the
-absence of avoidable compiler overhead in final native code. Missing essential
-evidence produces `FAILED: insufficient-evidence: ...` rather than a speculative
-pass.
+use, memory safety, target compatibility, configured runtime cases, configured
+native limits, and the absence of avoidable compiler overhead in final native
+code. Missing essential evidence produces
+`FAILED: insufficient-evidence: ...` rather than a speculative pass.
 
 The `Weave audit` workflow audits every added, copied, modified, renamed, or
 relevant deleted `.weave` or `*.audit.json` input. A changed generated `foo.md`
@@ -231,8 +279,9 @@ LLM setup.
 Changes to the audit engine run the canonical programs under `docs/audit/` as a
 self-test. Each successful `foo.weave` audit produces `foo.md`; reports are
 committed only when every audited source passes and each new report passes
-`loupe verify-report` with the same configured endpoint and model. The workflow
-updates one persistent PR comment and uploads complete audit and validity evidence.
+`loupe verify-report` with the same configured endpoint, model, and maximum-token
+setting. The workflow updates one persistent PR comment and uploads complete audit
+and validity evidence.
 
 A report records the exact code commit that was audited. The automated report
 commit contains only generated reports, so its parent is the reproducible audited
@@ -247,28 +296,30 @@ report. A report is due when:
 - its timestamp is missing or at least 30 days old;
 - it is manually forced through `workflow_dispatch`;
 - its source hash is missing or differs from the current source;
-- an adjacent runtime matrix was added, changed, or removed;
+- an adjacent audit sidecar was added, changed, or removed;
 - its compiler binary hash is missing or differs from the current executable;
 - its auditor fingerprint is missing or differs from the current implementation;
 - its recorded model is missing or differs from the configured model;
 - its recorded endpoint is missing or differs from the configured endpoint;
+- its recorded maximum completion size is missing or differs from the configured
+  value;
 - the current compiler is a development build and its version differs from the
   version recorded in the report; or
 - the current executable reports its own version but the stored report used a
   weaker inferred identity source.
 
-Input, toolchain, endpoint, and model identities are checked before age and compiler
-lineage. A one-minute-old report therefore cannot remain green after its program,
-runtime expectations, compiler executable, auditor implementation, endpoint, or
-requested reviewer changes.
+Input, toolchain, endpoint, model, and request-limit identities are checked before
+age and compiler lineage. A one-minute-old report therefore cannot remain green
+after its program, runtime expectations, native budget, compiler executable,
+auditor implementation, endpoint, or requested reviewer changes.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
 evidence. Exit code `2` creates or updates a deduplicated issue in
-`ahojukka5/weavec` with the compiler identity, affected sources, reviewer endpoint
-and model, and workflow link. Infrastructure failures fail the scheduled job but
-do not misclassify the compiler. Scheduled summaries and failure JSON record the
-endpoint, model, compiler version, compiler binary hash, identity source, and
+`ahojukka5/weavec` with the compiler identity, affected sources, reviewer request,
+and workflow link. Infrastructure failures fail the scheduled job but do not
+misclassify the compiler. Scheduled summaries and failure JSON record endpoint,
+model, request limit, compiler version, compiler binary hash, identity source, and
 auditor content fingerprint.
 
 Configure these repository secrets:
@@ -278,6 +329,9 @@ Configure these repository secrets:
 - `WEAVE_GITHUB_TOKEN`, a fine-grained personal access token or GitHub App token
   with repository-content write access to `weave-loupe` and issue write access to
   `weavec`
+
+Optional repository variables include `WEAVE_LLM_MODEL`,
+`WEAVE_LLM_MAX_TOKENS`, and `WEAVE_LLM_MAX_ATTEMPTS`.
 
 The report commits use `WEAVE_GITHUB_TOKEN` instead of the workflow-generated
 `GITHUB_TOKEN`. GitHub therefore treats them as ordinary authenticated pushes and

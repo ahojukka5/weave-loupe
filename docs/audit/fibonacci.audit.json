@@ -2,6 +2,21 @@
   "format": "weave-loupe-runtime-cases-v1",
   "timeout_seconds": 5,
   "inherit_environment": false,
+  "native_budget": {
+    "format": "weave-loupe-native-budget-v1",
+    "max_program_owned_functions": 1,
+    "max_reachable_program_functions": 1,
+    "max_unreachable_program_functions": 0,
+    "max_unreachable_program_instructions": 0,
+    "functions": {
+      "main": {
+        "max_instructions": 2,
+        "max_padding_instructions": 0,
+        "max_direct_calls": 0,
+        "max_indirect_calls": 0
+      }
+    }
+  },
   "cases": [
     {
       "name": "constant-fibonacci",
