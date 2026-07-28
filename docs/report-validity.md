@@ -1,8 +1,9 @@
 # Audit report validity
 
 A passing audit report is not a permanent statement. It is valid only while its
-recorded inputs, compiler executable, auditor implementation, reviewer model,
-compiler identity, and maximum age still match the current environment.
+recorded inputs, complete generated Markdown, compiler executable, auditor
+implementation, reviewer model, compiler identity, and maximum age still match
+the current environment.
 
 Use the deterministic verifier without recompiling or contacting an LLM:
 
@@ -39,11 +40,35 @@ A stale result prints every detected reason. This matters when several things
 changed together—for example, both the source and compiler executable—because a
 single first failure would hide the complete re-audit scope.
 
+## Complete report content
+
+The final generated Markdown contains one stable line:
+
+```text
+- **Report content SHA-256:** `<64 lowercase hexadecimal characters>`
+```
+
+Loupe calculates it only after verbose source-to-native evidence has been inserted.
+The hash therefore covers the verdict, model narrative, source, WIR, LLVM,
+assembly, executable disassembly, runtime observations, diagnostics, analysis,
+build manifest, compiler trace, and all other published Markdown. Only the seal
+line itself is excluded from its own calculation.
+
+Verification rejects a missing, malformed, duplicated, or mismatched seal. A
+seal-looking line inside model-authored prose remains part of the hashed content
+and cannot replace the stable envelope field.
+
+This SHA-256 seal provides portable tamper evidence for accidental or unsealed
+manual edits. It is not a digital signature: someone able to alter a report and
+recompute its seal can forge the checksum. Repository branch protection, workflow
+permissions, commit identity, and external signing remain separate trust layers.
+
 ## Verified conditions
 
 The verifier checks the stable generated report envelope, not model-authored
-prose. It verifies:
+metadata claims. It verifies:
 
+- complete report content SHA-256;
 - report timestamp and maximum age;
 - audited source path and SHA-256;
 - runtime matrix path and SHA-256, including addition or removal;
@@ -69,8 +94,8 @@ uv run loupe verify-report docs/audit/fibonacci.md \
 
 The `weave-loupe-report-verification-v1` document contains the checked time,
 policy lifetime, report and source paths, all stale reasons, the identity parsed
-from the report, the current compiler identity and binary hash, the current
-auditor fingerprint, and the current configured model.
+from the report—including its content SHA-256—the current compiler identity and
+binary hash, the current auditor fingerprint, and the current configured model.
 
 The JSON file is written for both valid and stale results. It is suitable for CI,
 release qualification, dashboards, and archival evidence.
