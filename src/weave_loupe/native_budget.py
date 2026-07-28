@@ -236,7 +236,9 @@ def _nonnegative_integer(value: object, name: str) -> int:
 
 
 def _nonnegative_observation(value: object) -> int:
-    return value if isinstance(value, int) and not isinstance(value, bool) else 0
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return 0
 
 
 def _list_length(value: object) -> int:
