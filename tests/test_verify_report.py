@@ -8,6 +8,7 @@ from pathlib import Path
 
 from weave_loupe.auditor_identity import identify_auditor, sha256_file
 from weave_loupe.commands.verify_report import run_verify_report
+from weave_loupe.report_integrity import seal_audit_report
 
 _MODEL = "z-ai/glm-5.2"
 
@@ -15,7 +16,7 @@ _MODEL = "z-ai/glm-5.2"
 def _write_report(source: Path, compiler: Path, *, model: str = _MODEL) -> Path:
     report = source.with_suffix(".md")
     timestamp = datetime.now(UTC).replace(microsecond=0).isoformat()
-    report.write_text(
+    content = (
         "# Weave Loupe Audit Report\n\n"
         "## Reproducibility\n\n"
         f"- **Audit timestamp (UTC):** `{timestamp}`\n"
@@ -26,9 +27,9 @@ def _write_report(source: Path, compiler: Path, *, model: str = _MODEL) -> Path:
         f"- **LLM model:** `{model}`\n\n"
         "## Audited inputs\n\n"
         f"- Source `{source}` — SHA-256 `{sha256_file(source)}`\n\n"
-        "## Captured evidence\n",
-        encoding="utf-8",
+        "## Captured evidence\n"
     )
+    report.write_text(seal_audit_report(content), encoding="utf-8")
     return report
 
 
@@ -62,6 +63,7 @@ def test_verify_report_accepts_exact_current_identity(
     assert document["current_auditor"]["sha256"] == identify_auditor().sha256
     assert document["current_model"] == _MODEL
     assert document["report_identity"]["model"] == _MODEL
+    assert len(document["report_identity"]["report_content_sha256"]) == 64
 
 
 def test_verify_report_lists_all_stale_reasons(
@@ -86,6 +88,33 @@ def test_verify_report_lists_all_stale_reasons(
     assert captured.out.startswith(f"STALE: {report}\n")
     assert "- source content changed since audit\n" in captured.out
     assert f"- LLM model changed from old-model to {_MODEL}\n" in captured.out
+    assert captured.err == ""
+
+
+def test_verify_report_rejects_changed_markdown_content(
+    source_file: Path,
+    fake_weavec: Path,
+    capsys,
+) -> None:
+    report = _write_report(source_file, fake_weavec)
+    report.write_text(
+        report.read_text(encoding="utf-8") + "\nManual unsealed edit.\n",
+        encoding="utf-8",
+    )
+
+    code = run_verify_report(
+        report=report,
+        source=None,
+        weavec=fake_weavec,
+        model=_MODEL,
+        max_age_days=30,
+        json_out=None,
+    )
+
+    captured = capsys.readouterr()
+    assert code == 2
+    assert captured.out.startswith(f"STALE: {report}\n")
+    assert "- report content changed since audit\n" in captured.out
     assert captured.err == ""
 
 
