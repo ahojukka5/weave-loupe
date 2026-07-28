@@ -264,7 +264,7 @@ def _read_report_identity(report: Path) -> ReportIdentity:
             in_inputs = True
             continue
         if in_inputs and line.startswith("## "):
-            in_inputs = False
+            break
         if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
             try:
                 timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
