@@ -19,6 +19,7 @@ from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
 from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
+from weave_loupe.report_integrity import seal_audit_report
 from weave_loupe.runtime_cases import RuntimeCasesError, execute_runtime_cases
 from weave_loupe.templates import render_audit_prompt
 from weave_loupe.wir_review import clean_wir_for_review
@@ -157,6 +158,7 @@ def run_audit(
                         ("Compiler trace", "json", trace),
                     ],
                 )
+            report = seal_audit_report(report)
 
         sys.stdout.write(report)
         if not report.endswith("\n"):
