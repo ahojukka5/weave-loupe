@@ -32,6 +32,15 @@ def test_load_config_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
         load_config(model="z-ai/glm-5.2", max_tokens=16)
 
 
+def test_load_config_rejects_nonpositive_max_tokens(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "https://example.test/v1")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+    with pytest.raises(LlmError, match="max_tokens must be positive"):
+        load_config(model="z-ai/glm-5.2", max_tokens=0)
+
+
 def test_load_config_upgrades_http_to_https(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -57,7 +66,7 @@ def test_endpoint_identity_rejects_non_http_transport() -> None:
         normalize_endpoint_identity("ftp://example.test/v1")
 
 
-def test_chat_completion_returns_provider_metadata() -> None:
+def test_chat_completion_returns_request_and_provider_metadata() -> None:
     config = LlmConfig(
         endpoint="https://example.test/v1",
         api_key="secret",
@@ -68,7 +77,18 @@ def test_chat_completion_returns_provider_metadata() -> None:
         id="chatcmpl-test",
         model="z-ai/glm-5.2-20260701",
         system_fingerprint="fp_test",
-        choices=[SimpleNamespace(message=SimpleNamespace(content="OK"))],
+        created=1785236400,
+        usage=SimpleNamespace(
+            prompt_tokens=12,
+            completion_tokens=3,
+            total_tokens=15,
+        ),
+        choices=[
+            SimpleNamespace(
+                message=SimpleNamespace(content="OK"),
+                finish_reason="stop",
+            )
+        ],
     )
     client = MagicMock()
     client.chat.completions.create.return_value = response
@@ -79,15 +99,34 @@ def test_chat_completion_returns_provider_metadata() -> None:
     assert completion.content == "OK"
     assert completion.requested_model == "z-ai/glm-5.2"
     assert completion.endpoint == "https://example.test/v1"
+    assert completion.max_tokens == 16
+    assert completion.temperature == 0.0
+    assert len(completion.prompt_sha256) == 64
+    assert len(completion.request_sha256) == 64
+    assert completion.prompt_sha256 != completion.request_sha256
     assert completion.provider_model == "z-ai/glm-5.2-20260701"
     assert completion.response_id == "chatcmpl-test"
     assert completion.system_fingerprint == "fp_test"
+    assert completion.finish_reason == "stop"
+    assert completion.created == 1785236400
+    assert completion.prompt_tokens == 12
+    assert completion.completion_tokens == 3
+    assert completion.total_tokens == 15
     assert completion.metadata() == {
         "requested_model": "z-ai/glm-5.2",
         "endpoint": "https://example.test/v1",
+        "max_tokens": 16,
+        "temperature": 0.0,
+        "prompt_sha256": completion.prompt_sha256,
+        "request_sha256": completion.request_sha256,
         "provider_model": "z-ai/glm-5.2-20260701",
         "response_id": "chatcmpl-test",
         "system_fingerprint": "fp_test",
+        "finish_reason": "stop",
+        "created": 1785236400,
+        "prompt_tokens": 12,
+        "completion_tokens": 3,
+        "total_tokens": 15,
     }
     openai_cls.assert_called_once_with(
         api_key="secret",
@@ -100,6 +139,41 @@ def test_chat_completion_returns_provider_metadata() -> None:
         max_tokens=16,
         temperature=0.0,
     )
+
+
+def test_request_hash_changes_with_prompt_or_settings() -> None:
+    response = SimpleNamespace(
+        choices=[
+            SimpleNamespace(
+                message=SimpleNamespace(content="OK"),
+                finish_reason="stop",
+            )
+        ]
+    )
+    client = MagicMock()
+    client.chat.completions.create.return_value = response
+    first = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="model",
+        max_tokens=16,
+    )
+    second = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="model",
+        max_tokens=32,
+    )
+
+    with patch("weave_loupe.llm.OpenAI", return_value=client):
+        one = chat_completion(first, "prompt")
+        other_prompt = chat_completion(first, "different")
+        other_limit = chat_completion(second, "prompt")
+
+    assert one.prompt_sha256 != other_prompt.prompt_sha256
+    assert one.request_sha256 != other_prompt.request_sha256
+    assert one.prompt_sha256 == other_limit.prompt_sha256
+    assert one.request_sha256 != other_limit.request_sha256
 
 
 def test_chat_completion_accepts_missing_optional_attestation() -> None:
@@ -120,6 +194,11 @@ def test_chat_completion_accepts_missing_optional_attestation() -> None:
     assert completion.provider_model is None
     assert completion.response_id is None
     assert completion.system_fingerprint is None
+    assert completion.finish_reason is None
+    assert completion.created is None
+    assert completion.prompt_tokens is None
+    assert completion.completion_tokens is None
+    assert completion.total_tokens is None
 
 
 def test_chat_completion_wraps_api_error() -> None:
