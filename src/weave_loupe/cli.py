@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -81,6 +82,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Audited source; defaults to the adjacent .weave file.",
     )
     verify.add_argument("--weavec", type=Path, default=None)
+    verify.add_argument(
+        "--model",
+        default=os.environ.get("WEAVE_LLM_MODEL"),
+        help="Current review model; defaults to WEAVE_LLM_MODEL when set.",
+    )
     verify.add_argument("--max-age-days", type=int, default=30)
     verify.add_argument("--json-out", type=Path, default=None)
     return parser
@@ -125,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
             report=args.report,
             source=args.source,
             weavec=args.weavec,
+            model=args.model,
             max_age_days=args.max_age_days,
             json_out=args.json_out,
         )
