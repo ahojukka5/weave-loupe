@@ -22,6 +22,7 @@ from weave_loupe.auditor_identity import (
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 from weave_loupe.report_validity import (
     ReportIdentity,
+    evaluate_identity,
     evaluate_report,
     parse_time,
     read_report_identity,
@@ -231,9 +232,10 @@ def _reaudit_reason(
 ) -> str | None:
     """Compatibility wrapper for focused tests; production uses evaluate_report."""
     if compiler_binary_sha256 is not None and auditor is not None:
-        result = evaluate_report(
+        result = evaluate_identity(
             report=source.with_suffix(".md"),
             source=source,
+            identity=report_identity,
             compiler_identity=identity,
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
