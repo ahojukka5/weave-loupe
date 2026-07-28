@@ -16,11 +16,26 @@ _ANON_SSA = re.compile(r"%\d+\b")
 _IDENTITY_ADD = re.compile(r"\badd\b[^;]*,\s*0\b")
 _DISASSEMBLY_FUNCTION = re.compile(r"^\s*[0-9a-fA-F]+ <([^>]+)>:\s*$")
 _DISASSEMBLY_INSTRUCTION = re.compile(
-    r"^\s*[0-9a-fA-F]+:\s+"
+    r"^\s*([0-9a-fA-F]+):\s+"
     r"(?:(?:[0-9a-fA-F]{2})\s+)+"
     r"\s*([A-Za-z][A-Za-z0-9_.]*)\s*(.*)$"
 )
 _DISASSEMBLY_TARGET = re.compile(r"<([^>]+)>")
+_BRANCH_TARGET_ADDRESS = re.compile(r"^\s*(?:0x)?([0-9a-fA-F]+)\b")
+_CONDITIONAL_BRANCH_MNEMONICS = frozenset(
+    {
+        "beq",
+        "bge",
+        "bgeu",
+        "blt",
+        "bltu",
+        "bne",
+        "cbnz",
+        "cbz",
+        "tbnz",
+        "tbz",
+    }
+)
 
 
 def analyze_bundle(bundle: Bundle) -> dict[str, Any]:
@@ -112,6 +127,9 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
                     "padding_instructions": 0,
                     "direct_calls": set(),
                     "indirect_calls": 0,
+                    "conditional_branches": 0,
+                    "backward_branches": 0,
+                    "backward_conditional_branches": 0,
                 },
             )
             continue
@@ -120,8 +138,9 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
         instruction = _DISASSEMBLY_INSTRUCTION.match(line)
         if instruction is None:
             continue
-        mnemonic = instruction.group(1).lower()
-        operands = instruction.group(2)
+        address = int(instruction.group(1), 16)
+        mnemonic = instruction.group(2).lower()
+        operands = instruction.group(3)
         details = functions[current]
         if mnemonic.startswith("nop"):
             details["padding_instructions"] += 1
@@ -133,6 +152,14 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
                 details["indirect_calls"] += 1
             else:
                 details["direct_calls"].add(target)
+        conditional = _is_conditional_branch(mnemonic)
+        if conditional:
+            details["conditional_branches"] += 1
+        target_address = _branch_target_address(mnemonic, operands)
+        if target_address is not None and target_address < address:
+            details["backward_branches"] += 1
+            if conditional:
+                details["backward_conditional_branches"] += 1
 
     runtime_functions = {name for name in functions if name.startswith("weave_")}
     program_owned = llvm_functions | runtime_functions
@@ -154,6 +181,11 @@ def analyze_native(disassembly: str, optimized_llvm: str) -> dict[str, Any]:
             "padding_instructions": details["padding_instructions"],
             "direct_calls": sorted(details["direct_calls"]),
             "indirect_calls": details["indirect_calls"],
+            "conditional_branches": details["conditional_branches"],
+            "backward_branches": details["backward_branches"],
+            "backward_conditional_branches": details[
+                "backward_conditional_branches"
+            ],
         }
 
     return {
@@ -228,6 +260,33 @@ def _direct_call_target(operands: str) -> str | None:
     if target is None:
         return None
     return _normalize_symbol(target.group(1))
+
+
+def _branch_target_address(mnemonic: str, operands: str) -> int | None:
+    if not _is_branch(mnemonic):
+        return None
+    target = _BRANCH_TARGET_ADDRESS.match(operands)
+    if target is None:
+        return None
+    return int(target.group(1), 16)
+
+
+def _is_branch(mnemonic: str) -> bool:
+    return _is_conditional_branch(mnemonic) or mnemonic in {
+        "b",
+        "br",
+        "j",
+        "jmp",
+        "jmpq",
+    }
+
+
+def _is_conditional_branch(mnemonic: str) -> bool:
+    if mnemonic.startswith("j") and not mnemonic.startswith("jmp"):
+        return True
+    if mnemonic.startswith("loop") or mnemonic.startswith("b."):
+        return True
+    return mnemonic in _CONDITIONAL_BRANCH_MNEMONICS
 
 
 def _normalize_symbol(symbol: str) -> str:
