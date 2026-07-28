@@ -54,9 +54,7 @@ def test_verify_report_accepts_exact_current_identity(
     assert document["format"] == "weave-loupe-report-verification-v1"
     assert document["valid"] is True
     assert document["reasons"] == []
-    assert document["current_compiler"]["binary_sha256"] == sha256_file(
-        fake_weavec
-    )
+    assert document["current_compiler"]["binary_sha256"] == sha256_file(fake_weavec)
     assert document["current_auditor"]["sha256"] == identify_auditor().sha256
 
 
