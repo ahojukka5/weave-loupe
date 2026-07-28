@@ -26,6 +26,8 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [Native optimization budgets](native-budgets.md) — versioned linked-executable
+  limits that make final-code regressions deterministically merge-blocking.
 - [Audit report validity](report-validity.md) — deterministic freshness checks,
   complete stale reasons, exit codes, and machine-readable verification evidence.
 - [Reviewer model and provider identity](model-identity.md) — requested model,
@@ -41,8 +43,9 @@ presentation format.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
   JSON.
 - `loupe diff` compares structural LLVM metrics and stable trace actions.
-- `loupe audit` sends the complete evidence to an OpenAI-compatible model and,
-  with `--verbose`, embeds the evidence in the generated Markdown report.
+- `loupe audit` sends the complete evidence to an OpenAI-compatible model, applies
+  runtime and native-budget deterministic gates, and with `--verbose` embeds the
+  evidence in the generated Markdown report.
 - `loupe verify-report` verifies that a generated report still matches the current
-  source, runtime matrix, compiler, auditor, configured endpoint and model, and
+  source, audit sidecar, compiler, auditor, configured endpoint and model, and
   validity period without compiling or calling an LLM.
