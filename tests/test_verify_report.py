@@ -77,9 +77,7 @@ def test_verify_report_accepts_exact_current_identity(
     assert document["current_endpoint"] == _ENDPOINT
     assert document["report_identity"]["model"] == _MODEL
     assert document["report_identity"]["endpoint"] == _ENDPOINT
-    assert document["report_identity"]["provider_model"] == (
-        "z-ai/glm-5.2-20260728"
-    )
+    assert document["report_identity"]["provider_model"] == ("z-ai/glm-5.2-20260728")
     assert document["report_identity"]["response_id"] == "chatcmpl-test"
     assert document["report_identity"]["system_fingerprint"] == "fp_test"
     assert len(document["report_identity"]["report_content_sha256"]) == 64
