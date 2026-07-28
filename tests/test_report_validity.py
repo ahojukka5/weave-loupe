@@ -16,6 +16,7 @@ from weave_loupe.report_validity import (
 
 _MODEL = "z-ai/glm-5.2"
 _ENDPOINT = "https://example.test/v1"
+_MAX_TOKENS = 4096
 
 
 def _compiler() -> CompilerVersion:
@@ -52,6 +53,15 @@ def _identity(source: Path) -> ReportIdentity:
         provider_model="z-ai/glm-5.2-20260728",
         response_id="chatcmpl-test",
         system_fingerprint="fp_test",
+        max_tokens=_MAX_TOKENS,
+        temperature=0.0,
+        prompt_sha256="c" * 64,
+        request_sha256="d" * 64,
+        finish_reason="stop",
+        created=1785236400,
+        prompt_tokens=1000,
+        completion_tokens=200,
+        total_tokens=1200,
     )
 
 
@@ -68,6 +78,7 @@ def test_exact_identity_is_valid(tmp_path: Path) -> None:
         auditor=_auditor(),
         current_model=_MODEL,
         current_endpoint=_ENDPOINT,
+        current_max_tokens=_MAX_TOKENS,
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -92,6 +103,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         runtime_path=None,
         runtime_sha256=None,
         endpoint="https://old.example.test/v1",
+        max_tokens=2048,
     )
 
     result = evaluate_identity(
@@ -103,6 +115,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         auditor=_auditor(),
         current_model="new-model",
         current_endpoint=_ENDPOINT,
+        current_max_tokens=_MAX_TOKENS,
         now=datetime(2026, 7, 28, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -115,6 +128,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         "LLM model changed from old-model to new-model",
         "LLM endpoint changed from https://old.example.test/v1 "
         "to https://example.test/v1",
+        "LLM max tokens changed from 2048 to 4096",
         "report age is at least 30 days",
         "development compiler changed from weavec v0.3.0+git.old "
         "to weavec v0.3.0+git.abc",
@@ -187,7 +201,38 @@ def test_missing_and_changed_endpoints_are_stale(tmp_path: Path) -> None:
     )
 
 
-def test_model_and_endpoint_checks_are_optional_for_standalone_use(
+def test_missing_and_changed_max_tokens_are_stale(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    missing = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), max_tokens=None),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_max_tokens=_MAX_TOKENS,
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+    changed = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), max_tokens=2048),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_max_tokens=_MAX_TOKENS,
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+
+    assert missing.reasons == ("report does not record LLM max tokens",)
+    assert changed.reasons == ("LLM max tokens changed from 2048 to 4096",)
+
+
+def test_reviewer_request_checks_are_optional_for_standalone_use(
     tmp_path: Path,
 ) -> None:
     source = tmp_path / "demo.weave"
@@ -196,7 +241,12 @@ def test_model_and_endpoint_checks_are_optional_for_standalone_use(
     result = evaluate_identity(
         report=source.with_suffix(".md"),
         source=source,
-        identity=replace(_identity(source), model=None, endpoint=None),
+        identity=replace(
+            _identity(source),
+            model=None,
+            endpoint=None,
+            max_tokens=None,
+        ),
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
@@ -248,15 +298,25 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
         "- **weavec version source:** `command`\n"
         f"- **LLM endpoint:** `{_ENDPOINT}`\n"
         f"- **LLM model:** `{_MODEL}`\n"
+        f"- **LLM max tokens:** `{_MAX_TOKENS}`\n"
+        "- **LLM temperature:** `0.0`\n"
+        f"- **LLM prompt SHA-256:** `{'c' * 64}`\n"
+        f"- **LLM request SHA-256:** `{'d' * 64}`\n"
         "- **Provider-reported model:** `z-ai/glm-5.2-20260728`\n"
         "- **Provider response ID:** `chatcmpl-test`\n"
-        "- **Provider system fingerprint:** `fp_test`\n\n"
+        "- **Provider system fingerprint:** `fp_test`\n"
+        "- **Provider finish reason:** `stop`\n"
+        "- **Provider created (Unix):** `1785236400`\n"
+        "- **Provider prompt tokens:** `1000`\n"
+        "- **Provider completion tokens:** `200`\n"
+        "- **Provider total tokens:** `1200`\n\n"
         "## Audited inputs\n\n"
         f"- Source `{source}` — SHA-256 `{sha256_file(source)}`\n\n"
         "## LLM review\n\n"
         f"- Source `{source}` — SHA-256 `{'0' * 64}`\n"
         "- **LLM endpoint:** `https://spoofed.test/v1`\n"
         "- **LLM model:** `spoofed-model`\n"
+        "- **LLM max tokens:** `1`\n"
         "- **Provider-reported model:** `spoofed-provider`\n",
         encoding="utf-8",
     )
@@ -268,6 +328,15 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
     assert identity.auditor_sha256 == "b" * 64
     assert identity.endpoint == _ENDPOINT
     assert identity.model == _MODEL
+    assert identity.max_tokens == _MAX_TOKENS
+    assert identity.temperature == 0.0
+    assert identity.prompt_sha256 == "c" * 64
+    assert identity.request_sha256 == "d" * 64
     assert identity.provider_model == "z-ai/glm-5.2-20260728"
     assert identity.response_id == "chatcmpl-test"
     assert identity.system_fingerprint == "fp_test"
+    assert identity.finish_reason == "stop"
+    assert identity.created == 1785236400
+    assert identity.prompt_tokens == 1000
+    assert identity.completion_tokens == 200
+    assert identity.total_tokens == 1200
