@@ -172,7 +172,8 @@ def render_audit_report(
         f"- **weavec version source:** `{weavec.get('version_source', 'unavailable')}`",
         f"- **LLM endpoint:** `{llm.get('endpoint', 'unavailable')}`",
         f"- **LLM model:** `{llm.get('requested_model', metadata['model'])}`",
-        f"- **Provider-reported model:** `{llm.get('provider_model') or 'unavailable'}`",
+        "- **Provider-reported model:** "
+        f"`{llm.get('provider_model') or 'unavailable'}`",
         f"- **Provider response ID:** `{llm.get('response_id') or 'unavailable'}`",
         "- **Provider system fingerprint:** "
         f"`{llm.get('system_fingerprint') or 'unavailable'}`",
