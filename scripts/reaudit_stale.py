@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import shutil
@@ -16,11 +15,18 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from weave_loupe.audit_policy import DEFAULT_AUDIT_MAX_AGE_DAYS
+from weave_loupe.auditor_identity import (
+    AuditorIdentity,
+    identify_auditor,
+    sha256_file,
+)
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 
 _TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
 _VERSION_PREFIX = "- **weavec version:** `"
 _VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
+_COMPILER_BINARY_PREFIX = "- **weavec binary SHA-256:** `"
+_AUDITOR_PREFIX = "- **Auditor content SHA-256:** `"
 _SOURCE_INPUT = re.compile(
     r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
     r"`(?P<sha256>[0-9a-f]{64})`$"
@@ -36,6 +42,8 @@ class ReportIdentity:
     timestamp: datetime | None
     version: str | None
     version_source: str | None
+    compiler_binary_sha256: str | None
+    auditor_sha256: str | None
     source_path: str | None
     source_sha256: str | None
     runtime_path: str | None
@@ -49,6 +57,8 @@ class ReportState:
     timestamp: datetime | None
     version: str | None
     version_source: str | None
+    compiler_binary_sha256: str | None
+    auditor_sha256: str | None
     source_sha256: str | None
     runtime_sha256: str | None
     reason: str | None
@@ -98,9 +108,13 @@ def main() -> int:
 
     now = _parse_time(args.now) if args.now else datetime.now(UTC)
     identity = identify_weavec(args.weavec)
+    compiler_binary_sha256 = sha256_file(args.weavec)
+    auditor = identify_auditor()
     states = _report_states(
         source_root=args.source_root,
         identity=identity,
+        compiler_binary_sha256=compiler_binary_sha256,
+        auditor=auditor,
         now=now,
         max_age=timedelta(days=args.max_age_days),
         force=args.force,
@@ -129,7 +143,14 @@ def main() -> int:
 
         args.summary.parent.mkdir(parents=True, exist_ok=True)
         args.summary.write_text(
-            _render_summary(identity=identity, states=states, runs=runs, now=now),
+            _render_summary(
+                identity=identity,
+                compiler_binary_sha256=compiler_binary_sha256,
+                auditor=auditor,
+                states=states,
+                runs=runs,
+                now=now,
+            ),
             encoding="utf-8",
         )
         args.reports_list.parent.mkdir(parents=True, exist_ok=True)
@@ -140,7 +161,11 @@ def main() -> int:
         failures = {
             "format": "weave-loupe-scheduled-failures-v1",
             "timestamp_utc": now.replace(microsecond=0).isoformat(),
-            "compiler": asdict(identity),
+            "compiler": {
+                **asdict(identity),
+                "binary_sha256": compiler_binary_sha256,
+            },
+            "auditor": auditor.metadata(),
             "compiler_findings": [asdict(run) for run in runs if run.compiler_finding],
             "infrastructure_failures": [
                 asdict(run)
@@ -165,6 +190,8 @@ def _report_states(
     *,
     source_root: Path,
     identity: CompilerVersion,
+    compiler_binary_sha256: str,
+    auditor: AuditorIdentity,
     now: datetime,
     max_age: timedelta,
     force: bool,
@@ -177,6 +204,8 @@ def _report_states(
             source=source,
             report_identity=report_identity,
             identity=identity,
+            compiler_binary_sha256=compiler_binary_sha256,
+            auditor=auditor,
             now=now,
             max_age=max_age,
             force=force,
@@ -188,6 +217,8 @@ def _report_states(
                 timestamp=report_identity.timestamp,
                 version=report_identity.version,
                 version_source=report_identity.version_source,
+                compiler_binary_sha256=report_identity.compiler_binary_sha256,
+                auditor_sha256=report_identity.auditor_sha256,
                 source_sha256=report_identity.source_sha256,
                 runtime_sha256=report_identity.runtime_sha256,
                 reason=reason,
@@ -201,6 +232,8 @@ def _reaudit_reason(
     source: Path,
     report_identity: ReportIdentity,
     identity: CompilerVersion,
+    compiler_binary_sha256: str,
+    auditor: AuditorIdentity,
     now: datetime,
     max_age: timedelta,
     force: bool,
@@ -211,17 +244,26 @@ def _reaudit_reason(
         return "missing or unparseable report timestamp"
     if report_identity.source_sha256 is None:
         return "report does not record audited source hash"
-    if _sha256(source) != report_identity.source_sha256:
+    if sha256_file(source) != report_identity.source_sha256:
         return "source content changed since audit"
 
     runtime = source.with_suffix(".audit.json")
     if runtime.is_file():
         if report_identity.runtime_sha256 is None:
             return "runtime matrix was added or not recorded"
-        if _sha256(runtime) != report_identity.runtime_sha256:
+        if sha256_file(runtime) != report_identity.runtime_sha256:
             return "runtime matrix content changed since audit"
     elif report_identity.runtime_sha256 is not None:
         return "runtime matrix was removed since audit"
+
+    if report_identity.compiler_binary_sha256 is None:
+        return "report does not record compiler binary hash"
+    if report_identity.compiler_binary_sha256 != compiler_binary_sha256:
+        return "compiler binary changed since audit"
+    if report_identity.auditor_sha256 is None:
+        return "report does not record auditor fingerprint"
+    if report_identity.auditor_sha256 != auditor.sha256:
+        return "audit implementation changed since audit"
 
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
@@ -246,6 +288,8 @@ def _read_report_identity(report: Path) -> ReportIdentity:
             timestamp=None,
             version=None,
             version_source=None,
+            compiler_binary_sha256=None,
+            auditor_sha256=None,
             source_path=None,
             source_sha256=None,
             runtime_path=None,
@@ -254,6 +298,8 @@ def _read_report_identity(report: Path) -> ReportIdentity:
     timestamp: datetime | None = None
     version: str | None = None
     version_source: str | None = None
+    compiler_binary_sha256: str | None = None
+    auditor_sha256: str | None = None
     source_path: str | None = None
     source_sha256: str | None = None
     runtime_path: str | None = None
@@ -274,6 +320,10 @@ def _read_report_identity(report: Path) -> ReportIdentity:
             version = line[len(_VERSION_PREFIX) : -1]
         elif line.startswith(_VERSION_SOURCE_PREFIX) and line.endswith("`"):
             version_source = line[len(_VERSION_SOURCE_PREFIX) : -1]
+        elif line.startswith(_COMPILER_BINARY_PREFIX) and line.endswith("`"):
+            compiler_binary_sha256 = line[len(_COMPILER_BINARY_PREFIX) : -1]
+        elif line.startswith(_AUDITOR_PREFIX) and line.endswith("`"):
+            auditor_sha256 = line[len(_AUDITOR_PREFIX) : -1]
         elif in_inputs:
             source_match = _SOURCE_INPUT.fullmatch(line)
             if source_match is not None:
@@ -288,6 +338,8 @@ def _read_report_identity(report: Path) -> ReportIdentity:
         timestamp=timestamp,
         version=version,
         version_source=version_source,
+        compiler_binary_sha256=compiler_binary_sha256,
+        auditor_sha256=auditor_sha256,
         source_path=source_path,
         source_sha256=source_sha256,
         runtime_path=runtime_path,
@@ -300,14 +352,6 @@ def _parse_time(value: str) -> datetime:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _audit(
@@ -353,6 +397,8 @@ def _audit(
 def _render_summary(
     *,
     identity: CompilerVersion,
+    compiler_binary_sha256: str,
+    auditor: AuditorIdentity,
     states: list[ReportState],
     runs: list[AuditRun],
     now: datetime,
@@ -367,8 +413,10 @@ def _render_summary(
         "",
         f"- **Checked at:** `{now.replace(microsecond=0).isoformat()}`",
         f"- **Compiler:** `{identity.display}`",
+        f"- **Compiler binary SHA-256:** `{compiler_binary_sha256}`",
         f"- **Compiler build kind:** `{build_kind}`",
         f"- **Compiler identity source:** `{identity.source}`",
+        f"- **Auditor content SHA-256:** `{auditor.sha256}`",
         f"- **Reports discovered:** `{len(states)}`",
         f"- **Reports due:** `{due_count}`",
         f"- **Passed:** `{passed}`",
