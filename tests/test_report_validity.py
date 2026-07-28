@@ -40,6 +40,7 @@ def _identity(source: Path) -> ReportIdentity:
         version_source="command",
         compiler_binary_sha256="a" * 64,
         auditor_sha256="b" * 64,
+        model="z-ai/glm-5.2",
         source_path=str(source),
         source_sha256=sha256_file(source),
         runtime_path=None,
@@ -58,6 +59,7 @@ def test_exact_identity_is_valid(tmp_path: Path) -> None:
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
+        current_model="z-ai/glm-5.2",
         now=datetime(2026, 7, 28, 1, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -76,6 +78,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         version_source="repository",
         compiler_binary_sha256="c" * 64,
         auditor_sha256="d" * 64,
+        model="old-model",
         source_path=str(tmp_path / "renamed.weave"),
         source_sha256="e" * 64,
         runtime_path=None,
@@ -89,6 +92,7 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         compiler_identity=_compiler(),
         compiler_binary_sha256="a" * 64,
         auditor=_auditor(),
+        current_model="new-model",
         now=datetime(2026, 7, 28, tzinfo=UTC),
         max_age=timedelta(days=30),
     )
@@ -98,11 +102,63 @@ def test_evaluator_reports_every_independent_stale_reason(tmp_path: Path) -> Non
         "source content changed since audit",
         "compiler binary changed since audit",
         "audit implementation changed since audit",
+        "LLM model changed from old-model to new-model",
         "report age is at least 30 days",
         "development compiler changed from weavec v0.3.0+git.old "
         "to weavec v0.3.0+git.abc",
         "compiler identity source changed from repository to command",
     )
+
+
+def test_missing_and_changed_models_are_stale(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    missing = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), model=None),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_model="z-ai/glm-5.2",
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+    changed = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), model="old-model"),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        current_model="z-ai/glm-5.2",
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+
+    assert missing.reasons == ("report does not record LLM model",)
+    assert changed.reasons == (
+        "LLM model changed from old-model to z-ai/glm-5.2",
+    )
+
+
+def test_model_check_is_optional_for_standalone_verification(tmp_path: Path) -> None:
+    source = tmp_path / "demo.weave"
+    source.write_text("(program)\n", encoding="utf-8")
+
+    result = evaluate_identity(
+        report=source.with_suffix(".md"),
+        source=source,
+        identity=replace(_identity(source), model=None),
+        compiler_identity=_compiler(),
+        compiler_binary_sha256="a" * 64,
+        auditor=_auditor(),
+        now=datetime(2026, 7, 28, 1, tzinfo=UTC),
+        max_age=timedelta(days=30),
+    )
+
+    assert result.valid
 
 
 def test_runtime_path_and_content_are_verified(tmp_path: Path) -> None:
@@ -143,11 +199,13 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
         f"- **Auditor content SHA-256:** `{'b' * 64}`\n"
         f"- **weavec binary SHA-256:** `{'a' * 64}`\n"
         "- **weavec version:** `weavec v0.3.0+git.abc`\n"
-        "- **weavec version source:** `command`\n\n"
+        "- **weavec version source:** `command`\n"
+        "- **LLM model:** `z-ai/glm-5.2`\n\n"
         "## Audited inputs\n\n"
         f"- Source `{source}` — SHA-256 `{sha256_file(source)}`\n\n"
         "## LLM review\n\n"
-        f"- Source `{source}` — SHA-256 `{'0' * 64}`\n",
+        f"- Source `{source}` — SHA-256 `{'0' * 64}`\n"
+        "- **LLM model:** `spoofed-model`\n",
         encoding="utf-8",
     )
 
@@ -156,3 +214,4 @@ def test_parser_ignores_identity_like_model_prose(tmp_path: Path) -> None:
     assert identity.source_sha256 == sha256_file(source)
     assert identity.compiler_binary_sha256 == "a" * 64
     assert identity.auditor_sha256 == "b" * 64
+    assert identity.model == "z-ai/glm-5.2"
