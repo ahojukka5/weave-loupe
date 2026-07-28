@@ -57,7 +57,9 @@ def identify_auditor(anchor: Path | None = None) -> AuditorIdentity:
         package = root / "src" / "weave_loupe"
         paths = sorted(package.rglob("*.py"))
         paths.extend(
-            path for relative in _AUDIT_CONTROL_FILES if (path := root / relative).is_file()
+            path
+            for relative in _AUDIT_CONTROL_FILES
+            if (path := root / relative).is_file()
         )
         paths = sorted(set(paths))
         relative_to = root
