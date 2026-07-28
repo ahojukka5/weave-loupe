@@ -54,6 +54,20 @@ disassembly, optimization remarks, direct runtime observations, diagnostics,
 deterministic analysis, build manifest, and compiler trace, together with
 timestamps, Git SHAs, hashes, and machine specifications.
 
+Verify later that a report still covers the current source, runtime matrix,
+compiler executable, audit implementation, and validity period without compiling
+or calling an LLM:
+
+```sh
+uv run loupe verify-report docs/audit/fibonacci.md \
+  --weavec /path/to/weavec \
+  --json-out build/fibonacci-validity.json
+```
+
+The verifier exits `0` for a valid report, `2` for a stale report, and `1` for an
+invalid invocation or infrastructure failure. A stale result lists every detected
+reason instead of hiding later mismatches behind the first one.
+
 An adjacent `foo.audit.json` file may define exact native executions for
 `foo.weave`: arguments, environment, standard input, expected exit status, and
 expected output streams. Loupe runs those cases against the exact captured
