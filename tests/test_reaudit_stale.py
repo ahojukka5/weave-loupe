@@ -52,9 +52,7 @@ def _write_report(
     runtime_line = ""
     if runtime_path is not None:
         digest = runtime_sha256 or _sha256(runtime_path)
-        runtime_line = (
-            f"- Runtime matrix `{runtime_path}` — SHA-256 `{digest}`\n"
-        )
+        runtime_line = f"- Runtime matrix `{runtime_path}` — SHA-256 `{digest}`\n"
     path.write_text(
         "# report\n\n"
         f"- **Audit timestamp (UTC):** `{timestamp.isoformat()}`\n"
@@ -236,14 +234,14 @@ def test_changed_source_hash_invalidates_fresh_report(tmp_path: Path) -> None:
     root = tmp_path / "docs" / "audit"
     root.mkdir(parents=True)
     source = root / "demo.weave"
-    source.write_text("(program (version \"old\"))\n", encoding="utf-8")
+    source.write_text('(program (version "old"))\n', encoding="utf-8")
     now = datetime(2026, 7, 27, tzinfo=UTC)
     _write_report(
         source.with_suffix(".md"),
         timestamp=now - timedelta(hours=1),
         version="weavec v0.3.0",
     )
-    source.write_text("(program (version \"new\"))\n", encoding="utf-8")
+    source.write_text('(program (version "new"))\n', encoding="utf-8")
 
     states = _states(
         module,
