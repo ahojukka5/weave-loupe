@@ -41,7 +41,9 @@ Ask an OpenAI-compatible model to review the complete evidence:
 ```sh
 export WEAVE_LLM_ENDPOINT=https://integrate.api.nvidia.com/v1
 export WEAVE_LLM_API_KEY=...
+export WEAVE_LLM_MODEL=z-ai/glm-5.2
 uv run loupe audit docs/audit/fibonacci.weave \
+  --model "$WEAVE_LLM_MODEL" \
   --verbose \
   --report-out docs/audit/fibonacci.md
 ```
@@ -55,15 +57,17 @@ deterministic analysis, build manifest, and compiler trace, together with
 timestamps, Git SHAs, hashes, and machine specifications.
 
 Verify later that a report still covers the current source, runtime matrix,
-compiler executable, audit implementation, and validity period without compiling
-or calling an LLM:
+compiler executable, audit implementation, reviewer model, and validity period
+without compiling or calling an LLM:
 
 ```sh
 uv run loupe verify-report docs/audit/fibonacci.md \
   --weavec /path/to/weavec \
+  --model "$WEAVE_LLM_MODEL" \
   --json-out build/fibonacci-validity.json
 ```
 
+`--model` defaults to `WEAVE_LLM_MODEL` when that environment variable is set.
 The verifier exits `0` for a valid report, `2` for a stale report, and `1` for an
 invalid invocation or infrastructure failure. A stale result lists every detected
 reason instead of hiding later mismatches behind the first one.
