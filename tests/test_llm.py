@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import httpx
 import pytest
@@ -237,7 +237,7 @@ def test_chat_completion_stops_after_retry_limit() -> None:
         chat_completion(config, "prompt")
 
     assert client.chat.completions.create.call_count == 3
-    assert sleep.call_args_list == [((1.0,),), ((2.0,),)]
+    assert sleep.call_args_list == [call(1.0), call(2.0)]
 
 
 def test_chat_completion_does_not_retry_permanent_client_error() -> None:
