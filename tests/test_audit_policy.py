@@ -108,6 +108,7 @@ def test_report_renders_human_visible_validity_scope() -> None:
     assert (
         "Model invalidation:** `any configured LLM model or endpoint change`" in report
     )
+    assert "Request limit invalidation:** `any configured LLM max-token change`" in report
     assert "Auditor content SHA-256:** `auditor`" in report
     assert "LLM endpoint:** `https://example.test/v1`" in report
     assert "LLM model:** `model`" in report
