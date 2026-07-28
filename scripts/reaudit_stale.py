@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import shutil
 import subprocess
 import sys
@@ -21,33 +20,15 @@ from weave_loupe.auditor_identity import (
     sha256_file,
 )
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
-
-_TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
-_VERSION_PREFIX = "- **weavec version:** `"
-_VERSION_SOURCE_PREFIX = "- **weavec version source:** `"
-_COMPILER_BINARY_PREFIX = "- **weavec binary SHA-256:** `"
-_AUDITOR_PREFIX = "- **Auditor content SHA-256:** `"
-_SOURCE_INPUT = re.compile(
-    r"^- (?:Source )?`(?P<path>[^`]+\.weave)` — SHA-256 "
-    r"`(?P<sha256>[0-9a-f]{64})`$"
-)
-_RUNTIME_INPUT = re.compile(
-    r"^- Runtime matrix `(?P<path>[^`]+\.audit\.json)` — SHA-256 "
-    r"`(?P<sha256>[0-9a-f]{64})`$"
+from weave_loupe.report_validity import (
+    ReportIdentity,
+    evaluate_report,
+    parse_time,
+    read_report_identity,
 )
 
-
-@dataclass(frozen=True)
-class ReportIdentity:
-    timestamp: datetime | None
-    version: str | None
-    version_source: str | None
-    compiler_binary_sha256: str | None
-    auditor_sha256: str | None
-    source_path: str | None
-    source_sha256: str | None
-    runtime_path: str | None
-    runtime_sha256: str | None
+_read_report_identity = read_report_identity
+_parse_time = parse_time
 
 
 @dataclass(frozen=True)
@@ -106,7 +87,7 @@ def main() -> int:
     parser.add_argument("--now", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
-    now = _parse_time(args.now) if args.now else datetime.now(UTC)
+    now = parse_time(args.now) if args.now else datetime.now(UTC)
     identity = identify_weavec(args.weavec)
     compiler_binary_sha256 = sha256_file(args.weavec)
     auditor = identify_auditor()
@@ -199,17 +180,27 @@ def _report_states(
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
         report = source.with_suffix(".md")
-        report_identity = _read_report_identity(report)
-        reason = _reaudit_reason(
-            source=source,
-            report_identity=report_identity,
-            identity=identity,
-            compiler_binary_sha256=compiler_binary_sha256,
-            auditor=auditor,
-            now=now,
-            max_age=max_age,
-            force=force,
-        )
+        report_identity = read_report_identity(report)
+        if compiler_binary_sha256 is not None and auditor is not None:
+            reason = evaluate_report(
+                report=report,
+                source=source,
+                compiler_identity=identity,
+                compiler_binary_sha256=compiler_binary_sha256,
+                auditor=auditor,
+                now=now,
+                max_age=max_age,
+                force=force,
+            ).primary_reason
+        else:
+            reason = _reaudit_reason(
+                source=source,
+                report_identity=report_identity,
+                identity=identity,
+                now=now,
+                max_age=max_age,
+                force=force,
+            )
         states.append(
             ReportState(
                 source=source,
@@ -238,6 +229,19 @@ def _reaudit_reason(
     compiler_binary_sha256: str | None = None,
     auditor: AuditorIdentity | None = None,
 ) -> str | None:
+    """Compatibility wrapper for focused tests; production uses evaluate_report."""
+    if compiler_binary_sha256 is not None and auditor is not None:
+        result = evaluate_report(
+            report=source.with_suffix(".md"),
+            source=source,
+            compiler_identity=identity,
+            compiler_binary_sha256=compiler_binary_sha256,
+            auditor=auditor,
+            now=now,
+            max_age=max_age,
+            force=force,
+        )
+        return result.primary_reason
     if force:
         return "manual force"
     if report_identity.timestamp is None:
@@ -246,7 +250,6 @@ def _reaudit_reason(
         return "report does not record audited source hash"
     if sha256_file(source) != report_identity.source_sha256:
         return "source content changed since audit"
-
     runtime = source.with_suffix(".audit.json")
     if runtime.is_file():
         if report_identity.runtime_sha256 is None:
@@ -255,18 +258,6 @@ def _reaudit_reason(
             return "runtime matrix content changed since audit"
     elif report_identity.runtime_sha256 is not None:
         return "runtime matrix was removed since audit"
-
-    if compiler_binary_sha256 is not None:
-        if report_identity.compiler_binary_sha256 is None:
-            return "report does not record compiler binary hash"
-        if report_identity.compiler_binary_sha256 != compiler_binary_sha256:
-            return "compiler binary changed since audit"
-    if auditor is not None:
-        if report_identity.auditor_sha256 is None:
-            return "report does not record auditor fingerprint"
-        if report_identity.auditor_sha256 != auditor.sha256:
-            return "audit implementation changed since audit"
-
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
     if identity.development and report_identity.version != identity.display:
@@ -280,80 +271,6 @@ def _reaudit_reason(
             f"{report_identity.version_source or 'unknown'} to command"
         )
     return None
-
-
-def _read_report_identity(report: Path) -> ReportIdentity:
-    try:
-        lines = report.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return ReportIdentity(
-            timestamp=None,
-            version=None,
-            version_source=None,
-            compiler_binary_sha256=None,
-            auditor_sha256=None,
-            source_path=None,
-            source_sha256=None,
-            runtime_path=None,
-            runtime_sha256=None,
-        )
-    timestamp: datetime | None = None
-    version: str | None = None
-    version_source: str | None = None
-    compiler_binary_sha256: str | None = None
-    auditor_sha256: str | None = None
-    source_path: str | None = None
-    source_sha256: str | None = None
-    runtime_path: str | None = None
-    runtime_sha256: str | None = None
-    in_inputs = False
-    for line in lines:
-        if line == "## Audited inputs":
-            in_inputs = True
-            continue
-        if in_inputs and line.startswith("## "):
-            break
-        if line.startswith(_TIMESTAMP_PREFIX) and line.endswith("`"):
-            try:
-                timestamp = _parse_time(line[len(_TIMESTAMP_PREFIX) : -1])
-            except ValueError:
-                timestamp = None
-        elif line.startswith(_VERSION_PREFIX) and line.endswith("`"):
-            version = line[len(_VERSION_PREFIX) : -1]
-        elif line.startswith(_VERSION_SOURCE_PREFIX) and line.endswith("`"):
-            version_source = line[len(_VERSION_SOURCE_PREFIX) : -1]
-        elif line.startswith(_COMPILER_BINARY_PREFIX) and line.endswith("`"):
-            compiler_binary_sha256 = line[len(_COMPILER_BINARY_PREFIX) : -1]
-        elif line.startswith(_AUDITOR_PREFIX) and line.endswith("`"):
-            auditor_sha256 = line[len(_AUDITOR_PREFIX) : -1]
-        elif in_inputs:
-            source_match = _SOURCE_INPUT.fullmatch(line)
-            if source_match is not None:
-                source_path = source_match.group("path")
-                source_sha256 = source_match.group("sha256")
-                continue
-            runtime_match = _RUNTIME_INPUT.fullmatch(line)
-            if runtime_match is not None:
-                runtime_path = runtime_match.group("path")
-                runtime_sha256 = runtime_match.group("sha256")
-    return ReportIdentity(
-        timestamp=timestamp,
-        version=version,
-        version_source=version_source,
-        compiler_binary_sha256=compiler_binary_sha256,
-        auditor_sha256=auditor_sha256,
-        source_path=source_path,
-        source_sha256=source_sha256,
-        runtime_path=runtime_path,
-        runtime_sha256=runtime_sha256,
-    )
-
-
-def _parse_time(value: str) -> datetime:
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    if parsed.tzinfo is None:
-        return parsed.replace(tzinfo=UTC)
-    return parsed.astimezone(UTC)
 
 
 def _audit(
