@@ -27,6 +27,8 @@ def run_verify_report(
     try:
         if max_age_days <= 0:
             raise ValueError("max_age_days must be positive")
+        if not report.is_file():
+            raise ValueError(f"audit report not found: {report}")
         binary = resolve_weavec(weavec)
         compiler = identify_weavec(binary)
         compiler_binary_sha256 = sha256_file(binary)
