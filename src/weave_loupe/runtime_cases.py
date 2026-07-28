@@ -81,10 +81,12 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     if not isinstance(inherit, bool):
         raise RuntimeCasesError("inherit_environment must be a boolean")
 
-    raw_cases = document.get("cases")
-    if not isinstance(raw_cases, list) or not raw_cases:
+    raw_cases = document.get("cases", [])
+    if not isinstance(raw_cases, list):
+        raise RuntimeCasesError("runtime case document cases must be a list")
+    if not raw_cases and document.get("native_budget") is None:
         raise RuntimeCasesError(
-            "runtime case document must contain a non-empty cases list"
+            "audit sidecar must contain runtime cases or a native_budget"
         )
 
     cases = tuple(_parse_case(item, index) for index, item in enumerate(raw_cases))
@@ -112,27 +114,33 @@ def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, A
         }
 
     executable = bundle.artifact_path("executable")
-    if executable is None:
+    if configuration.cases and executable is None:
         raise RuntimeCasesError(
             f"runtime cases configured in {configuration.path}, "
             "but no executable was captured"
         )
 
-    results = [
-        _execute_case(
-            executable=executable,
-            working_directory=configuration.path.resolve().parent,
-            configuration=configuration,
-            case=case,
-        )
-        for case in configuration.cases
-    ]
+    results = (
+        [
+            _execute_case(
+                executable=executable,
+                working_directory=configuration.path.resolve().parent,
+                configuration=configuration,
+                case=case,
+            )
+            for case in configuration.cases
+        ]
+        if executable is not None
+        else []
+    )
     return {
         "format": _RUNTIME_RESULT_FORMAT,
         "configured": True,
         "sidecar": str(configuration.path),
         "sidecar_sha256": _sha256(configuration.path.read_bytes()),
-        "executable_sha256": _sha256(executable.read_bytes()),
+        "executable_sha256": (
+            _sha256(executable.read_bytes()) if executable is not None else None
+        ),
         "timeout_seconds": configuration.timeout_seconds,
         "inherit_environment": configuration.inherit_environment,
         "passed": all(result["passed"] for result in results),
