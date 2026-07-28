@@ -148,6 +148,19 @@ packaging, corruption, or tampering. Daily maintenance therefore refreshes a
 report whenever the rebuilt compiler bytes differ from the audited binary, even
 when `weavec --version` is unchanged.
 
+## Reviewer model identity
+
+The configured model is part of the verdict identity. Different models, model
+versions, providers, or routing aliases can inspect the same evidence and reach
+different conclusions. A report therefore records the exact model string passed
+to `loupe audit`, and repository workflows invalidate the report when their
+configured model differs.
+
+`loupe verify-report --model MODEL` checks this without making a model request.
+The option defaults to `WEAVE_LLM_MODEL` when present. Standalone users may omit
+the model check, but the pull-request and scheduled workflows always provide the
+active configured model.
+
 ## Auditor implementation identity
 
 Every report also records `weave-loupe-auditor-identity-v1`, a content fingerprint
@@ -206,8 +219,8 @@ LLM setup.
 Changes to the audit engine run the canonical programs under `docs/audit/` as a
 self-test. Each successful `foo.weave` audit produces `foo.md`; reports are
 committed only when every audited source passes and each new report passes
-`loupe verify-report`. The workflow updates one persistent PR comment and uploads
-complete audit and validity evidence.
+`loupe verify-report` with the same configured model. The workflow updates one
+persistent PR comment and uploads complete audit and validity evidence.
 
 A report records the exact code commit that was audited. The automated report
 commit contains only generated reports, so its parent is the reproducible audited
@@ -225,21 +238,23 @@ report. A report is due when:
 - an adjacent runtime matrix was added, changed, or removed;
 - its compiler binary hash is missing or differs from the current executable;
 - its auditor fingerprint is missing or differs from the current implementation;
+- its recorded model is missing or differs from the configured model;
 - the current compiler is a development build and its version differs from the
   version recorded in the report; or
 - the current executable reports its own version but the stored report used a
   weaker inferred identity source.
 
-Input and toolchain hashes are checked before age and compiler lineage. A
-one-minute-old report therefore cannot remain green after its program, runtime
-expectations, compiler executable, or auditor implementation changes.
+Input, toolchain, and model identities are checked before age and compiler lineage.
+A one-minute-old report therefore cannot remain green after its program, runtime
+expectations, compiler executable, auditor implementation, or configured reviewer
+changes.
 
 Passing reports replace the old files atomically and are committed to `master`.
 A failed re-audit preserves the last passing report and uploads the new failure
 evidence. Exit code `2` creates or updates a deduplicated issue in
 `ahojukka5/weavec` with the compiler identity, affected sources, and workflow
 link. Infrastructure failures fail the scheduled job but do not misclassify the
-compiler. Scheduled summaries and failure JSON record the compiler version,
+compiler. Scheduled summaries and failure JSON record the model, compiler version,
 compiler binary hash, identity source, and auditor content fingerprint.
 
 Configure these repository secrets:
