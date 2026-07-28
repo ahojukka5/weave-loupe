@@ -13,6 +13,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from weave_loupe.audit_policy import DEFAULT_AUDIT_MAX_AGE_DAYS
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
 
 _TIMESTAMP_PREFIX = "- **Audit timestamp (UTC):** `"
@@ -66,7 +67,11 @@ def main() -> int:
     parser.add_argument("--weavec", type=Path, required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--source-root", type=Path, default=Path("docs/audit"))
-    parser.add_argument("--max-age-days", type=int, default=30)
+    parser.add_argument(
+        "--max-age-days",
+        type=int,
+        default=DEFAULT_AUDIT_MAX_AGE_DAYS,
+    )
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--reports-list", type=Path, required=True)
     parser.add_argument("--failures-json", type=Path, required=True)

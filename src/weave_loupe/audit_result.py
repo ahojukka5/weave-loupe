@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
+from weave_loupe.audit_policy import build_audit_validity
 from weave_loupe.bundle import Bundle
 from weave_loupe.compiler_version import identify_weavec
 from weave_loupe.weavec import resolve_weavec
@@ -72,9 +73,11 @@ def collect_audit_metadata(
     """Collect source, compiler, runtime, and machine facts for one audit."""
     binary = resolve_weavec(weavec)
     identity = identify_weavec(binary)
+    timestamp_utc = datetime.now(UTC).replace(microsecond=0).isoformat()
     return {
         "format": "weave-loupe-audit-metadata-v1",
-        "timestamp_utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "timestamp_utc": timestamp_utc,
+        "validity": build_audit_validity(timestamp_utc),
         "model": model,
         "source_repository": _git_metadata(_common_source_directory(sources)),
         "loupe_repository": _git_metadata(Path(__file__).resolve()),
@@ -114,6 +117,7 @@ def render_audit_report(
     loupe_repo = _mapping(metadata.get("loupe_repository"))
     weavec = _mapping(metadata.get("weavec"))
     weavec_repo = _mapping(weavec.get("repository"))
+    validity = _mapping(metadata.get("validity"))
     machine = _mapping(metadata.get("machine"))
     bundle = _mapping(metadata.get("bundle"))
     github = _mapping(metadata.get("github"))
@@ -131,6 +135,13 @@ def render_audit_report(
         "## Reproducibility",
         "",
         f"- **Audit timestamp (UTC):** `{metadata['timestamp_utc']}`",
+        "- **Re-audit no later than (UTC):** "
+        f"`{validity.get('revalidate_after_utc', 'unavailable')}`",
+        "- **Maximum audit age:** "
+        f"`{validity.get('max_age_days', 'unavailable')}` days",
+        "- **Development compiler invalidation:** `any compiler version change`",
+        "- **Identity attestation upgrade:** "
+        "`required when command identity becomes available`",
         f"- **Audited source Git SHA:** `{source_repo.get('sha', 'unavailable')}`",
         f"- **Source tree state:** `{source_repo.get('state', 'unavailable')}`",
         f"- **Weave Loupe Git SHA:** `{loupe_repo.get('sha', 'unavailable')}`",
