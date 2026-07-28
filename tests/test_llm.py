@@ -18,6 +18,23 @@ from weave_loupe.llm import (
 )
 
 
+def _status_error(status_code: int, message: str = "boom") -> APIStatusError:
+    request = httpx.Request("POST", "https://example.test/v1/chat/completions")
+    response = httpx.Response(status_code, request=request)
+    return APIStatusError(message=message, response=response, body=None)
+
+
+def _ok_response() -> SimpleNamespace:
+    return SimpleNamespace(
+        choices=[
+            SimpleNamespace(
+                message=SimpleNamespace(content="OK"),
+                finish_reason="stop",
+            )
+        ]
+    )
+
+
 def test_load_config_requires_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("WEAVE_LLM_ENDPOINT", raising=False)
     monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
@@ -41,16 +58,29 @@ def test_load_config_rejects_nonpositive_max_tokens(
         load_config(model="z-ai/glm-5.2", max_tokens=0)
 
 
-def test_load_config_upgrades_http_to_https(
+def test_load_config_rejects_invalid_max_attempts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "https://example.test/v1")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+    monkeypatch.setenv("WEAVE_LLM_MAX_ATTEMPTS", "zero")
+
+    with pytest.raises(LlmError, match="must be a positive integer"):
+        load_config(model="z-ai/glm-5.2", max_tokens=16)
+
+
+def test_load_config_upgrades_http_and_reads_retry_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "http://example.test/v1/")
     monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+    monkeypatch.setenv("WEAVE_LLM_MAX_ATTEMPTS", "7")
     config = load_config(model="z-ai/glm-5.2", max_tokens=32)
     assert config.endpoint == "https://example.test/v1"
     assert config.api_key == "secret"
     assert config.model == "z-ai/glm-5.2"
     assert config.max_tokens == 32
+    assert config.max_attempts == 7
 
 
 def test_endpoint_identity_removes_private_url_components() -> None:
@@ -142,16 +172,8 @@ def test_chat_completion_returns_request_and_provider_metadata() -> None:
 
 
 def test_request_hash_changes_with_prompt_or_settings() -> None:
-    response = SimpleNamespace(
-        choices=[
-            SimpleNamespace(
-                message=SimpleNamespace(content="OK"),
-                finish_reason="stop",
-            )
-        ]
-    )
     client = MagicMock()
-    client.chat.completions.create.return_value = response
+    client.chat.completions.create.return_value = _ok_response()
     first = LlmConfig(
         endpoint="https://example.test/v1",
         api_key="secret",
@@ -176,17 +198,79 @@ def test_request_hash_changes_with_prompt_or_settings() -> None:
     assert one.request_sha256 != other_limit.request_sha256
 
 
+def test_chat_completion_retries_transient_routing_failure() -> None:
+    config = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="model",
+        max_attempts=2,
+    )
+    client = MagicMock()
+    client.chat.completions.create.side_effect = [_status_error(404), _ok_response()]
+
+    with (
+        patch("weave_loupe.llm.OpenAI", return_value=client),
+        patch("weave_loupe.llm.time.sleep") as sleep,
+    ):
+        completion = chat_completion(config, "prompt")
+
+    assert completion.content == "OK"
+    assert client.chat.completions.create.call_count == 2
+    sleep.assert_called_once_with(1.0)
+
+
+def test_chat_completion_stops_after_retry_limit() -> None:
+    config = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="model",
+        max_attempts=3,
+    )
+    client = MagicMock()
+    client.chat.completions.create.side_effect = _status_error(404)
+
+    with (
+        patch("weave_loupe.llm.OpenAI", return_value=client),
+        patch("weave_loupe.llm.time.sleep") as sleep,
+        pytest.raises(LlmError, match="HTTP 404"),
+    ):
+        chat_completion(config, "prompt")
+
+    assert client.chat.completions.create.call_count == 3
+    assert sleep.call_args_list == [((1.0,),), ((2.0,),)]
+
+
+def test_chat_completion_does_not_retry_permanent_client_error() -> None:
+    config = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="model",
+        max_attempts=5,
+    )
+    client = MagicMock()
+    client.chat.completions.create.side_effect = _status_error(400)
+
+    with (
+        patch("weave_loupe.llm.OpenAI", return_value=client),
+        patch("weave_loupe.llm.time.sleep") as sleep,
+        pytest.raises(LlmError, match="HTTP 400"),
+    ):
+        chat_completion(config, "prompt")
+
+    client.chat.completions.create.assert_called_once()
+    sleep.assert_not_called()
+
+
 def test_chat_completion_accepts_missing_optional_attestation() -> None:
     config = LlmConfig(
         endpoint="https://example.test/v1",
         api_key="secret",
         model="z-ai/glm-5.2",
     )
-    response = SimpleNamespace(
+    client = MagicMock()
+    client.chat.completions.create.return_value = SimpleNamespace(
         choices=[SimpleNamespace(message=SimpleNamespace(content="OK"))]
     )
-    client = MagicMock()
-    client.chat.completions.create.return_value = response
 
     with patch("weave_loupe.llm.OpenAI", return_value=client):
         completion = chat_completion(config, "prompt")
@@ -206,21 +290,27 @@ def test_chat_completion_wraps_api_error() -> None:
         endpoint="https://example.test/v1",
         api_key="secret",
         model="z-ai/glm-5.2",
-    )
-    request = httpx.Request("POST", "https://example.test/v1/chat/completions")
-    response = httpx.Response(500, request=request)
-    api_error = APIStatusError(
-        message="boom",
-        response=response,
-        body=None,
+        max_attempts=1,
     )
     client = MagicMock()
-    client.chat.completions.create.side_effect = api_error
+    client.chat.completions.create.side_effect = _status_error(500)
 
     with (
         patch("weave_loupe.llm.OpenAI", return_value=client),
         pytest.raises(LlmError, match="HTTP 500"),
     ):
+        chat_completion(config, "prompt")
+
+
+def test_chat_completion_rejects_nonpositive_attempts() -> None:
+    config = LlmConfig(
+        endpoint="https://example.test/v1",
+        api_key="secret",
+        model="z-ai/glm-5.2",
+        max_attempts=0,
+    )
+
+    with pytest.raises(LlmError, match="max_attempts must be positive"):
         chat_completion(config, "prompt")
 
 
