@@ -14,6 +14,13 @@ artifact with every declared argument, environment, input, and expected result.
 Observed mismatches deterministically fail the gate even when the model returns
 `OK`.
 
+Generated reports are workflow-owned evidence, not hand-maintained prose. Change
+the `.weave` source, its optional `.audit.json` matrix, or the audit implementation
+instead of editing the adjacent report directly. A pull request that changes or
+deletes `foo.md` automatically re-audits `foo.weave` and replaces the report with
+fresh evidence after a passing verdict. Ordinary corpus documentation such as
+this README has no adjacent source and skips compiler and LLM setup.
+
 The workflow runs `loupe audit --verbose`, so every generated report includes the
 complete source-to-native evidence chain:
 
@@ -32,3 +39,13 @@ The report also records the exact source, Loupe, and weavec commits, compiler an
 artifact hashes, runtime sidecar and executable hashes, model, timestamp,
 operating system, CPU, memory, Python, and libc. This makes the LLM verdict
 independently inspectable rather than treating it as an opaque approval.
+
+Check an existing report without compiling or contacting the model:
+
+```sh
+uv run loupe verify-report docs/audit/fibonacci.md \
+  --weavec /path/to/weavec
+```
+
+A valid report returns `0`; a stale report returns `2` and lists every changed
+input, compiler, auditor, identity, or age condition.
