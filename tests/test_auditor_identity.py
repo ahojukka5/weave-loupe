@@ -27,9 +27,7 @@ def _fake_source_tree(tmp_path: Path) -> Path:
         "not executable audit code\n", encoding="utf-8"
     )
     (scripts / "audit_pr.py").write_text("print('audit')\n", encoding="utf-8")
-    (scripts / "reaudit_stale.py").write_text(
-        "print('refresh')\n", encoding="utf-8"
-    )
+    (scripts / "reaudit_stale.py").write_text("print('refresh')\n", encoding="utf-8")
     (workflows / "weave-audit.yml").write_text("name: audit\n", encoding="utf-8")
     (workflows / "scheduled-reaudit.yml").write_text(
         "name: scheduled\n", encoding="utf-8"
