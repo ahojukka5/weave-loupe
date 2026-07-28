@@ -54,7 +54,7 @@ The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
 include the complete source, readable WIR, raw and optimized LLVM, assembly,
-linked native disassembly, optimization remarks, native optimization budget,
+linked native disassembly, optimization remarks, native optimization contract,
 direct runtime observations, diagnostics, deterministic analysis, build manifest,
 and compiler trace, together with timestamps, Git SHAs, hashes, and machine
 specifications.
@@ -90,11 +90,13 @@ compiler evidence. This detects accidental or unsealed manual edits; it is not a
 digital signature and does not prove who produced a report.
 
 An adjacent `foo.audit.json` file may define exact native executions and a
-versioned native optimization budget. Runtime cases describe arguments,
+versioned native optimization contract. Runtime cases describe arguments,
 environment, standard input, expected exit status, and expected output streams.
-Native budgets bound linked-executable function counts, instructions, padding,
-and calls. Loupe deterministically rejects semantic mismatches or exceeded
-final-code limits even when the reviewing model returns `OK`.
+Native contracts can bound linked-executable function counts, instructions,
+padding, and calls, and can require exact direct-call targets and native loop
+backedges. Loupe deterministically rejects semantic mismatches, exceeded ceilings,
+unmet structural minima, or missing required calls even when the reviewing model
+returns `OK`.
 
 See the [native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
