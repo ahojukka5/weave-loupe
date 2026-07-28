@@ -123,10 +123,11 @@ def evaluate_native_budget(
         maximum = budget.global_limits.get(limit_name)
         if maximum is None:
             continue
-        observed = observed_globals[observed_name]
-        if observed > maximum:
+        observed_count = observed_globals[observed_name]
+        if observed_count > maximum:
             failures.append(
-                f"{_display_name(observed_name)} {observed} exceeds maximum {maximum}"
+                f"{_display_name(observed_name)} {observed_count} "
+                f"exceeds maximum {maximum}"
             )
 
     raw_functions = native.get("functions")
@@ -138,13 +139,13 @@ def evaluate_native_budget(
             observed_functions[name] = {"present": False}
             failures.append(f"required native function {name!r} is missing")
             continue
-        observed = _observed_function_metrics(raw_details)
-        observed_functions[name] = {"present": True, **observed}
+        observed_metrics = _observed_function_metrics(raw_details)
+        observed_functions[name] = {"present": True, **observed_metrics}
         for limit_name, observed_name in _FUNCTION_LIMITS.items():
             maximum = limits.get(limit_name)
             if maximum is None:
                 continue
-            value = observed[observed_name]
+            value = observed_metrics[observed_name]
             if value > maximum:
                 failures.append(
                     f"function {name!r} {_display_name(observed_name)} {value} "
