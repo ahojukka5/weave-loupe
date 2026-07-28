@@ -190,11 +190,11 @@ def _report_states(
     *,
     source_root: Path,
     identity: CompilerVersion,
-    compiler_binary_sha256: str,
-    auditor: AuditorIdentity,
     now: datetime,
     max_age: timedelta,
     force: bool,
+    compiler_binary_sha256: str | None = None,
+    auditor: AuditorIdentity | None = None,
 ) -> list[ReportState]:
     states: list[ReportState] = []
     for source in sorted(source_root.rglob("*.weave")):
@@ -232,11 +232,11 @@ def _reaudit_reason(
     source: Path,
     report_identity: ReportIdentity,
     identity: CompilerVersion,
-    compiler_binary_sha256: str,
-    auditor: AuditorIdentity,
     now: datetime,
     max_age: timedelta,
     force: bool,
+    compiler_binary_sha256: str | None = None,
+    auditor: AuditorIdentity | None = None,
 ) -> str | None:
     if force:
         return "manual force"
@@ -256,14 +256,16 @@ def _reaudit_reason(
     elif report_identity.runtime_sha256 is not None:
         return "runtime matrix was removed since audit"
 
-    if report_identity.compiler_binary_sha256 is None:
-        return "report does not record compiler binary hash"
-    if report_identity.compiler_binary_sha256 != compiler_binary_sha256:
-        return "compiler binary changed since audit"
-    if report_identity.auditor_sha256 is None:
-        return "report does not record auditor fingerprint"
-    if report_identity.auditor_sha256 != auditor.sha256:
-        return "audit implementation changed since audit"
+    if compiler_binary_sha256 is not None:
+        if report_identity.compiler_binary_sha256 is None:
+            return "report does not record compiler binary hash"
+        if report_identity.compiler_binary_sha256 != compiler_binary_sha256:
+            return "compiler binary changed since audit"
+    if auditor is not None:
+        if report_identity.auditor_sha256 is None:
+            return "report does not record auditor fingerprint"
+        if report_identity.auditor_sha256 != auditor.sha256:
+            return "audit implementation changed since audit"
 
     if now - report_identity.timestamp >= max_age:
         return f"report age is at least {max_age.days} days"
