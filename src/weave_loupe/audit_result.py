@@ -176,8 +176,7 @@ def render_audit_report(
         f"- **LLM temperature:** `{_report_value(llm.get('temperature'))}`",
         f"- **LLM prompt SHA-256:** `{_report_value(llm.get('prompt_sha256'))}`",
         f"- **LLM request SHA-256:** `{_report_value(llm.get('request_sha256'))}`",
-        "- **Provider-reported model:** "
-        f"`{_report_value(llm.get('provider_model'))}`",
+        f"- **Provider-reported model:** `{_report_value(llm.get('provider_model'))}`",
         f"- **Provider response ID:** `{_report_value(llm.get('response_id'))}`",
         "- **Provider system fingerprint:** "
         f"`{_report_value(llm.get('system_fingerprint'))}`",
