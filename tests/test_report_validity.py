@@ -138,9 +138,7 @@ def test_missing_and_changed_models_are_stale(tmp_path: Path) -> None:
     )
 
     assert missing.reasons == ("report does not record LLM model",)
-    assert changed.reasons == (
-        "LLM model changed from old-model to z-ai/glm-5.2",
-    )
+    assert changed.reasons == ("LLM model changed from old-model to z-ai/glm-5.2",)
 
 
 def test_model_check_is_optional_for_standalone_verification(tmp_path: Path) -> None:
