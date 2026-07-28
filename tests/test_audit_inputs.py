@@ -54,9 +54,7 @@ def test_report_labels_source_and_runtime_matrix_hashes() -> None:
         model_response="OK\nNo defect.",
     )
 
-    assert (
-        f"- Source `docs/audit/demo.weave` — SHA-256 `{'a' * 64}`" in report
-    )
+    assert f"- Source `docs/audit/demo.weave` — SHA-256 `{'a' * 64}`" in report
     assert (
         f"- Runtime matrix `docs/audit/demo.audit.json` — SHA-256 `{'b' * 64}`"
         in report
