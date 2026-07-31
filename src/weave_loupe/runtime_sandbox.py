@@ -44,6 +44,7 @@ class RuntimeSandbox:
     backend: str
     active: bool
     binary: Path | None
+    process_limiter: Path | None = None
 
     def metadata(self) -> dict[str, object]:
         """Return stable evidence describing the effective isolation policy."""
@@ -57,6 +58,7 @@ class RuntimeSandbox:
                 "writable_paths": ["/tmp", "/work"],
                 "environment": "explicit-only",
                 "namespaces": ["user", "network", "pid", "ipc", "uts", "cgroup"],
+                "process_count_enforcement": "sandbox-prlimit",
             }
         return {
             "format": SANDBOX_POLICY_FORMAT,
@@ -67,6 +69,7 @@ class RuntimeSandbox:
             "writable_paths": "host",
             "environment": "configured-direct-execution",
             "namespaces": [],
+            "process_count_enforcement": "runner-rlimit",
         }
 
     def prepare(
@@ -77,6 +80,7 @@ class RuntimeSandbox:
         inputs: Sequence[Path],
         environment: Mapping[str, str],
         working_directory: Path,
+        process_count_limit: int | None = None,
     ) -> SandboxInvocation:
         """Prepare a sandboxed or explicitly unsafe native invocation."""
         if not self.active:
@@ -87,6 +91,18 @@ class RuntimeSandbox:
             )
         if self.binary is None:
             raise RuntimeSandboxError("sandbox backend is active without a binary")
+        if self.process_limiter is None:
+            raise RuntimeSandboxError(
+                "sandbox backend is active without a process-count limiter"
+            )
+        if (
+            not isinstance(process_count_limit, int)
+            or isinstance(process_count_limit, bool)
+            or process_count_limit <= 0
+        ):
+            raise RuntimeSandboxError(
+                "sandboxed runtime requires a positive process-count limit"
+            )
 
         command = [
             str(self.binary),
@@ -125,7 +141,16 @@ class RuntimeSandbox:
         }
         for name, value in sorted({**defaults, **dict(environment)}.items()):
             command.extend(("--setenv", name, value))
-        command.extend(("--", _SANDBOX_PROGRAM, *arguments))
+        command.extend(
+            (
+                "--",
+                str(self.process_limiter),
+                f"--nproc={process_count_limit}:{process_count_limit}",
+                "--",
+                _SANDBOX_PROGRAM,
+                *arguments,
+            )
+        )
         return SandboxInvocation(
             command=tuple(command),
             working_directory=None,
@@ -144,13 +169,31 @@ def select_runtime_sandbox() -> RuntimeSandbox:
     if allow_unsafe_unsandboxed:
         return RuntimeSandbox(backend="unsafe-direct", active=False, binary=None)
 
-    configured = os.environ.get("WEAVE_LOUPE_BWRAP")
-    binary = _resolve_bwrap(configured)
-    if binary is not None:
-        return RuntimeSandbox(backend="bubblewrap", active=True, binary=binary)
-    raise RuntimeSandboxError(
-        "bubblewrap is required for native runtime cases; install bwrap or use "
-        "WEAVE_LOUPE_UNSAFE_NO_SANDBOX=1 for an explicit local-only override"
+    binary = _resolve_executable(
+        configured=os.environ.get("WEAVE_LOUPE_BWRAP"),
+        command="bwrap",
+        variable="WEAVE_LOUPE_BWRAP",
+    )
+    if binary is None:
+        raise RuntimeSandboxError(
+            "bubblewrap is required for native runtime cases; install bwrap or use "
+            "WEAVE_LOUPE_UNSAFE_NO_SANDBOX=1 for an explicit local-only override"
+        )
+    process_limiter = _resolve_executable(
+        configured=os.environ.get("WEAVE_LOUPE_PRLIMIT"),
+        command="prlimit",
+        variable="WEAVE_LOUPE_PRLIMIT",
+    )
+    if process_limiter is None:
+        raise RuntimeSandboxError(
+            "util-linux prlimit is required to enforce sandboxed process-count "
+            "limits; install prlimit or configure WEAVE_LOUPE_PRLIMIT"
+        )
+    return RuntimeSandbox(
+        backend="bubblewrap",
+        active=True,
+        binary=binary,
+        process_limiter=process_limiter,
     )
 
 
@@ -160,15 +203,20 @@ def sandbox_input_path(index: int, path: Path) -> str:
     return f"{_SANDBOX_INPUT_ROOT}/{index:03d}-{safe_name}"
 
 
-def _resolve_bwrap(configured: str | None) -> Path | None:
+def _resolve_executable(
+    *,
+    configured: str | None,
+    command: str,
+    variable: str,
+) -> Path | None:
     if configured:
         candidate = Path(configured).expanduser().resolve()
         if not candidate.is_file() or not os.access(candidate, os.X_OK):
             raise RuntimeSandboxError(
-                f"WEAVE_LOUPE_BWRAP is not an executable file: {candidate}"
+                f"{variable} is not an executable file: {candidate}"
             )
         return candidate
-    found = shutil.which("bwrap")
+    found = shutil.which(command)
     return Path(found).resolve() if found is not None else None
 
 
