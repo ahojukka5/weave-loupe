@@ -217,5 +217,8 @@ def test_empty_audit_sidecar_is_rejected(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(RuntimeCasesError, match="runtime cases or a native_budget"):
+    with pytest.raises(
+        RuntimeCasesError,
+        match="runtime cases, a native_budget, or an optimized_llvm_budget",
+    ):
         load_runtime_cases(sidecar)

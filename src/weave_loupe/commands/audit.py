@@ -20,6 +20,10 @@ from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.native_budget import NativeBudgetError, evaluate_native_budget
+from weave_loupe.optimized_llvm_budget import (
+    OptimizedLlvmBudgetError,
+    evaluate_optimized_llvm_budget,
+)
 from weave_loupe.report_integrity import seal_audit_report
 from weave_loupe.runtime_cases import RuntimeCasesError, execute_runtime_cases
 from weave_loupe.templates import render_audit_prompt
@@ -88,6 +92,11 @@ def run_audit(
                 )
             weave_source = "\n\n".join(source_blocks)
             analysis = analyze_bundle(bundle)
+            optimized_llvm_budget = evaluate_optimized_llvm_budget(
+                sources=weave_files,
+                optimized_llvm=optimized_llvm,
+                metrics=analysis.get("optimized_llvm"),
+            )
             native_budget = evaluate_native_budget(
                 sources=weave_files,
                 native_analysis=analysis.get("native"),
@@ -96,11 +105,18 @@ def run_audit(
                 bundle=bundle,
                 sources=weave_files,
             )
+            analysis["optimized_llvm_budget"] = optimized_llvm_budget
             analysis["native_budget"] = native_budget
             analysis["runtime"] = runtime_matrix
             diagnostics = bundle.artifact_json("diagnostics")
             diagnostics_text = json.dumps(
                 diagnostics, indent=2, sort_keys=True, ensure_ascii=False
+            )
+            optimized_llvm_budget_text = json.dumps(
+                optimized_llvm_budget,
+                indent=2,
+                sort_keys=True,
+                ensure_ascii=False,
             )
             native_budget_text = json.dumps(
                 native_budget, indent=2, sort_keys=True, ensure_ascii=False
@@ -163,6 +179,11 @@ def run_audit(
                             "yaml",
                             optimization_record,
                         ),
+                        (
+                            "Optimized LLVM contract",
+                            "json",
+                            optimized_llvm_budget_text,
+                        ),
                         ("Native optimization budget", "json", native_budget_text),
                         ("Runtime execution matrix", "json", runtime_text),
                         ("Diagnostics", "json", diagnostics_text),
@@ -196,6 +217,7 @@ def run_audit(
         LlmError,
         AuditProtocolError,
         NativeBudgetError,
+        OptimizedLlvmBudgetError,
         RuntimeCasesError,
     ) as exc:
         if report_out is not None and report_out.exists():
