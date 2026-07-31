@@ -4,10 +4,19 @@ from __future__ import annotations
 
 import os
 import shutil
-import subprocess
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+
+from weave_loupe.bounded_process import (
+    ProcessExecutionError,
+    ProcessLimitError,
+    ProcessLimits,
+    ProcessResult,
+    configured_process_limits,
+    run_bounded_process,
+)
+from weave_loupe.process_budget import with_user_process_baseline
 
 
 class WeavecError(RuntimeError):
@@ -36,10 +45,35 @@ class BuildResult:
     """Result of one instrumented compiler invocation."""
 
     request: BuildRequest
-    command: tuple[str, ...]
-    returncode: int
-    stdout: str
-    stderr: str
+    execution: ProcessResult
+
+    @property
+    def command(self) -> tuple[str, ...]:
+        """Return the exact host command passed to the bounded runner."""
+        return self.execution.command
+
+    @property
+    def returncode(self) -> int:
+        """Return a stable shell-compatible result code."""
+        if self.execution.exit_code is not None:
+            return self.execution.exit_code
+        if self.execution.termination_reason == "timed_out":
+            return 124
+        if self.execution.termination_reason == "output_limit":
+            return 125
+        if self.execution.signal is not None:
+            return 128 + self.execution.signal
+        return 1
+
+    @property
+    def stdout(self) -> str:
+        """Return the bounded compiler stdout excerpt."""
+        return self.execution.stdout.text
+
+    @property
+    def stderr(self) -> str:
+        """Return the bounded compiler stderr excerpt."""
+        return self.execution.stderr.text
 
 
 def resolve_weavec(explicit: Path | None = None) -> Path:
@@ -100,39 +134,44 @@ def run_build(
     *,
     weavec: Path | None = None,
     environment: Mapping[str, str] | None = None,
+    limits: ProcessLimits | None = None,
+    timeout_seconds: float | None = None,
+    output_bytes: int | None = None,
 ) -> BuildResult:
-    """Run ``weavec build`` and retain output even when compilation fails."""
+    """Run ``weavec build`` with bounded resources and diagnostic evidence."""
     if not request.sources:
         raise WeavecError("at least one Weave source is required")
     for source in request.sources:
         if not source.is_file():
             raise WeavecError(f"weave source not found: {source}")
+    if limits is not None and (timeout_seconds is not None or output_bytes is not None):
+        raise WeavecError(
+            "explicit process limits cannot be combined with timeout or output options"
+        )
 
     binary = resolve_weavec(weavec)
     command = build_command(binary, request)
     try:
-        completed = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=False,
-            env=dict(environment) if environment is not None else None,
+        configured_limits = limits or configured_process_limits(
+            "compiler",
+            timeout_seconds=timeout_seconds,
+            output_bytes=output_bytes,
         )
-    except OSError as exc:
-        raise WeavecError(f"could not run weavec: {exc}") from exc
+        effective_limits = with_user_process_baseline(configured_limits)
+        execution = run_bounded_process(
+            command,
+            limits=effective_limits,
+            environment=environment,
+        )
+    except (ProcessExecutionError, ProcessLimitError) as exc:
+        raise WeavecError(str(exc)) from exc
 
-    return BuildResult(
-        request=request,
-        command=command,
-        returncode=completed.returncode,
-        stdout=completed.stdout,
-        stderr=completed.stderr,
-    )
+    return BuildResult(request=request, execution=execution)
 
 
 def normalize_sources(sources: Sequence[Path]) -> tuple[Path, ...]:
     """Resolve and validate ordered source paths."""
-    normalized = tuple(source.expanduser() for source in sources)
+    normalized = tuple(source.expanduser().resolve() for source in sources)
     if not normalized:
         raise WeavecError("at least one Weave source is required")
     for source in normalized:

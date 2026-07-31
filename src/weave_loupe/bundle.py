@@ -107,6 +107,8 @@ def capture_bundle(
     output: Path,
     weavec: Path | None = None,
     include_executable: bool = False,
+    compiler_timeout_seconds: float | None = None,
+    compiler_output_bytes: int | None = None,
 ) -> CaptureResult:
     """Compile ordered sources and atomically publish a portable evidence bundle."""
     original_inputs = tuple(str(source) for source in sources)
@@ -153,7 +155,12 @@ def capture_bundle(
             trace=artifact_dir / "trace.json",
             build_manifest=artifact_dir / "build-manifest.json",
         )
-        result = run_build(request, weavec=weavec)
+        result = run_build(
+            request,
+            weavec=weavec,
+            timeout_seconds=compiler_timeout_seconds,
+            output_bytes=compiler_output_bytes,
+        )
         stdout_path = log_dir / "stdout.txt"
         stderr_path = log_dir / "stderr.txt"
         stdout_path.write_text(result.stdout, encoding="utf-8")
@@ -186,6 +193,7 @@ def capture_bundle(
                 "binary": Path(result.command[0]).name,
                 "command": _portable_command(source_entries),
                 "exit_code": result.returncode,
+                "execution": result.execution.as_dict(),
             },
             "sources": source_entries,
             "artifacts": artifacts,
