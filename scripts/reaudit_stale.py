@@ -370,6 +370,16 @@ def _path_key(path: Path) -> Path:
         return path.absolute()
 
 
+def _safe_log_stem(path: Path) -> str:
+    parts = [
+        part.replace(":", "_")
+        for part in path.parts
+        if part not in {path.anchor, "/", "\\"}
+    ]
+    stem = "__".join(parts).replace(".weave", "")
+    return stem or "audit"
+
+
 def _reaudit_reason(
     *,
     source: Path,
@@ -462,7 +472,7 @@ def _audit(
     max_tokens: int,
     logs_dir: Path,
 ) -> AuditOutcome:
-    safe_name = "__".join(state.source.parts).replace(".weave", "")
+    safe_name = _safe_log_stem(state.source)
     stdout_log = logs_dir / f"{safe_name}.stdout.md"
     stderr_log = logs_dir / f"{safe_name}.stderr.txt"
     candidate = candidate_root / state.report.name
