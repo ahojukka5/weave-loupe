@@ -12,9 +12,26 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+from weave_loupe.bundle_verification import (
+    BUNDLE_FORMAT,
+    MANIFEST_NAME,
+    BundleProblem,
+    BundleVerification,
+    verify_bundle,
+)
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
-BUNDLE_FORMAT = "weave-loupe-bundle-v1"
+__all__ = [
+    "BUNDLE_FORMAT",
+    "Bundle",
+    "BundleError",
+    "BundleProblem",
+    "BundleVerification",
+    "CaptureResult",
+    "capture_bundle",
+    "load_bundle",
+    "verify_bundle",
+]
 
 
 class BundleError(RuntimeError):
@@ -55,8 +72,7 @@ class Bundle:
             return None
         if not isinstance(item, dict) or not isinstance(item.get("path"), str):
             raise BundleError(f"invalid artifact entry: {name}")
-        path = _bundle_path(self.root, cast(str, item["path"]))
-        return path if path.is_file() else None
+        return _bundle_path(self.root, cast(str, item["path"]))
 
     def artifact_text(self, name: str) -> str | None:
         path = self.artifact_path(name)
@@ -65,6 +81,24 @@ class Bundle:
     def artifact_json(self, name: str) -> Any | None:
         text = self.artifact_text(name)
         return json.loads(text) if text is not None else None
+
+    def log_path(self, name: str) -> Path | None:
+        """Return a verified log path, accepting legacy string entries."""
+        logs = self.manifest.get("logs", {})
+        if not isinstance(logs, dict):
+            raise BundleError("bundle logs must be an object")
+        item = logs.get(name)
+        if item is None:
+            return None
+        relative_path = item if isinstance(item, str) else item.get("path")
+        if not isinstance(relative_path, str):
+            raise BundleError(f"invalid log entry: {name}")
+        return _bundle_path(self.root, relative_path)
+
+    def log_text(self, name: str) -> str | None:
+        """Read a captured compiler log by logical name."""
+        path = self.log_path(name)
+        return path.read_text(encoding="utf-8") if path is not None else None
 
 
 def capture_bundle(
@@ -120,8 +154,10 @@ def capture_bundle(
             build_manifest=artifact_dir / "build-manifest.json",
         )
         result = run_build(request, weavec=weavec)
-        (log_dir / "stdout.txt").write_text(result.stdout, encoding="utf-8")
-        (log_dir / "stderr.txt").write_text(result.stderr, encoding="utf-8")
+        stdout_path = log_dir / "stdout.txt"
+        stderr_path = log_dir / "stderr.txt"
+        stdout_path.write_text(result.stdout, encoding="utf-8")
+        stderr_path.write_text(result.stderr, encoding="utf-8")
 
         artifact_paths: dict[str, Path] = {
             "wir": request.wir,
@@ -140,9 +176,9 @@ def capture_bundle(
             request.executable.unlink()
 
         artifacts: dict[str, dict[str, Any]] = {}
-        for name, path in artifact_paths.items():
-            if path.is_file():
-                artifacts[name] = _file_entry(work, path)
+        for name, artifact_path in artifact_paths.items():
+            if artifact_path.is_file():
+                artifacts[name] = _file_entry(work, artifact_path)
 
         manifest: dict[str, Any] = {
             "format": BUNDLE_FORMAT,
@@ -154,33 +190,35 @@ def capture_bundle(
             "sources": source_entries,
             "artifacts": artifacts,
             "logs": {
-                "stdout": str((log_dir / "stdout.txt").relative_to(work)),
-                "stderr": str((log_dir / "stderr.txt").relative_to(work)),
+                "stdout": _file_entry(work, stdout_path),
+                "stderr": _file_entry(work, stderr_path),
             },
         }
-        (work / "bundle.json").write_text(
+        (work / MANIFEST_NAME).write_text(
             json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
 
+        verification = verify_bundle(work)
+        if not verification.valid:
+            raise BundleError(verification.error_message())
+
         _replace_directory(work, destination)
         return CaptureResult(bundle=destination, compiler_exit_code=result.returncode)
+    except BundleError:
+        shutil.rmtree(work, ignore_errors=True)
+        raise
     except (OSError, WeavecError, ValueError) as exc:
         shutil.rmtree(work, ignore_errors=True)
         raise BundleError(str(exc)) from exc
 
 
 def load_bundle(path: Path) -> Bundle:
-    """Load and validate a bundle directory."""
-    root = path.expanduser().resolve()
-    manifest_path = root / "bundle.json"
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise BundleError(f"invalid bundle manifest: {exc}") from exc
-    if not isinstance(manifest, dict) or manifest.get("format") != BUNDLE_FORMAT:
-        raise BundleError(f"unsupported bundle format in {manifest_path}")
-    return Bundle(root=root, manifest=cast(Mapping[str, Any], manifest))
+    """Load a bundle only after complete fail-closed integrity verification."""
+    verification = verify_bundle(path)
+    if not verification.valid or verification.manifest is None:
+        raise BundleError(verification.error_message())
+    return Bundle(root=verification.root, manifest=verification.manifest)
 
 
 def _portable_command(source_entries: Sequence[Mapping[str, Any]]) -> list[str]:
@@ -224,7 +262,7 @@ def _file_entry(
 ) -> dict[str, Any]:
     data = path.read_bytes()
     entry: dict[str, Any] = {
-        "path": str(path.relative_to(root)),
+        "path": path.relative_to(root).as_posix(),
         "size": len(data),
         "sha256": hashlib.sha256(data).hexdigest(),
     }
