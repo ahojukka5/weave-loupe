@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install runtime sandbox
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          sudo chmod u+s "$(command -v bwrap)"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
