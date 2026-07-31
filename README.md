@@ -28,6 +28,22 @@ diagnostics, compilation trace, build manifest, stdout, stderr, hashes, and the
 compiler exit code. A failed compiler run is still captured with every artifact
 that reached publication.
 
+Compiler builds and configured native runtime cases execute through one bounded
+process supervisor. It applies wall-clock and POSIX resource limits, stores only
+bounded output, hashes every observed byte, and terminates complete process groups
+on timeout or output overflow. Compiler evidence is recorded in `bundle.json`;
+runtime evidence records the effective sandbox and limits for every case.
+
+Explicit command options override environment variables and conservative
+defaults:
+
+```sh
+uv run loupe capture docs/audit/fibonacci.weave \
+  --output build/fibonacci.loupe \
+  --compiler-timeout-seconds 90 \
+  --compiler-output-bytes 4194304
+```
+
 Compare two compiler results:
 
 ```sh
@@ -98,7 +114,8 @@ backedges. Runtime cases describe arguments, environment, input, and expected
 observable results. Loupe deterministically rejects any violated contract even
 when the reviewing model returns `OK`.
 
-See the [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
+See the [process limit guide](docs/process-limits.md), the
+[optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
 [native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
 [pull-request audit gate](docs/audit-gate.md).
