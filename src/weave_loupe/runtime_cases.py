@@ -5,17 +5,28 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from weave_loupe.bounded_process import (
+    ProcessExecutionError,
+    ProcessLimitError,
+    ProcessLimits,
+    configured_process_limits,
+    run_bounded_process,
+)
 from weave_loupe.bundle import Bundle
+from weave_loupe.process_budget import with_user_process_baseline
+from weave_loupe.runtime_sandbox import (
+    RuntimeSandbox,
+    RuntimeSandboxError,
+    select_runtime_sandbox,
+)
 
 RUNTIME_CASES_FORMAT = "weave-loupe-runtime-cases-v1"
 _RUNTIME_RESULT_FORMAT = "weave-loupe-runtime-matrix-v1"
 _MAX_TIMEOUT_SECONDS = 60.0
-_MAX_CAPTURE_BYTES = 16 * 1024
 
 
 class RuntimeCasesError(ValueError):
@@ -106,7 +117,13 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     )
 
 
-def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, Any]:
+def execute_runtime_cases(
+    *,
+    bundle: Bundle,
+    sources: list[Path],
+    runtime_timeout_seconds: float | None = None,
+    runtime_output_bytes: int | None = None,
+) -> dict[str, Any]:
     """Execute configured cases and return deterministic, report-ready evidence."""
     configuration = discover_runtime_cases(sources)
     if configuration is None:
@@ -125,18 +142,43 @@ def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, A
             "but no executable was captured"
         )
 
-    results = (
-        [
-            _execute_case(
-                executable=executable,
-                working_directory=configuration.path.resolve().parent,
-                configuration=configuration,
-                case=case,
+    sandbox: RuntimeSandbox | None = None
+    limits: ProcessLimits | None = None
+    if configuration.cases:
+        try:
+            sandbox = select_runtime_sandbox()
+            configured_limits = configured_process_limits(
+                "runtime",
+                default_timeout_seconds=configuration.timeout_seconds,
+                timeout_seconds=runtime_timeout_seconds,
+                output_bytes=runtime_output_bytes,
             )
-            for case in configuration.cases
-        ]
-        if executable is not None
-        else []
+            limits = with_user_process_baseline(configured_limits)
+        except (RuntimeSandboxError, ProcessLimitError) as exc:
+            raise RuntimeCasesError(str(exc)) from exc
+        if sandbox.active and configuration.inherit_environment:
+            raise RuntimeCasesError(
+                "inherit_environment is not allowed for sandboxed runtime cases; "
+                "declare every required environment value in the case"
+            )
+
+    declared_inputs = [*sources, configuration.path]
+    results: list[dict[str, Any]] = []
+    if executable is not None and sandbox is not None and limits is not None:
+        for case in configuration.cases:
+            results.append(
+                _execute_case(
+                    executable=executable,
+                    working_directory=configuration.path.resolve().parent,
+                    declared_inputs=declared_inputs,
+                    configuration=configuration,
+                    case=case,
+                    sandbox=sandbox,
+                    limits=limits,
+                )
+            )
+    effective_timeout = (
+        limits.timeout_seconds if limits is not None else configuration.timeout_seconds
     )
     return {
         "format": _RUNTIME_RESULT_FORMAT,
@@ -146,8 +188,10 @@ def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, A
         "executable_sha256": (
             _sha256(executable.read_bytes()) if executable is not None else None
         ),
-        "timeout_seconds": configuration.timeout_seconds,
+        "timeout_seconds": effective_timeout,
         "inherit_environment": configuration.inherit_environment,
+        "sandbox": sandbox.metadata() if sandbox is not None else None,
+        "limits": limits.as_dict() if limits is not None else None,
         "passed": all(result["passed"] for result in results),
         "case_count": len(results),
         "cases": results,
@@ -229,45 +273,52 @@ def _execute_case(
     *,
     executable: Path,
     working_directory: Path,
+    declared_inputs: list[Path],
     configuration: RuntimeCases,
     case: RuntimeCase,
+    sandbox: RuntimeSandbox,
+    limits: ProcessLimits,
 ) -> dict[str, Any]:
-    environment = os.environ.copy() if configuration.inherit_environment else {}
-    for key, value in case.environment.items():
-        if value is None:
-            environment.pop(key, None)
-        else:
-            environment[key] = value
-
-    command = [str(executable), *case.args]
-    timed_out = False
+    environment = _runtime_environment(
+        configuration=configuration,
+        case=case,
+        sandboxed=sandbox.active,
+    )
     try:
-        completed = subprocess.run(
-            command,
-            input=case.stdin.encode(),
-            capture_output=True,
-            cwd=working_directory,
-            env=environment,
-            check=False,
-            timeout=configuration.timeout_seconds,
+        invocation = sandbox.prepare(
+            executable=executable,
+            arguments=case.args,
+            inputs=declared_inputs,
+            environment=environment,
+            working_directory=working_directory,
+            process_count_limit=limits.process_count if sandbox.active else None,
         )
-        return_code: int | None = completed.returncode
-        stdout = completed.stdout
-        stderr = completed.stderr
-    except subprocess.TimeoutExpired as exc:
-        timed_out = True
-        return_code = None
-        stdout = _timeout_bytes(exc.stdout)
-        stderr = _timeout_bytes(exc.stderr)
+        execution = run_bounded_process(
+            invocation.command,
+            input_bytes=case.stdin.encode(),
+            cwd=invocation.working_directory,
+            environment=invocation.environment,
+            limits=limits,
+            apply_process_count_limit=not sandbox.active,
+        )
+    except (RuntimeSandboxError, ProcessExecutionError, ProcessLimitError) as exc:
+        raise RuntimeCasesError(
+            f"could not execute runtime case {case.name!r}: {exc}"
+        ) from exc
 
-    stdout_text = stdout.decode("utf-8", errors="replace")
-    stderr_text = stderr.decode("utf-8", errors="replace")
+    stdout_text = execution.stdout.text
+    stderr_text = execution.stderr.text
     failures: list[str] = []
-    if timed_out:
-        failures.append(f"timed out after {configuration.timeout_seconds:g} seconds")
-    elif return_code != case.expected_exit_code:
+    if execution.termination_reason == "timed_out":
+        failures.append(f"timed out after {limits.timeout_seconds:g} seconds")
+    elif execution.termination_reason == "output_limit":
+        for stream in execution.overflow_streams:
+            failures.append(f"{stream} exceeded the {limits.output_bytes} byte limit")
+    elif execution.termination_reason == "signaled":
+        failures.append(f"terminated by signal {execution.signal}")
+    elif execution.exit_code != case.expected_exit_code:
         failures.append(
-            f"exit code {return_code} did not match {case.expected_exit_code}"
+            f"exit code {execution.exit_code} did not match {case.expected_exit_code}"
         )
     if case.expected_stdout is not None and stdout_text != case.expected_stdout:
         failures.append("stdout did not match the expected text")
@@ -285,32 +336,46 @@ def _execute_case(
             "stderr": case.expected_stderr,
         },
         "actual": {
-            "exit_code": return_code,
-            "stdout": _capture_text(stdout),
-            "stdout_sha256": _sha256(stdout),
-            "stderr": _capture_text(stderr),
-            "stderr_sha256": _sha256(stderr),
+            "exit_code": execution.exit_code,
+            "returncode": execution.returncode,
+            "signal": execution.signal,
+            "termination_reason": execution.termination_reason,
+            "elapsed_seconds": execution.elapsed_seconds,
+            "process_count_enforcement": execution.process_count_enforcement,
+            "stdout": stdout_text,
+            "stdout_sha256": execution.stdout.sha256,
+            "stdout_bytes": execution.stdout.observed_bytes,
+            "stdout_stored_bytes": execution.stdout.stored_bytes,
+            "stdout_truncated_bytes": execution.stdout.truncated_bytes,
+            "stdout_overflowed": execution.stdout.overflowed,
+            "stderr": stderr_text,
+            "stderr_sha256": execution.stderr.sha256,
+            "stderr_bytes": execution.stderr.observed_bytes,
+            "stderr_stored_bytes": execution.stderr.stored_bytes,
+            "stderr_truncated_bytes": execution.stderr.truncated_bytes,
+            "stderr_overflowed": execution.stderr.overflowed,
         },
-        "timed_out": timed_out,
+        "timed_out": execution.termination_reason == "timed_out",
         "passed": not failures,
         "failures": failures,
     }
 
 
-def _timeout_bytes(value: bytes | str | None) -> bytes:
-    if isinstance(value, bytes):
-        return value
-    if isinstance(value, str):
-        return value.encode()
-    return b""
-
-
-def _capture_text(value: bytes) -> str:
-    truncated = value[:_MAX_CAPTURE_BYTES]
-    text = truncated.decode("utf-8", errors="replace")
-    if len(value) > _MAX_CAPTURE_BYTES:
-        text += f"\n...[truncated {len(value) - _MAX_CAPTURE_BYTES} bytes]"
-    return text
+def _runtime_environment(
+    *,
+    configuration: RuntimeCases,
+    case: RuntimeCase,
+    sandboxed: bool,
+) -> dict[str, str]:
+    environment = (
+        {} if sandboxed or not configuration.inherit_environment else os.environ.copy()
+    )
+    for key, value in case.environment.items():
+        if value is None:
+            environment.pop(key, None)
+        else:
+            environment[key] = value
+    return environment
 
 
 def _sha256(value: bytes) -> str:
