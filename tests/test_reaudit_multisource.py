@@ -108,7 +108,7 @@ def test_scheduled_audit_passes_sources_in_recorded_order(tmp_path: Path) -> Non
     )
 
     with patch.object(module.subprocess, "run", return_value=completed) as run:
-        module._audit(
+        outcome = module._audit(
             state=state,
             candidate_root=tmp_path / "candidates",
             weavec=tmp_path / "weavec",
@@ -121,3 +121,6 @@ def test_scheduled_audit_passes_sources_in_recorded_order(tmp_path: Path) -> Non
     audit_index = command.index("audit")
     weavec_index = command.index("--weavec")
     assert command[audit_index + 1 : weavec_index] == [str(first), str(second)]
+    assert Path(outcome.run.stdout_log).parent == logs
+    assert Path(outcome.run.stderr_log).parent == logs
+    assert Path(outcome.run.stdout_log).read_text(encoding="utf-8") == "OK\n"
