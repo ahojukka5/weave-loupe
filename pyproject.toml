@@ -45,6 +45,10 @@ select = [
     "SIM", # flake8-simplify
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# The accumulator owns the spool across selector callbacks and closes it in finish().
+"src/weave_loupe/bounded_process.py" = ["SIM115"]
+
 [tool.ruff.format]
 quote-style = "double"
 
