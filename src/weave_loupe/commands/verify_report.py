@@ -26,6 +26,7 @@ def run_verify_report(
     max_tokens: int | None,
     max_age_days: int,
     json_out: Path | None,
+    sources: list[Path] | None = None,
 ) -> int:
     """Verify a report without compiling sources or calling an LLM."""
     try:
@@ -35,6 +36,8 @@ def run_verify_report(
             raise ValueError("max_tokens must be positive")
         if not report.is_file():
             raise ValueError(f"audit report not found: {report}")
+        if source is not None and sources is not None:
+            raise ValueError("source and sources cannot both be provided")
         current_endpoint = (
             normalize_endpoint_identity(endpoint) if endpoint is not None else None
         )
@@ -42,11 +45,11 @@ def run_verify_report(
         compiler = identify_weavec(binary)
         compiler_binary_sha256 = sha256_file(binary)
         auditor = identify_auditor()
-        resolved_source = source or report.with_suffix(".weave")
         now = datetime.now(UTC)
         result = evaluate_report(
             report=report,
-            source=resolved_source,
+            source=source,
+            sources=sources,
             compiler_identity=compiler,
             compiler_binary_sha256=compiler_binary_sha256,
             auditor=auditor,
@@ -103,6 +106,10 @@ def _result_document(
         "max_age_days": max_age_days,
         "report": str(result.report),
         "source": str(result.source),
+        "sources": [str(path) for path in result.sources],
+        "source_mismatches": [
+            asdict(mismatch) for mismatch in result.source_mismatches
+        ],
         "reasons": list(result.reasons),
         "report_identity": identity,
         "current_compiler": {
