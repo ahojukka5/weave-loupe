@@ -59,9 +59,39 @@ def test_runtime_mismatch_overrides_model_ok() -> None:
     assert "correct lowering or code generation" in verdict.body
 
 
+def test_optimized_llvm_budget_overrun_overrides_model_ok() -> None:
+    analysis = {
+        "runtime": {"configured": True, "passed": True, "cases": []},
+        "optimized_llvm_budget": {
+            "configured": True,
+            "passed": False,
+            "failures": [
+                "optimized LLVM instructions 24 exceeds maximum 20",
+                "optimized LLVM missing required call targets: getenv",
+            ],
+        },
+    }
+
+    verdict = apply_deterministic_gate(_ok_verdict(), analysis)
+
+    assert not verdict.passed
+    assert verdict.code == "optimized-llvm-budget-exceeded"
+    assert verdict.reason == (
+        "optimized LLVM contract violated: "
+        "optimized LLVM instructions 24 exceeds maximum 20"
+    )
+    assert "missing required call targets: getenv" in verdict.body
+    assert "post-optimization LLVM module" in verdict.body
+
+
 def test_native_budget_overrun_overrides_model_ok() -> None:
     analysis = {
         "runtime": {"configured": True, "passed": True, "cases": []},
+        "optimized_llvm_budget": {
+            "configured": True,
+            "passed": True,
+            "failures": [],
+        },
         "native_budget": {
             "configured": True,
             "passed": False,
@@ -99,6 +129,11 @@ def test_deterministic_gate_accepts_reachable_program_code() -> None:
     model_verdict = _ok_verdict()
     analysis = {
         "runtime": {"configured": True, "passed": True, "cases": []},
+        "optimized_llvm_budget": {
+            "configured": True,
+            "passed": True,
+            "failures": [],
+        },
         "native_budget": {"configured": True, "passed": True, "failures": []},
         "native": {
             "reachability_complete": True,

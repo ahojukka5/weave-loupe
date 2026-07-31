@@ -2,6 +2,31 @@
   "format": "weave-loupe-runtime-cases-v1",
   "timeout_seconds": 5,
   "inherit_environment": false,
+  "optimized_llvm_budget": {
+    "format": "weave-loupe-optimized-llvm-budget-v1",
+    "min_functions": 1,
+    "max_functions": 1,
+    "min_basic_blocks": 1,
+    "max_basic_blocks": 1,
+    "min_instructions": 1,
+    "max_instructions": 1,
+    "max_alloca": 0,
+    "max_load": 0,
+    "max_store": 0,
+    "max_call": 0,
+    "max_invoke": 0,
+    "max_phi": 0,
+    "max_br": 0,
+    "max_switch": 0,
+    "min_ret": 1,
+    "max_ret": 1,
+    "max_identity_adds": 0,
+    "max_undef_uses": 0,
+    "max_poison_uses": 0,
+    "required_defined_functions": [
+      "main"
+    ]
+  },
   "native_budget": {
     "format": "weave-loupe-native-budget-v1",
     "max_program_owned_functions": 1,
