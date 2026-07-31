@@ -11,6 +11,7 @@ from weave_loupe.commands.audit import run_audit
 from weave_loupe.commands.capture import run_capture
 from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.report import run_report
+from weave_loupe.commands.verify_bundle import run_verify_bundle
 from weave_loupe.commands.verify_report import run_verify_report
 
 
@@ -68,6 +69,18 @@ def build_parser() -> argparse.ArgumentParser:
             "Embed the complete source, WIR, raw and optimized LLVM, assembly, "
             "native disassembly, diagnostics, and analysis in the Markdown report."
         ),
+    )
+
+    verify_bundle_parser = subparsers.add_parser(
+        "verify-bundle",
+        help="Verify bundle structure, paths, sizes, and SHA-256 identities.",
+    )
+    verify_bundle_parser.add_argument("bundle", type=Path)
+    verify_bundle_parser.add_argument("--json-out", type=Path, default=None)
+    verify_bundle_parser.add_argument(
+        "--allow-undeclared",
+        action="store_true",
+        help="Permit files not declared by bundle.json.",
     )
 
     verify = subparsers.add_parser(
@@ -136,6 +149,12 @@ def main(argv: list[str] | None = None) -> int:
             report_out=args.report_out,
             max_tokens=args.max_tokens,
             verbose=args.verbose,
+        )
+    if args.command == "verify-bundle":
+        return run_verify_bundle(
+            bundle=args.bundle,
+            json_out=args.json_out,
+            allow_undeclared=args.allow_undeclared,
         )
     if args.command == "verify-report":
         return run_verify_report(
