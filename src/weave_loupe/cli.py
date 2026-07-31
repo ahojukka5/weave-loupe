@@ -30,6 +30,18 @@ def build_parser() -> argparse.ArgumentParser:
     capture.add_argument("--output", "-o", type=Path, required=True)
     capture.add_argument("--weavec", type=Path, default=None)
     capture.add_argument("--include-executable", action="store_true")
+    capture.add_argument(
+        "--compiler-timeout-seconds",
+        type=float,
+        default=None,
+        help="Override the compiler wall-clock limit.",
+    )
+    capture.add_argument(
+        "--compiler-output-bytes",
+        type=int,
+        default=None,
+        help="Override the stdout and stderr byte ceiling per stream.",
+    )
 
     report = subparsers.add_parser(
         "report", help="Generate a deterministic self-contained HTML report."
@@ -61,6 +73,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write a Markdown report only when the audit verdict is OK.",
     )
     audit.add_argument("--max-tokens", type=int, default=4096)
+    audit.add_argument(
+        "--compiler-timeout-seconds",
+        type=float,
+        default=None,
+        help="Override the compiler wall-clock limit.",
+    )
+    audit.add_argument(
+        "--compiler-output-bytes",
+        type=int,
+        default=None,
+        help="Override the compiler stdout and stderr ceiling per stream.",
+    )
+    audit.add_argument(
+        "--runtime-timeout-seconds",
+        type=float,
+        default=None,
+        help="Override each configured runtime-case wall-clock limit.",
+    )
+    audit.add_argument(
+        "--runtime-output-bytes",
+        type=int,
+        default=None,
+        help="Override each runtime stdout and stderr ceiling per stream.",
+    )
     audit.add_argument(
         "--verbose",
         "-v",
@@ -125,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
             output=args.output,
             weavec=args.weavec,
             include_executable=args.include_executable,
+            compiler_timeout_seconds=args.compiler_timeout_seconds,
+            compiler_output_bytes=args.compiler_output_bytes,
         )
     if args.command == "report":
         return run_report(
@@ -149,6 +187,10 @@ def main(argv: list[str] | None = None) -> int:
             report_out=args.report_out,
             max_tokens=args.max_tokens,
             verbose=args.verbose,
+            compiler_timeout_seconds=args.compiler_timeout_seconds,
+            compiler_output_bytes=args.compiler_output_bytes,
+            runtime_timeout_seconds=args.runtime_timeout_seconds,
+            runtime_output_bytes=args.runtime_output_bytes,
         )
     if args.command == "verify-bundle":
         return run_verify_bundle(
