@@ -44,10 +44,11 @@ jobs:
           path: .weave-tools/weavec
           fetch-depth: 0
 
-      - name: Install LLVM toolchain
+      - name: Install LLVM toolchain and runtime sandbox
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang llvm lld
+          sudo apt-get install -y clang llvm lld bubblewrap
+          sudo chmod u+s "$(command -v bwrap)"
 
       - name: Build current weavec
         working-directory: .weave-tools/weavec
