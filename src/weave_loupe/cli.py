@@ -126,9 +126,14 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("report", type=Path)
     verify.add_argument(
         "--source",
+        dest="sources",
+        action="append",
         type=Path,
         default=None,
-        help="Audited source; defaults to the adjacent .weave file.",
+        help=(
+            "Audited source in compiler input order; repeat for multi-source or "
+            "detached reports. Recorded paths are resolved automatically when omitted."
+        ),
     )
     verify.add_argument("--weavec", type=Path, default=None)
     verify.add_argument(
@@ -201,7 +206,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "verify-report":
         return run_verify_report(
             report=args.report,
-            source=args.source,
+            source=None,
+            sources=args.sources,
             weavec=args.weavec,
             model=args.model,
             endpoint=args.llm_endpoint,
