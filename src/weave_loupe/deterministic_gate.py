@@ -10,13 +10,17 @@ from weave_loupe.audit_result import AuditVerdict
 def apply_deterministic_gate(
     verdict: AuditVerdict, analysis: dict[str, Any]
 ) -> AuditVerdict:
-    """Reject an LLM pass when deterministic evidence proves a native defect."""
+    """Reject an LLM pass when deterministic evidence proves a compiler defect."""
     if not verdict.passed:
         return verdict
 
     runtime_override = _runtime_override(verdict, analysis)
     if runtime_override is not None:
         return runtime_override
+
+    llvm_override = _optimized_llvm_budget_override(verdict, analysis)
+    if llvm_override is not None:
+        return llvm_override
 
     budget_override = _native_budget_override(verdict, analysis)
     if budget_override is not None:
@@ -100,6 +104,42 @@ def _runtime_override(
     return _failed_verdict(
         verdict,
         code="runtime-mismatch",
+        reason=reason,
+        override=override,
+    )
+
+
+def _optimized_llvm_budget_override(
+    verdict: AuditVerdict, analysis: dict[str, Any]
+) -> AuditVerdict | None:
+    budget = analysis.get("optimized_llvm_budget")
+    if not isinstance(budget, dict) or budget.get("configured") is not True:
+        return None
+    if budget.get("passed") is True:
+        return None
+
+    raw_failures = budget.get("failures")
+    failures = (
+        [failure for failure in raw_failures if isinstance(failure, str)]
+        if isinstance(raw_failures, list)
+        else []
+    )
+    first = failures[0] if failures else "optimized LLVM contract failed"
+    reason = f"optimized LLVM contract violated: {first}"
+    details = "\n".join(f"- {failure}" for failure in failures)
+    override = (
+        "## Deterministic gate override\n\n"
+        "The model returned `OK`, but the exact post-optimization LLVM module "
+        "violated its versioned structural and size contract. Native code alone "
+        "cannot excuse avoidable optimizer regressions or missing required IR "
+        "dependencies.\n\n"
+        + (details or "- Optimized LLVM contract reported failure.")
+        + "\n- Required fix: restore the optimized-IR contract or deliberately "
+        "review and update it with new source-to-native evidence."
+    )
+    return _failed_verdict(
+        verdict,
+        code="optimized-llvm-budget-exceeded",
         reason=reason,
         override=override,
     )

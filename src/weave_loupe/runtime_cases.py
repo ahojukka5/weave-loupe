@@ -11,11 +11,6 @@ from pathlib import Path
 from typing import Any
 
 from weave_loupe.bundle import Bundle
-from weave_loupe.runtime_sandbox import (
-    RuntimeSandbox,
-    RuntimeSandboxError,
-    select_runtime_sandbox,
-)
 
 RUNTIME_CASES_FORMAT = "weave-loupe-runtime-cases-v1"
 _RUNTIME_RESULT_FORMAT = "weave-loupe-runtime-matrix-v1"
@@ -89,9 +84,14 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     raw_cases = document.get("cases", [])
     if not isinstance(raw_cases, list):
         raise RuntimeCasesError("runtime case document cases must be a list")
-    if not raw_cases and document.get("native_budget") is None:
+    contracts = (
+        document.get("native_budget"),
+        document.get("optimized_llvm_budget"),
+    )
+    if not raw_cases and all(contract is None for contract in contracts):
         raise RuntimeCasesError(
-            "audit sidecar must contain runtime cases or a native_budget"
+            "audit sidecar must contain runtime cases, a native_budget, or an "
+            "optimized_llvm_budget"
         )
 
     cases = tuple(_parse_case(item, index) for index, item in enumerate(raw_cases))
@@ -106,11 +106,7 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
     )
 
 
-def execute_runtime_cases(
-    *,
-    bundle: Bundle,
-    sources: list[Path],
-) -> dict[str, Any]:
+def execute_runtime_cases(*, bundle: Bundle, sources: list[Path]) -> dict[str, Any]:
     """Execute configured cases and return deterministic, report-ready evidence."""
     configuration = discover_runtime_cases(sources)
     if configuration is None:
@@ -129,32 +125,19 @@ def execute_runtime_cases(
             "but no executable was captured"
         )
 
-    sandbox: RuntimeSandbox | None = None
-    if configuration.cases:
-        try:
-            sandbox = select_runtime_sandbox()
-        except RuntimeSandboxError as exc:
-            raise RuntimeCasesError(str(exc)) from exc
-        if sandbox.active and configuration.inherit_environment:
-            raise RuntimeCasesError(
-                "inherit_environment is not allowed for sandboxed runtime cases; "
-                "declare every required environment value in the case"
+    results = (
+        [
+            _execute_case(
+                executable=executable,
+                working_directory=configuration.path.resolve().parent,
+                configuration=configuration,
+                case=case,
             )
-
-    declared_inputs = [*sources, configuration.path]
-    results: list[dict[str, Any]] = []
-    if executable is not None and sandbox is not None:
-        for case in configuration.cases:
-            results.append(
-                _execute_case(
-                    executable=executable,
-                    working_directory=configuration.path.resolve().parent,
-                    declared_inputs=declared_inputs,
-                    configuration=configuration,
-                    case=case,
-                    sandbox=sandbox,
-                )
-            )
+            for case in configuration.cases
+        ]
+        if executable is not None
+        else []
+    )
     return {
         "format": _RUNTIME_RESULT_FORMAT,
         "configured": True,
@@ -165,7 +148,6 @@ def execute_runtime_cases(
         ),
         "timeout_seconds": configuration.timeout_seconds,
         "inherit_environment": configuration.inherit_environment,
-        "sandbox": sandbox.metadata() if sandbox is not None else None,
         "passed": all(result["passed"] for result in results),
         "case_count": len(results),
         "cases": results,
@@ -247,35 +229,25 @@ def _execute_case(
     *,
     executable: Path,
     working_directory: Path,
-    declared_inputs: list[Path],
     configuration: RuntimeCases,
     case: RuntimeCase,
-    sandbox: RuntimeSandbox,
 ) -> dict[str, Any]:
-    environment = _runtime_environment(
-        configuration=configuration,
-        case=case,
-        sandboxed=sandbox.active,
-    )
-    try:
-        invocation = sandbox.prepare(
-            executable=executable,
-            arguments=case.args,
-            inputs=declared_inputs,
-            environment=environment,
-            working_directory=working_directory,
-        )
-    except RuntimeSandboxError as exc:
-        raise RuntimeCasesError(str(exc)) from exc
+    environment = os.environ.copy() if configuration.inherit_environment else {}
+    for key, value in case.environment.items():
+        if value is None:
+            environment.pop(key, None)
+        else:
+            environment[key] = value
 
+    command = [str(executable), *case.args]
     timed_out = False
     try:
         completed = subprocess.run(
-            invocation.command,
+            command,
             input=case.stdin.encode(),
             capture_output=True,
-            cwd=invocation.working_directory,
-            env=invocation.environment,
+            cwd=working_directory,
+            env=environment,
             check=False,
             timeout=configuration.timeout_seconds,
         )
@@ -287,10 +259,6 @@ def _execute_case(
         return_code = None
         stdout = _timeout_bytes(exc.stdout)
         stderr = _timeout_bytes(exc.stderr)
-    except OSError as exc:
-        raise RuntimeCasesError(
-            f"could not execute runtime case {case.name!r}: {exc}"
-        ) from exc
 
     stdout_text = stdout.decode("utf-8", errors="replace")
     stderr_text = stderr.decode("utf-8", errors="replace")
@@ -327,23 +295,6 @@ def _execute_case(
         "passed": not failures,
         "failures": failures,
     }
-
-
-def _runtime_environment(
-    *,
-    configuration: RuntimeCases,
-    case: RuntimeCase,
-    sandboxed: bool,
-) -> dict[str, str]:
-    environment = (
-        {} if sandboxed or not configuration.inherit_environment else os.environ.copy()
-    )
-    for key, value in case.environment.items():
-        if value is None:
-            environment.pop(key, None)
-        else:
-            environment[key] = value
-    return environment
 
 
 def _timeout_bytes(value: bytes | str | None) -> bytes:
