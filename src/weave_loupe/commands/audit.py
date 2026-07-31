@@ -54,13 +54,7 @@ def run_audit(
             )
             bundle = load_bundle(capture.bundle)
             if capture.compiler_exit_code != 0:
-                logs = bundle.manifest.get("logs", {})
-                stderr_path = logs.get("stderr") if isinstance(logs, dict) else None
-                stderr = (
-                    bundle.read_text(stderr_path).strip()
-                    if isinstance(stderr_path, str)
-                    else ""
-                )
+                stderr = (bundle.log_text("stderr") or "").strip()
                 raise BundleError(
                     f"weavec build failed with exit {capture.compiler_exit_code}"
                     + (f":\n{stderr}" if stderr else "")
