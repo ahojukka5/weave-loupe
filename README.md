@@ -98,6 +98,27 @@ backedges. Loupe deterministically rejects semantic mismatches, exceeded ceiling
 unmet structural minima, or missing required calls even when the reviewing model
 returns `OK`.
 
+## Native runtime isolation
+
+Native runtime cases are untrusted compiler output and run fail-closed through
+Bubblewrap on Linux. Loupe disables networking, clears the host environment,
+mounts the executable and declared source and sidecar inputs read-only, exposes
+only read-only system runtime paths, and provides isolated writable `/tmp` and
+`/work` directories. The effective sandbox policy is included in runtime evidence
+and generated audit reports.
+
+Install `bwrap` before executing a sidecar that contains runtime cases. A local
+machine without Bubblewrap may opt into direct execution explicitly:
+
+```sh
+WEAVE_LOUPE_UNSAFE_NO_SANDBOX=1 uv run loupe audit demo.weave
+```
+
+That override exposes the host filesystem, network, and configured environment to
+the generated executable. It is rejected when `GITHUB_ACTIONS=true`; CI audits
+must use the sandbox. Sandboxed cases also reject `inherit_environment: true`, so
+every required environment value must be declared in the case itself.
+
 See the [native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
 [pull-request audit gate](docs/audit-gate.md).
