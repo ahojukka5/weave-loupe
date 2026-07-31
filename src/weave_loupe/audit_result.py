@@ -218,7 +218,8 @@ def render_audit_report(
         item = _mapping(source)
         lines.append(
             f"- Source `{item.get('path', 'unknown')}` — SHA-256 "
-            f"`{item.get('sha256', 'unavailable')}`"
+            f"`{item.get('sha256', 'unavailable')}` — "
+            f"{item.get('size', 'unavailable')} bytes"
         )
     if runtime_input:
         lines.append(
