@@ -20,6 +20,7 @@ from weave_loupe.runtime_sandbox import (
 def test_sandbox_is_required_without_local_override(monkeypatch) -> None:
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     monkeypatch.delenv("WEAVE_LOUPE_BWRAP", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_PRLIMIT", raising=False)
     monkeypatch.delenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", raising=False)
     with (
         patch("weave_loupe.runtime_sandbox.shutil.which", return_value=None),
@@ -28,20 +29,42 @@ def test_sandbox_is_required_without_local_override(monkeypatch) -> None:
         select_runtime_sandbox()
 
 
+def test_sandbox_requires_prlimit(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_BWRAP", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_PRLIMIT", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", raising=False)
+    bwrap = tmp_path / "bwrap"
+    bwrap.write_text("fixture", encoding="utf-8")
+    bwrap.chmod(0o755)
+
+    def resolve(command: str) -> str | None:
+        return str(bwrap) if command == "bwrap" else None
+
+    with (
+        patch("weave_loupe.runtime_sandbox.shutil.which", side_effect=resolve),
+        pytest.raises(RuntimeSandboxError, match="prlimit is required"),
+    ):
+        select_runtime_sandbox()
+
+
 def test_explicit_unsafe_override_is_local_only(monkeypatch) -> None:
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     monkeypatch.delenv("WEAVE_LOUPE_BWRAP", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_PRLIMIT", raising=False)
     monkeypatch.setenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", "1")
     with patch("weave_loupe.runtime_sandbox.shutil.which", return_value=None):
         sandbox = select_runtime_sandbox()
 
     assert sandbox.active is False
     assert sandbox.metadata()["backend"] == "unsafe-direct"
+    assert sandbox.metadata()["process_count_enforcement"] == "runner-rlimit"
 
 
 def test_explicit_unsafe_override_is_rejected_in_ci(monkeypatch) -> None:
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     monkeypatch.delenv("WEAVE_LOUPE_BWRAP", raising=False)
+    monkeypatch.delenv("WEAVE_LOUPE_PRLIMIT", raising=False)
     monkeypatch.setenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", "true")
     with (
         patch("weave_loupe.runtime_sandbox.shutil.which", return_value=None),
@@ -50,23 +73,30 @@ def test_explicit_unsafe_override_is_rejected_in_ci(monkeypatch) -> None:
         select_runtime_sandbox()
 
 
-def test_bubblewrap_command_clears_environment_and_unshares_network(
+def test_bubblewrap_command_delegates_process_limit(
     tmp_path: Path,
 ) -> None:
     binary = tmp_path / "bwrap"
+    limiter = tmp_path / "prlimit"
     executable = tmp_path / "program"
     source = tmp_path / "demo.weave"
-    for path in (binary, executable, source):
+    for path in (binary, limiter, executable, source):
         path.write_text("fixture", encoding="utf-8")
         path.chmod(0o755)
 
-    sandbox = RuntimeSandbox(backend="bubblewrap", active=True, binary=binary)
+    sandbox = RuntimeSandbox(
+        backend="bubblewrap",
+        active=True,
+        binary=binary,
+        process_limiter=limiter,
+    )
     invocation = sandbox.prepare(
         executable=executable,
         arguments=("--value",),
         inputs=(source,),
         environment={"VISIBLE": "yes"},
         working_directory=tmp_path,
+        process_count_limit=123,
     )
 
     command = invocation.command
@@ -79,11 +109,49 @@ def test_bubblewrap_command_clears_environment_and_unshares_network(
     )
     assert str(source.resolve()) in command
     assert sandbox_input_path(0, source) in command
+    limiter_index = command.index(str(limiter))
+    assert command[limiter_index : limiter_index + 5] == (
+        str(limiter),
+        "--nproc=123:123",
+        "--",
+        "/work/program",
+        "--value",
+    )
+    assert command.index("--unshare-all") < limiter_index
+    assert sandbox.metadata()["process_count_enforcement"] == "sandbox-prlimit"
     assert invocation.environment == {}
     assert invocation.working_directory is None
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is unavailable")
+def test_bubblewrap_requires_positive_process_limit(tmp_path: Path) -> None:
+    binary = tmp_path / "bwrap"
+    limiter = tmp_path / "prlimit"
+    executable = tmp_path / "program"
+    for path in (binary, limiter, executable):
+        path.write_text("fixture", encoding="utf-8")
+        path.chmod(0o755)
+    sandbox = RuntimeSandbox(
+        backend="bubblewrap",
+        active=True,
+        binary=binary,
+        process_limiter=limiter,
+    )
+
+    with pytest.raises(RuntimeSandboxError, match="positive process-count"):
+        sandbox.prepare(
+            executable=executable,
+            arguments=(),
+            inputs=(),
+            environment={},
+            working_directory=tmp_path,
+            process_count_limit=None,
+        )
+
+
+@pytest.mark.skipif(
+    shutil.which("bwrap") is None or shutil.which("prlimit") is None,
+    reason="bubblewrap or prlimit is unavailable",
+)
 def test_bubblewrap_hides_host_files_and_network(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.delenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", raising=False)
     executable = tmp_path / "probe.py"
@@ -127,6 +195,7 @@ else:
         inputs=(declared_input,),
         environment={},
         working_directory=tmp_path,
+        process_count_limit=4096,
     )
     completed = subprocess.run(
         invocation.command,

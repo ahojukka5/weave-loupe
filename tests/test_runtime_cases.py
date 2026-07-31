@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -28,6 +29,22 @@ def _document(cases: list[dict[str, object]]) -> dict[str, object]:
         "inherit_environment": False,
         "cases": cases,
     }
+
+
+def _replace_executable(bundle: Path, body: str) -> None:
+    manifest_path = bundle / "bundle.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    entry = manifest["artifacts"]["executable"]
+    executable = bundle / entry["path"]
+    executable.write_text(f"#!/usr/bin/env python3\n{body}\n", encoding="utf-8")
+    executable.chmod(0o755)
+    data = executable.read_bytes()
+    entry["size"] = len(data)
+    entry["sha256"] = hashlib.sha256(data).hexdigest()
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def test_runtime_matrix_executes_exact_environment_and_output(
@@ -69,11 +86,16 @@ def test_runtime_matrix_executes_exact_environment_and_output(
     assert result["configured"] is True
     assert result["passed"] is True
     assert result["case_count"] == 1
+    assert result["sandbox"]["backend"] == "unsafe-direct"
+    assert result["limits"]["timeout_seconds"] == 5.0
     case = result["cases"][0]
     assert case["passed"] is True
     assert case["actual"]["exit_code"] == 7
+    assert case["actual"]["termination_reason"] == "exited"
     assert case["actual"]["stdout"] == "answer\n"
+    assert case["actual"]["stdout_bytes"] == len(b"answer\n")
     assert case["actual"]["stderr"] == "diagnostic\n"
+    assert case["actual"]["elapsed_seconds"] > 0
     assert len(result["sidecar_sha256"]) == 64
     assert len(result["executable_sha256"]) == 64
 
@@ -110,6 +132,73 @@ def test_runtime_matrix_records_mismatch_without_raising(
     case = result["cases"][0]
     assert case["passed"] is False
     assert case["failures"] == ["exit code 3 did not match 4"]
+
+
+def test_runtime_matrix_records_timeout(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    _write_sidecar(
+        source_file,
+        _document([{"name": "infinite", "expect": {"exit_code": 0}}]),
+    )
+    bundle_path = tmp_path / "audit.loupe"
+    capture_bundle(
+        sources=[source_file],
+        output=bundle_path,
+        weavec=fake_weavec,
+        include_executable=True,
+    )
+    _replace_executable(bundle_path, "while True:\n    pass")
+
+    result = execute_runtime_cases(
+        bundle=load_bundle(bundle_path),
+        sources=[source_file],
+        runtime_timeout_seconds=0.2,
+    )
+
+    case = result["cases"][0]
+    assert result["passed"] is False
+    assert case["timed_out"] is True
+    assert case["actual"]["termination_reason"] == "timed_out"
+    assert case["actual"]["exit_code"] is None
+    assert case["failures"] == ["timed out after 0.2 seconds"]
+
+
+def test_runtime_matrix_records_output_overflow(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    _write_sidecar(
+        source_file,
+        _document([{"name": "noisy", "expect": {"exit_code": 0}}]),
+    )
+    bundle_path = tmp_path / "audit.loupe"
+    capture_bundle(
+        sources=[source_file],
+        output=bundle_path,
+        weavec=fake_weavec,
+        include_executable=True,
+    )
+    _replace_executable(
+        bundle_path,
+        "import sys, time\n"
+        "sys.stdout.buffer.write(b'x' * 100000)\n"
+        "sys.stdout.buffer.flush()\n"
+        "time.sleep(10)",
+    )
+
+    result = execute_runtime_cases(
+        bundle=load_bundle(bundle_path),
+        sources=[source_file],
+        runtime_output_bytes=1024,
+    )
+
+    case = result["cases"][0]
+    assert result["passed"] is False
+    assert case["actual"]["termination_reason"] == "output_limit"
+    assert case["actual"]["stdout_overflowed"] is True
+    assert case["actual"]["stdout_bytes"] > 1024
+    assert case["actual"]["stdout_stored_bytes"] == 1024
+    assert case["failures"] == ["stdout exceeded the 1024 byte limit"]
 
 
 def test_runtime_matrix_is_optional(
@@ -208,6 +297,8 @@ def test_budget_only_sidecar_does_not_require_runtime_executable(
     assert result["case_count"] == 0
     assert result["cases"] == []
     assert result["executable_sha256"] is None
+    assert result["sandbox"] is None
+    assert result["limits"] is None
 
 
 def test_empty_audit_sidecar_is_rejected(tmp_path: Path) -> None:
