@@ -48,6 +48,11 @@ class ReportState:
     source_sha256: str | None
     runtime_sha256: str | None
     reason: str | None
+    sources: tuple[Path, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.sources:
+            object.__setattr__(self, "sources", (self.source,))
 
 
 @dataclass(frozen=True)
@@ -200,54 +205,169 @@ def _report_states(
     endpoint: str | None = None,
     max_tokens: int | None = None,
 ) -> list[ReportState]:
+    source_files = tuple(sorted(source_root.rglob("*.weave")))
     states: list[ReportState] = []
-    for source in sorted(source_root.rglob("*.weave")):
-        report = source.with_suffix(".md")
+    covered_sources: set[Path] = set()
+    handled_reports: set[Path] = set()
+
+    for report in sorted(source_root.rglob("*.md")):
         report_identity = read_report_identity(report)
-        if compiler_binary_sha256 is not None and auditor is not None:
-            reason = evaluate_report(
-                report=report,
-                source=source,
-                compiler_identity=identity,
-                compiler_binary_sha256=compiler_binary_sha256,
-                auditor=auditor,
-                current_model=model,
-                current_endpoint=endpoint,
-                current_max_tokens=max_tokens,
-                now=now,
-                max_age=max_age,
-                force=force,
-            ).primary_reason
-        else:
-            reason = _reaudit_reason(
-                source=source,
-                report_identity=report_identity,
-                identity=identity,
-                current_model=model,
-                current_endpoint=endpoint,
-                current_max_tokens=max_tokens,
-                now=now,
-                max_age=max_age,
-                force=force,
-            )
-        states.append(
-            ReportState(
-                source=source,
-                report=report,
-                timestamp=report_identity.timestamp,
-                version=report_identity.version,
-                version_source=report_identity.version_source,
-                compiler_binary_sha256=report_identity.compiler_binary_sha256,
-                auditor_sha256=report_identity.auditor_sha256,
-                model=report_identity.model,
-                endpoint=report_identity.endpoint,
-                max_tokens=report_identity.max_tokens,
-                source_sha256=report_identity.source_sha256,
-                runtime_sha256=report_identity.runtime_sha256,
-                reason=reason,
-            )
+        adjacent = report.with_suffix(".weave")
+        if not report_identity.sources and not adjacent.is_file():
+            continue
+        state = _state_for_report(
+            report=report,
+            fallback_source=adjacent,
+            source_files=source_files,
+            report_identity=report_identity,
+            identity=identity,
+            compiler_binary_sha256=compiler_binary_sha256,
+            auditor=auditor,
+            model=model,
+            endpoint=endpoint,
+            max_tokens=max_tokens,
+            now=now,
+            max_age=max_age,
+            force=force,
         )
-    return states
+        states.append(state)
+        handled_reports.add(_path_key(report))
+        covered_sources.update(_path_key(source) for source in state.sources)
+
+    for source in source_files:
+        if _path_key(source) in covered_sources:
+            continue
+        report = source.with_suffix(".md")
+        if _path_key(report) in handled_reports:
+            continue
+        report_identity = read_report_identity(report)
+        state = _state_for_report(
+            report=report,
+            fallback_source=source,
+            source_files=source_files,
+            report_identity=report_identity,
+            identity=identity,
+            compiler_binary_sha256=compiler_binary_sha256,
+            auditor=auditor,
+            model=model,
+            endpoint=endpoint,
+            max_tokens=max_tokens,
+            now=now,
+            max_age=max_age,
+            force=force,
+        )
+        states.append(state)
+
+    return sorted(states, key=lambda state: str(state.report))
+
+
+def _state_for_report(
+    *,
+    report: Path,
+    fallback_source: Path,
+    source_files: tuple[Path, ...],
+    report_identity: ReportIdentity,
+    identity: CompilerVersion,
+    compiler_binary_sha256: str | None,
+    auditor: AuditorIdentity | None,
+    model: str | None,
+    endpoint: str | None,
+    max_tokens: int | None,
+    now: datetime,
+    max_age: timedelta,
+    force: bool,
+) -> ReportState:
+    if compiler_binary_sha256 is not None and auditor is not None:
+        result = evaluate_report(
+            report=report,
+            source=None if report.is_file() else fallback_source,
+            sources=None,
+            compiler_identity=identity,
+            compiler_binary_sha256=compiler_binary_sha256,
+            auditor=auditor,
+            current_model=model,
+            current_endpoint=endpoint,
+            current_max_tokens=max_tokens,
+            now=now,
+            max_age=max_age,
+            force=force,
+        )
+        current_sources = result.sources
+        reason = result.primary_reason
+    else:
+        current_sources = _compatibility_sources(
+            report=report,
+            fallback_source=fallback_source,
+            source_files=source_files,
+            report_identity=report_identity,
+        )
+        reason = _reaudit_reason(
+            source=current_sources[0],
+            report_identity=report_identity,
+            identity=identity,
+            current_model=model,
+            current_endpoint=endpoint,
+            current_max_tokens=max_tokens,
+            now=now,
+            max_age=max_age,
+            force=force,
+        )
+
+    primary = current_sources[0]
+    return ReportState(
+        source=primary,
+        sources=current_sources,
+        report=report,
+        timestamp=report_identity.timestamp,
+        version=report_identity.version,
+        version_source=report_identity.version_source,
+        compiler_binary_sha256=report_identity.compiler_binary_sha256,
+        auditor_sha256=report_identity.auditor_sha256,
+        model=report_identity.model,
+        endpoint=report_identity.endpoint,
+        max_tokens=report_identity.max_tokens,
+        source_sha256=report_identity.source_sha256,
+        runtime_sha256=report_identity.runtime_sha256,
+        reason=reason,
+    )
+
+
+def _compatibility_sources(
+    *,
+    report: Path,
+    fallback_source: Path,
+    source_files: tuple[Path, ...],
+    report_identity: ReportIdentity,
+) -> tuple[Path, ...]:
+    if not report_identity.sources:
+        return (fallback_source,)
+
+    resolved: list[Path] = []
+    for item in report_identity.sources:
+        recorded = Path(item.path)
+        candidates = [recorded]
+        if not recorded.is_absolute():
+            candidates.extend((report.parent / recorded, Path.cwd() / recorded))
+        current = next(
+            (candidate for candidate in candidates if candidate.is_file()),
+            None,
+        )
+        if current is None:
+            matches = [
+                source
+                for source in source_files
+                if source.name == recorded.name and sha256_file(source) == item.sha256
+            ]
+            current = matches[0] if len(matches) == 1 else recorded
+        resolved.append(current)
+    return tuple(resolved)
+
+
+def _path_key(path: Path) -> Path:
+    try:
+        return path.resolve()
+    except OSError:
+        return path.absolute()
 
 
 def _reaudit_reason(
@@ -351,7 +471,7 @@ def _audit(
         "-m",
         "weave_loupe.cli",
         "audit",
-        str(state.source),
+        *(str(source) for source in state.sources),
         "--weavec",
         str(weavec),
         "--model",
