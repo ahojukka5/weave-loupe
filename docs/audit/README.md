@@ -6,19 +6,20 @@ for them by the pull-request audit gate.
 Each source, audit sidecar, and report are kept together:
 
 - `fibonacci.weave` — auditable source
-- `fibonacci.audit.json` — versioned runtime and native-code expectations
+- `fibonacci.audit.json` — versioned optimized-IR, native, and runtime expectations
 - `fibonacci.md` — generated report, created only after a passing final verdict
 
-The audit sidecar is optional. It may contain runtime cases, a native optimization
-budget, or both. Runtime cases execute the exact linked artifact with every
-declared argument, environment, input, and expected result. Native contracts bound
-program-owned function counts and per-function instructions, padding, direct and
-indirect calls, and may require specific call targets and loop backedges.
+The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
+contract, a native optimization contract, or any combination. Runtime cases
+execute the exact linked artifact with declared inputs and expected results. The
+LLVM contract bounds the exact post-optimization module and can require functions
+and call targets. Native contracts bound linked function counts, instructions,
+padding, calls, and loop backedges.
 
-Observed runtime mismatches, exceeded final-code limits, unmet structural minima,
-or missing required calls deterministically fail the gate even when the model
-returns `OK`. Contract evaluation also fails closed when linked disassembly or
-complete program-owned reachability is unavailable.
+Observed runtime mismatches, optimized-IR contract violations, exceeded native
+limits, unmet structural minima, or missing required dependencies deterministically
+fail the gate even when the model returns `OK`. Evaluation fails closed when a
+required artifact or complete native reachability is unavailable.
 
 Generated reports are workflow-owned evidence, not hand-maintained prose. Change
 the `.weave` source, its optional `.audit.json` sidecar, or the audit implementation
@@ -34,25 +35,27 @@ complete source-to-native evidence chain:
 2. readable WIR with provenance comments hidden
 3. raw LLVM IR
 4. optimized LLVM IR
-5. target assembly
-6. linked executable disassembly
-7. LLVM optimization remarks
-8. native optimization contract and observed metrics
-9. native runtime execution matrix
-10. diagnostics and deterministic analysis
-11. build manifest and compiler trace
+5. optimized LLVM contract and observed metrics
+6. target assembly
+7. linked executable disassembly
+8. LLVM optimization remarks
+9. native optimization contract and observed metrics
+10. native runtime execution matrix
+11. diagnostics and deterministic analysis
+12. build manifest and compiler trace
 
-The constant Fibonacci contract requires exactly one program-owned `main`, two
-non-padding instructions, no calls, no dead code, and no backward conditional
-branches.
+The constant Fibonacci optimized module must be exactly one defined `main`, one
+basic block, and one return instruction with no memory traffic, calls, branches,
+phi nodes, identity additions, undef, or poison. Its linked native contract then
+requires one two-instruction `main`, no calls, no dead code, and no loop backedges.
 
-The runtime-input contract requires exactly one backward conditional branch in
-`main`, proving the scalar recurrence loop remains in the linked executable. It
-also requires direct calls to `getenv@plt` and `atoi@plt`, forbids indirect calls
-and dead program functions, and bounds instructions and padding. Nine runtime
-cases independently verify observable behavior. A compiler cannot satisfy the
-gate merely by producing some small program that happens to return the checked
-values.
+The runtime-input optimized module must remain a memory-free SSA loop in one
+`main`, with bounded blocks and instructions, phi nodes, branches, recurrence
+arithmetic, and exactly two calls to `getenv` and `atoi`. Its native contract
+requires exactly one backward conditional branch and direct calls to
+`getenv@plt` and `atoi@plt`, forbids indirect calls and dead program functions,
+and bounds instructions and padding. Nine runtime cases independently verify
+observable behavior.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider

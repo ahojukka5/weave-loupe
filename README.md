@@ -53,11 +53,11 @@ uv run loupe audit docs/audit/fibonacci.weave \
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
-include the complete source, readable WIR, raw and optimized LLVM, assembly,
-linked native disassembly, optimization remarks, native optimization contract,
-direct runtime observations, diagnostics, deterministic analysis, build manifest,
-and compiler trace, together with timestamps, Git SHAs, hashes, and machine
-specifications.
+include the complete source, readable WIR, raw and optimized LLVM, the optimized
+LLVM contract, assembly, linked native disassembly, optimization remarks, native
+optimization contract, direct runtime observations, diagnostics, deterministic
+analysis, build manifest, and compiler trace, together with timestamps, Git SHAs,
+hashes, and machine specifications.
 
 The report also records the normalized LLM endpoint, requested model, maximum
 tokens, temperature, exact prompt SHA-256, canonical request SHA-256, and any
@@ -89,37 +89,17 @@ Markdown, including request and provider provenance, model review, and verbose
 compiler evidence. This detects accidental or unsealed manual edits; it is not a
 digital signature and does not prove who produced a report.
 
-An adjacent `foo.audit.json` file may define exact native executions and a
-versioned native optimization contract. Runtime cases describe arguments,
-environment, standard input, expected exit status, and expected output streams.
-Native contracts can bound linked-executable function counts, instructions,
-padding, and calls, and can require exact direct-call targets and native loop
-backedges. Loupe deterministically rejects semantic mismatches, exceeded ceilings,
-unmet structural minima, or missing required calls even when the reviewing model
-returns `OK`.
+An adjacent `foo.audit.json` file may define exact native executions, a versioned
+optimized LLVM contract, and a versioned native optimization contract. The LLVM
+contract bounds post-optimization structure and can require defined functions and
+direct call targets while forbidding stack and memory traffic. Native contracts
+bound linked-executable functions, instructions, padding, calls, and loop
+backedges. Runtime cases describe arguments, environment, input, and expected
+observable results. Loupe deterministically rejects any violated contract even
+when the reviewing model returns `OK`.
 
-## Native runtime isolation
-
-Native runtime cases are untrusted compiler output and run fail-closed through
-Bubblewrap on Linux. Loupe disables networking, clears the host environment,
-mounts the executable and declared source and sidecar inputs read-only, exposes
-only read-only system runtime paths, and provides isolated writable `/tmp` and
-`/work` directories. The effective sandbox policy is included in runtime evidence
-and generated audit reports.
-
-Install `bwrap` before executing a sidecar that contains runtime cases. A local
-machine without Bubblewrap may opt into direct execution explicitly:
-
-```sh
-WEAVE_LOUPE_UNSAFE_NO_SANDBOX=1 uv run loupe audit demo.weave
-```
-
-That override exposes the host filesystem, network, and configured environment to
-the generated executable. It is rejected when `GITHUB_ACTIONS=true`; CI audits
-must use the sandbox. Sandboxed cases also reject `inherit_environment: true`, so
-every required environment value must be declared in the case itself.
-
-See the [native optimization budget guide](docs/native-budgets.md), the
+See the [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
+[native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
 [pull-request audit gate](docs/audit-gate.md).
 
