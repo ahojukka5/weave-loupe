@@ -26,6 +26,8 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [Compiler and runtime process limits](process-limits.md) — bounded output,
+  timeouts, process-tree cleanup, POSIX resources, configuration, and evidence.
 - [Optimized LLVM contracts](optimized-llvm-contracts.md) — versioned
   post-optimization metric and dependency requirements.
 - [Native optimization budgets](native-budgets.md) — versioned linked-executable
@@ -48,6 +50,8 @@ presentation format.
 - `loupe audit` sends the complete evidence to an OpenAI-compatible model, applies
   runtime, optimized-LLVM, and native deterministic gates, and with `--verbose`
   embeds the evidence in the generated Markdown report.
+- `loupe verify-bundle` verifies bundle structure, paths, sizes, hashes, and
+  closed-bundle contents before evidence is consumed.
 - `loupe verify-report` verifies that a generated report still matches the current
   source, audit sidecar, compiler, auditor, configured endpoint and model, and
   validity period without compiling or calling an LLM.
