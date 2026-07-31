@@ -90,7 +90,9 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
             "verify-report",
             "a.md",
             "--source",
-            "source.weave",
+            "first.weave",
+            "--source",
+            "second.weave",
             "--weavec",
             "bin/weavec",
             "--model",
@@ -107,7 +109,7 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
     )
     assert args.command == "verify-report"
     assert args.report == Path("a.md")
-    assert args.source == Path("source.weave")
+    assert args.sources == [Path("first.weave"), Path("second.weave")]
     assert args.weavec == Path("bin/weavec")
     assert args.model == "z-ai/glm-5.2"
     assert args.llm_endpoint == "https://example.test/v1"
@@ -125,6 +127,7 @@ def test_verify_report_identity_defaults_to_environment(monkeypatch) -> None:
     assert args.model == "configured-model"
     assert args.llm_endpoint == "https://example.test/v1"
     assert args.max_tokens is None
+    assert args.sources is None
 
 
 def test_main_dispatches_capture_limits() -> None:
@@ -215,6 +218,8 @@ def test_main_dispatches_report_verification() -> None:
                 "a.md",
                 "--source",
                 "a.weave",
+                "--source",
+                "b.weave",
                 "--weavec",
                 "weavec",
                 "--model",
@@ -228,7 +233,8 @@ def test_main_dispatches_report_verification() -> None:
     assert result == 2
     command.assert_called_once_with(
         report=Path("a.md"),
-        source=Path("a.weave"),
+        source=None,
+        sources=[Path("a.weave"), Path("b.weave")],
         weavec=Path("weavec"),
         model="z-ai/glm-5.2",
         endpoint="https://example.test/v1",
