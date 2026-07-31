@@ -7,6 +7,13 @@ from pathlib import Path
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def allow_explicit_unsandboxed_runtime_tests(monkeypatch) -> None:
+    """Keep ordinary unit fixtures direct while sandbox tests opt back in."""
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.setenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", "1")
+
+
 @pytest.fixture
 def fake_weavec(tmp_path: Path) -> Path:
     script = tmp_path / "weavec"
