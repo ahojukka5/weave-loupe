@@ -15,7 +15,7 @@ from weave_loupe.audit_result import (
     parse_audit_response,
     render_audit_report,
 )
-from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
+from weave_loupe.bundle import Bundle, BundleError, capture_bundle, load_bundle
 from weave_loupe.deterministic_gate import apply_deterministic_gate
 from weave_loupe.evidence_report import insert_complete_evidence
 from weave_loupe.llm import LlmError, chat_completion, load_config
@@ -40,6 +40,10 @@ def run_audit(
     report_out: Path | None,
     max_tokens: int,
     verbose: bool,
+    compiler_timeout_seconds: float | None = None,
+    compiler_output_bytes: int | None = None,
+    runtime_timeout_seconds: float | None = None,
+    runtime_output_bytes: int | None = None,
 ) -> int:
     response = ""
     report = ""
@@ -51,13 +55,16 @@ def run_audit(
                 output=bundle_path,
                 weavec=weavec,
                 include_executable=True,
+                compiler_timeout_seconds=compiler_timeout_seconds,
+                compiler_output_bytes=compiler_output_bytes,
             )
             bundle = load_bundle(capture.bundle)
             if capture.compiler_exit_code != 0:
-                stderr = (bundle.log_text("stderr") or "").strip()
                 raise BundleError(
-                    f"weavec build failed with exit {capture.compiler_exit_code}"
-                    + (f":\n{stderr}" if stderr else "")
+                    _compiler_failure_message(
+                        bundle,
+                        capture.compiler_exit_code,
+                    )
                 )
 
             wir = bundle.artifact_text("wir") or ""
@@ -98,6 +105,8 @@ def run_audit(
             runtime_matrix = execute_runtime_cases(
                 bundle=bundle,
                 sources=weave_files,
+                runtime_timeout_seconds=runtime_timeout_seconds,
+                runtime_output_bytes=runtime_output_bytes,
             )
             analysis["optimized_llvm_budget"] = optimized_llvm_budget
             analysis["native_budget"] = native_budget
@@ -222,3 +231,18 @@ def run_audit(
                 sys.stdout.write("\n")
         print(f"loupe audit: {exc}", file=sys.stderr)
         return 1
+
+
+def _compiler_failure_message(bundle: Bundle, exit_code: int) -> str:
+    compiler = bundle.manifest.get("compiler")
+    execution = compiler.get("execution") if isinstance(compiler, dict) else None
+    reason = (
+        execution.get("termination_reason") if isinstance(execution, dict) else None
+    )
+    description = (
+        f"weavec build {reason} with compatibility exit {exit_code}"
+        if isinstance(reason, str) and reason != "exited"
+        else f"weavec build failed with exit {exit_code}"
+    )
+    stderr = (bundle.log_text("stderr") or "").strip()
+    return description + (f":\n{stderr}" if stderr else "")
