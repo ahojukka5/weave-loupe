@@ -5,10 +5,32 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-from weave_loupe.bundle import BundleError, capture_bundle, load_bundle
+from weave_loupe.bundle import (
+    BUNDLE_FORMAT,
+    BundleError,
+    capture_bundle,
+    load_bundle,
+    verify_bundle,
+)
+
+
+def _read_manifest(bundle: Path) -> dict[str, Any]:
+    return json.loads((bundle / "bundle.json").read_text(encoding="utf-8"))
+
+
+def _write_manifest(bundle: Path, manifest: dict[str, Any]) -> None:
+    (bundle / "bundle.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _problem_codes(bundle: Path, *, closed: bool = True) -> set[str]:
+    return {problem.code for problem in verify_bundle(bundle, closed=closed).problems}
 
 
 def test_capture_bundle_records_sources_and_artifacts(
@@ -18,7 +40,7 @@ def test_capture_bundle_records_sources_and_artifacts(
     result = capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
     assert result.compiler_exit_code == 0
     bundle = load_bundle(output)
-    assert bundle.manifest["format"] == "weave-loupe-bundle-v1"
+    assert bundle.manifest["format"] == BUNDLE_FORMAT
     assert bundle.sources[0]["input"] == str(source_file)
     raw_wir = bundle.artifact_text("wir")
     assert raw_wir is not None
@@ -55,6 +77,23 @@ def test_capture_bundle_records_hash(
     assert bundle.sources[0]["sha256"] == expected
 
 
+def test_capture_bundle_hashes_compiler_logs(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+
+    manifest = _read_manifest(output)
+    stderr = manifest["logs"]["stderr"]
+    captured = output / stderr["path"]
+
+    assert stderr["size"] == len(captured.read_bytes())
+    assert stderr["sha256"] == hashlib.sha256(captured.read_bytes()).hexdigest()
+    assert load_bundle(output).log_text("stderr") == captured.read_text(
+        encoding="utf-8"
+    )
+
+
 def test_capture_bundle_replaces_existing_directory(
     tmp_path: Path, source_file: Path, fake_weavec: Path
 ) -> None:
@@ -66,11 +105,130 @@ def test_capture_bundle_replaces_existing_directory(
     assert (output / "bundle.json").is_file()
 
 
+def test_verify_bundle_accepts_valid_capture_after_move(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    moved = tmp_path / "nested" / "moved.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    moved.parent.mkdir()
+    output.rename(moved)
+
+    verification = verify_bundle(moved)
+
+    assert verification.valid is True
+    assert verification.checked_files >= 12
+    assert verification.as_dict()["format"] == ("weave-loupe-bundle-verification-v1")
+
+
+def test_verify_bundle_reports_all_content_problems(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+
+    source_path = output / manifest["sources"][0]["path"]
+    source_path.write_text("tampered source", encoding="utf-8")
+    llvm_path = output / manifest["artifacts"]["llvm"]["path"]
+    llvm_path.unlink()
+    (output / "undeclared.txt").write_text("extra", encoding="utf-8")
+
+    verification = verify_bundle(output)
+    codes = {problem.code for problem in verification.problems}
+
+    assert verification.valid is False
+    assert "file-size-mismatch" in codes
+    assert "file-digest-mismatch" in codes
+    assert "file-missing" in codes
+    assert "undeclared-file" in codes
+    with pytest.raises(BundleError, match="integrity verification failed"):
+        load_bundle(output)
+
+
+def test_verify_bundle_rejects_path_traversal(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+    manifest["sources"][0]["path"] = "../outside.weave"
+    _write_manifest(output, manifest)
+
+    assert "file-path-traversal" in _problem_codes(output)
+
+
+def test_verify_bundle_rejects_symlinked_artifact(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+    artifact = output / manifest["artifacts"]["llvm"]["path"]
+    target = output / manifest["sources"][0]["path"]
+    artifact.unlink()
+    artifact.symlink_to(target)
+
+    assert "file-symlink" in _problem_codes(output)
+
+
+def test_verify_bundle_rejects_duplicate_declared_paths(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+    manifest["logs"]["stderr"] = manifest["logs"]["stdout"]
+    _write_manifest(output, manifest)
+
+    assert "duplicate-declared-path" in _problem_codes(output)
+
+
+def test_verify_bundle_requires_success_artifacts(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+    llvm = manifest["artifacts"].pop("llvm")
+    (output / llvm["path"]).unlink()
+    _write_manifest(output, manifest)
+
+    assert "required-artifact-missing" in _problem_codes(output)
+
+
+def test_verify_bundle_can_allow_undeclared_files(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    (output / "store-note.txt").write_text("external metadata", encoding="utf-8")
+
+    assert "undeclared-file" in _problem_codes(output)
+    assert verify_bundle(output, closed=False).valid is True
+
+
+def test_verify_bundle_accepts_legacy_log_paths(
+    tmp_path: Path, source_file: Path, fake_weavec: Path
+) -> None:
+    output = tmp_path / "demo.loupe"
+    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    manifest = _read_manifest(output)
+    manifest["logs"] = {name: entry["path"] for name, entry in manifest["logs"].items()}
+    _write_manifest(output, manifest)
+
+    verification = verify_bundle(output)
+
+    assert verification.valid is True
+    assert verification.legacy_unhashed_logs == ("stderr", "stdout")
+    assert load_bundle(output).log_path("stdout") is not None
+
+
 def test_load_bundle_rejects_unknown_format(tmp_path: Path) -> None:
     bundle = tmp_path / "bad.loupe"
     bundle.mkdir()
     (bundle / "bundle.json").write_text(json.dumps({"format": "unknown"}))
-    with pytest.raises(BundleError, match="unsupported"):
+    with pytest.raises(BundleError, match="format"):
         load_bundle(bundle)
 
 
