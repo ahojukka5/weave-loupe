@@ -19,6 +19,23 @@ uv run mypy
 uv run pytest
 ```
 
+Run the full suite, not just files you touched — a change to shared or
+module-level code can silently break an existing test elsewhere that never
+appears in your diff. When you add a new CLI command or other entry point,
+make sure the test suite actually invokes it end to end (not just its helper
+functions): unit tests on the pieces can all pass while the wiring between
+them is wrong.
+
+If ruff or mypy report errors, fix only the ones your change introduced and
+fold that fix into the commit that caused it. Leave pre-existing baseline
+issues alone, even in a file you're already touching — that's scope creep,
+not part of your story.
+
+A local failure is not automatically a merge blocker. If it doesn't
+reproduce in CI, check whether it's caused by a local tool-version gap (for
+example, an older `bwrap` build without `--clearenv` support) rather than the
+change itself before treating it as a defect.
+
 ## Commit rules
 
 We prefer **small, targeted commits**. Each commit should tell **one
@@ -28,6 +45,13 @@ single logical change.
 Do not mix unrelated concerns in one commit (for example a feature and
 an unrelated cleanup, or a fix and an unrelated rename). If work spans
 more than one story, split it into separate commits.
+
+Conversely, don't leave a commit only half-correct: if a change breaks an
+existing test, or a chain of follow-up commits exists only to fix a mistake
+introduced earlier in the same branch, fold the fix into the commit whose
+mistake it corrects rather than leaving a separate `fix:`/`fix tests` commit
+on top. The merged history should show each story working correctly on its
+own, not the debugging trail that got there.
 
 ### Conventional Commits
 
@@ -87,3 +111,19 @@ its version so other tools can share one lookup path.
 - [ ] Body opens with a 1–3 sentence summary
 - [ ] Extra detail (if any) is a bullet list after the summary
 - [ ] Body lines are wrapped to 80 characters
+
+## Pull requests and merging
+
+- Generated audit evidence (`docs/audit/*.md`, `*.audit.json` reports) is
+  workflow-owned: the `weave-audit` GitHub Action regenerates it after a
+  passing verdict. If rebasing a branch conflicts in these files — typically
+  because another PR touching the same reports merged first — do not
+  hand-merge the generated content. Drop the stale diff, push the real code
+  changes, and wait for the workflow's own regeneration commit before
+  merging.
+- Merge by rebase (`gh pr merge --rebase`), not squash, so the commit
+  boundaries you've cleaned up per the rules above are preserved in
+  `master`'s history.
+- If you rewrite a PR's history before merging, verify the resulting tree
+  matches the original PR diff (aside from an intentional fix) before
+  pushing — only commit boundaries should move.
