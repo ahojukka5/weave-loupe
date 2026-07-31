@@ -37,6 +37,22 @@ def test_audit_parser_supports_multiple_sources_and_report_output() -> None:
     assert args.report_out == Path("a.md")
 
 
+def test_verify_bundle_parser_supports_policy_and_json_output() -> None:
+    args = build_parser().parse_args(
+        [
+            "verify-bundle",
+            "a.loupe",
+            "--allow-undeclared",
+            "--json-out",
+            "verification.json",
+        ]
+    )
+    assert args.command == "verify-bundle"
+    assert args.bundle == Path("a.loupe")
+    assert args.allow_undeclared is True
+    assert args.json_out == Path("verification.json")
+
+
 def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
     args = build_parser().parse_args(
         [
@@ -84,6 +100,26 @@ def test_main_dispatches_capture() -> None:
     with patch("weave_loupe.cli.run_capture", return_value=0) as command:
         assert main(["capture", "a.weave", "-o", "a.loupe"]) == 0
     command.assert_called_once()
+
+
+def test_main_dispatches_bundle_verification() -> None:
+    with patch("weave_loupe.cli.run_verify_bundle", return_value=2) as command:
+        result = main(
+            [
+                "verify-bundle",
+                "a.loupe",
+                "--allow-undeclared",
+                "--json-out",
+                "verification.json",
+            ]
+        )
+
+    assert result == 2
+    command.assert_called_once_with(
+        bundle=Path("a.loupe"),
+        json_out=Path("verification.json"),
+        allow_undeclared=True,
+    )
 
 
 def test_main_dispatches_report_verification() -> None:
