@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `9e451267b0a37ff0c015ea1b627e7db0f82907e4462b4d417749bfa5f40f2569`
-- **Audit timestamp (UTC):** `2026-07-31T17:32:54+00:00`
-- **Re-audit no later than (UTC):** `2026-08-30T17:32:54+00:00`
+- **Report content SHA-256:** `7aaa68986b1d146b8fd79bea0ac9c55ad1a11be89071100bed8e8ca83151d6f1`
+- **Audit timestamp (UTC):** `2026-07-31T19:54:38+00:00`
+- **Re-audit no later than (UTC):** `2026-08-30T19:54:38+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,40 +19,40 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `d3e4292911fc38b46f0c0fbbd47dba4c79adffb9`
+- **Audited source Git SHA:** `ae692928f6e6cd76a0194ac809595ace76f67802`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `d3e4292911fc38b46f0c0fbbd47dba4c79adffb9`
-- **Auditor content SHA-256:** `2de5a84b26a885c13020ce69c4070458c44265e47a2551a1cb520fa215f19e65`
-- **weavec Git SHA:** `05368ac8733928bdceb27f333881094f167decd3`
-- **weavec binary SHA-256:** `ad08fea62fec184941dfdf5d0c77b22ccbac9597cfa1c598c594acbb37cc29cb`
-- **weavec version:** `weavec v0.3.0+git.05368ac87339`
+- **Weave Loupe Git SHA:** `ae692928f6e6cd76a0194ac809595ace76f67802`
+- **Auditor content SHA-256:** `9fc360c21266287d26bd290a01ff552ba59c5a40a51967f1ef17335a4c59630f`
+- **weavec Git SHA:** `3d865013f2c65d327f8f3bf508ec741e4f7b5c22`
+- **weavec binary SHA-256:** `1d4ea5e53e69754b4db409d702e5f9d5303f2f45753537d2e858af0340513a31`
+- **weavec version:** `weavec v0.3.0+git.3d865013f2c6`
 - **weavec build kind:** `development`
 - **weavec version source:** `command`
 - **LLM endpoint:** `https://integrate.api.nvidia.com/v1`
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `f5385e47e335a596fdc2185c5d7f1348a5bf35ca422ff48f695a281793c218e0`
-- **LLM request SHA-256:** `4370b0c7434338ff3e74b1ce9632f96e0b31fde4d0edd95f712b5bdd68e4a50b`
+- **LLM prompt SHA-256:** `2538428b51e7192fc08ec46f479bf58e878cb9fae79b1dbb89740d87e4555346`
+- **LLM request SHA-256:** `2a60c858ca2ba14d659cf67a36269fe88bc0274bfec4ea8fb532514c3d206a86`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-d1d4cde9-5767-463e-ad35-74468b4d580a`
+- **Provider response ID:** `chatcmpl-87fc5592-a254-4653-b8f2-5dacb9f45c33`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785519178`
-- **Provider prompt tokens:** `20296`
-- **Provider completion tokens:** `939`
-- **Provider total tokens:** `21235`
-- **GitHub run ID:** `30651482138`
-- **GitHub workflow SHA:** `792dc7fe18b9ab1fdd77d6c5c506eeae43ee359f`
+- **Provider created (Unix):** `1785527678`
+- **Provider prompt tokens:** `22047`
+- **Provider completion tokens:** `1358`
+- **Provider total tokens:** `23405`
+- **GitHub run ID:** `30660804249`
+- **GitHub workflow SHA:** `0b88cfec827ce188fb8ce37b067c3295bc2ee894`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `INTEL(R) XEON(R) PLATINUM 8573C`
+- **CPU:** `AMD EPYC 9V74 80-Core Processor`
 - **Logical CPUs:** `4`
-- **Memory:** `16765378560` bytes
+- **Memory:** `16766418944` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
@@ -63,16 +63,16 @@
 
 ## Captured evidence
 
-- `assembly` — SHA-256 `f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
-- `build_manifest` — SHA-256 `a46019c83aad4856672444eaaf414f017f3861e5c5ec83ac250b2779f138b257`
+- `assembly` — SHA-256 `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
+- `build_manifest` — SHA-256 `25c79137f4b95a1aed215add151c4ad22e42e6948bcf910dd94e100b50b97d4f`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
-- `disassembly` — SHA-256 `4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
-- `executable` — SHA-256 `2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd`
-- `llvm` — SHA-256 `da1bfc4da11df09e130920f5b352dc6d8683e6d80d89e4372708d25a4575bee7`
+- `disassembly` — SHA-256 `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
+- `executable` — SHA-256 `8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d`
+- `llvm` — SHA-256 `4adb9bcce4ad38397a83141189e13709341f7831afac568729f5f68cb01ae46d`
 - `optimization_record` — SHA-256 `c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
 - `optimized_llvm` — SHA-256 `7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
-- `trace` — SHA-256 `74f29e7980500aae038a421b7f50c70b9b9fedbb0bfa84905f01b67e9e9e52d4`
-- `wir` — SHA-256 `b445fa2581f956373545ab1445c95bbff55703e82fd7d0fc7bd0f53645e3a697`
+- `trace` — SHA-256 `c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
+- `wir` — SHA-256 `ae3009fa26202190f5434cb1238a359e041e7744992f8ca151d086b46d396386`
 
 ## Complete compiler evidence
 
@@ -213,7 +213,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-ytojf0/program.wir
+; source: /tmp/weavec-build-MnfkZu/program.wir
 ; core-version: 2
 
 ; declarations
@@ -225,64 +225,64 @@ declare i32 @atoi(ptr)
 
 @.str0 = private unnamed_addr constant [14 x i8] c"WEAVE_AUDIT_N\00"
 
-; weave.source kind=function index=0 bytes=1100..1778 wir-bytes=3911..7408 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=function index=0 bytes=1100..1778 wir-bytes=3953..7450 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
 ; function: main
 ; params: none
 ; returns: i32
 define i32 @main() {
 entry:
   %n.addr = alloca i32
-; weave.source kind=statement index=0 bytes=1157..1243 wir-bytes=4235..4555 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1157..1243 wir-bytes=4277..4597 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   %t0 = getelementptr [14 x i8], ptr @.str0, i64 0, i64 0
   %t1 = call ptr @getenv(ptr %t0)
   ; let input
-; weave.source kind=statement index=0 bytes=1250..1276 wir-bytes=4592..4762 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1250..1276 wir-bytes=4634..4804 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; let n
   store i32 10, ptr %n.addr
-; weave.source kind=statement index=0 bytes=1284..1438 wir-bytes=4799..5581 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1284..1438 wir-bytes=4841..5623 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; if condition
   %t2 = icmp ne ptr %t1, null
   br i1 %t2, label %then, label %endif
 then:
   ; then
-; weave.source kind=statement index=0 bytes=1376..1405 wir-bytes=5285..5458 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1376..1405 wir-bytes=5327..5500 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set n
   %t3 = call i32 @atoi(ptr %t1)
   store i32 %t3, ptr %n.addr
   br label %endif
 endif:
-; weave.source kind=statement index=0 bytes=1446..1590 wir-bytes=5618..6390 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1446..1590 wir-bytes=5660..6432 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; if condition
   %t4 = load i32, ptr %n.addr
   %t5 = icmp slt i32 %t4, 0
   br i1 %t5, label %then1, label %endif1
 then1:
   ; then
-; weave.source kind=statement index=0 bytes=1535..1557 wir-bytes=6137..6267 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1535..1557 wir-bytes=6179..6309 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set n
   store i32 10, ptr %n.addr
   br label %endif1
 endif1:
-; weave.source kind=statement index=0 bytes=1598..1743 wir-bytes=6427..7200 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1598..1743 wir-bytes=6469..7242 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; if condition
   %t6 = load i32, ptr %n.addr
   %t7 = icmp sgt i32 %t6, 46
   br i1 %t7, label %then2, label %endif2
 then2:
   ; then
-; weave.source kind=statement index=0 bytes=1688..1710 wir-bytes=6947..7077 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1688..1710 wir-bytes=6989..7119 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set n
   store i32 10, ptr %n.addr
   br label %endif2
 endif2:
-; weave.source kind=statement index=0 bytes=1751..1776 wir-bytes=7237..7406 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1751..1776 wir-bytes=7279..7448 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; return
   %t8 = load i32, ptr %n.addr
   %t9 = call i32 @fib(i32 %t8)
   ret i32 %t9
 }
 
-; weave.source kind=function index=0 bytes=532..1096 wir-bytes=997..3870 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=function index=0 bytes=532..1096 wir-bytes=1039..3912 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
 ; function: fib
 ; params: i32
 ; returns: i32
@@ -291,26 +291,26 @@ entry:
   %previous.addr = alloca i32
   %current.addr = alloca i32
   %index.addr = alloca i32
-; weave.source kind=statement index=0 bytes=593..725 wir-bytes=1449..2103 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=593..725 wir-bytes=1491..2145 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; if condition
   %t0 = icmp sle i32 %n, 1
   br i1 %t0, label %then, label %endif
 then:
   ; then
-; weave.source kind=statement index=0 bytes=682..692 wir-bytes=1942..1986 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=682..692 wir-bytes=1984..2028 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; return
   ret i32 %n
 endif:
-; weave.source kind=statement index=0 bytes=733..765 wir-bytes=2138..2306 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=733..765 wir-bytes=2180..2348 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; let previous
   store i32 0, ptr %previous.addr
-; weave.source kind=statement index=0 bytes=772..803 wir-bytes=2341..2508 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=772..803 wir-bytes=2383..2550 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; let current
   store i32 1, ptr %current.addr
-; weave.source kind=statement index=0 bytes=810..839 wir-bytes=2543..2708 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=810..839 wir-bytes=2585..2750 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; let index
   store i32 2, ptr %index.addr
-; weave.source kind=statement index=0 bytes=847..1070 wir-bytes=2744..3779 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=847..1070 wir-bytes=2786..3821 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; while condition
   br label %while.cond1
 while.cond1:
@@ -319,26 +319,26 @@ while.cond1:
   br i1 %t2, label %while.body1, label %while.end1
 while.body1:
   ; while body
-; weave.source kind=statement index=0 bytes=913..954 wir-bytes=3091..3302 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=913..954 wir-bytes=3133..3344 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   %t3 = load i32, ptr %previous.addr
   %t4 = load i32, ptr %current.addr
   %t5 = add i32 %t3, %t4
   ; let next
-; weave.source kind=statement index=0 bytes=965..987 wir-bytes=3337..3393 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=965..987 wir-bytes=3379..3435 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set previous
   %t6 = load i32, ptr %current.addr
   store i32 %t6, ptr %previous.addr
-; weave.source kind=statement index=0 bytes=998..1016 wir-bytes=3429..3483 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=998..1016 wir-bytes=3471..3525 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set current
   store i32 %t5, ptr %current.addr
-; weave.source kind=statement index=0 bytes=1027..1068 wir-bytes=3520..3777 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1027..1068 wir-bytes=3562..3819 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; set index
   %t7 = load i32, ptr %index.addr
   %t8 = add i32 %t7, 1
   store i32 %t8, ptr %index.addr
   br label %while.cond1
 while.end1:
-; weave.source kind=statement index=0 bytes=1078..1094 wir-bytes=3816..3868 path="docs/audit/fibonacci_runtime.weave"
+; weave.source kind=statement index=0 bytes=1078..1094 wir-bytes=3858..3910 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ; return
   %t9 = load i32, ptr %current.addr
   ret i32 %t9
@@ -426,9 +426,9 @@ main:                                   # @main
 	cmpl	$2, %eax
 	jb	.LBB0_5
 .LBB0_3:                                # %while.body1.i.preheader
-	xorl	%edx, %edx
 	movl	$1, %eax
 	movl	$2, %ecx
+	xorl	%edx, %edx
 	.p2align	4, 0x90
 .LBB0_4:                                # %while.body1.i
                                         # =>This Inner Loop Header: Depth=1
@@ -581,9 +581,9 @@ Disassembly of section .text:
     1174: 89 c3                        	movl	%eax, %ebx
     1176: 83 f8 02                     	cmpl	$0x2, %eax
     1179: 72 23                        	jb	0x119e <main+0x4e>
-    117b: 31 d2                        	xorl	%edx, %edx
-    117d: b8 01 00 00 00               	movl	$0x1, %eax
-    1182: b9 02 00 00 00               	movl	$0x2, %ecx
+    117b: b8 01 00 00 00               	movl	$0x1, %eax
+    1180: b9 02 00 00 00               	movl	$0x2, %ecx
+    1185: 31 d2                        	xorl	%edx, %edx
     1187: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
     1190: 89 c6                        	movl	%eax, %esi
     1192: 89 d0                        	movl	%edx, %eax
@@ -1165,11 +1165,24 @@ Args:
   "cases": [
     {
       "actual": {
+        "elapsed_seconds": 0.010712,
         "exit_code": 55,
+        "process_count_enforcement": "delegated",
+        "returncode": 55,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1188,11 +1201,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.010117,
         "exit_code": 0,
+        "process_count_enforcement": "delegated",
+        "returncode": 0,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1213,11 +1239,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.009977,
         "exit_code": 1,
+        "process_count_enforcement": "delegated",
+        "returncode": 1,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1238,11 +1277,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.010099,
         "exit_code": 1,
+        "process_count_enforcement": "delegated",
+        "returncode": 1,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1263,11 +1315,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.010182,
         "exit_code": 55,
+        "process_count_enforcement": "delegated",
+        "returncode": 55,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1288,11 +1353,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.010157,
         "exit_code": 144,
+        "process_count_enforcement": "delegated",
+        "returncode": 144,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1313,11 +1391,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.009944,
         "exit_code": 55,
+        "process_count_enforcement": "delegated",
+        "returncode": 55,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1338,11 +1429,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.01005,
         "exit_code": 55,
+        "process_count_enforcement": "delegated",
+        "returncode": 55,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1363,11 +1467,24 @@ Args:
     },
     {
       "actual": {
+        "elapsed_seconds": 0.009529,
         "exit_code": 0,
+        "process_count_enforcement": "delegated",
+        "returncode": 0,
+        "signal": null,
         "stderr": "",
+        "stderr_bytes": 0,
+        "stderr_overflowed": false,
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_stored_bytes": 0,
+        "stderr_truncated_bytes": 0,
         "stdout": "",
-        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stdout_bytes": 0,
+        "stdout_overflowed": false,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_stored_bytes": 0,
+        "stdout_truncated_bytes": 0,
+        "termination_reason": "exited"
       },
       "command": [
         "program"
@@ -1388,10 +1505,42 @@ Args:
     }
   ],
   "configured": true,
-  "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
+  "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
   "format": "weave-loupe-runtime-matrix-v1",
   "inherit_environment": false,
+  "limits": {
+    "address_space_bytes": 536870912,
+    "cpu_seconds": 6.0,
+    "excerpt_bytes_per_stream": 16384,
+    "file_size_bytes": 67108864,
+    "format": "weave-loupe-process-limits-v1",
+    "output_bytes_per_stream": 1048576,
+    "process_count": 114,
+    "resource_limits_supported": true,
+    "timeout_seconds": 5.0
+  },
   "passed": true,
+  "sandbox": {
+    "active": true,
+    "backend": "bubblewrap",
+    "environment": "explicit-only",
+    "filesystem": "read-only-system-and-declared-inputs",
+    "format": "weave-loupe-runtime-sandbox-v1",
+    "namespaces": [
+      "user",
+      "network",
+      "pid",
+      "ipc",
+      "uts",
+      "cgroup"
+    ],
+    "network": "disabled",
+    "process_count_enforcement": "sandbox-prlimit",
+    "writable_paths": [
+      "/tmp",
+      "/work"
+    ]
+  },
   "sidecar": "docs/audit/fibonacci_runtime.audit.json",
   "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2",
   "timeout_seconds": 5.0
@@ -1750,11 +1899,24 @@ Args:
     "cases": [
       {
         "actual": {
+          "elapsed_seconds": 0.010712,
           "exit_code": 55,
+          "process_count_enforcement": "delegated",
+          "returncode": 55,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1773,11 +1935,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.010117,
           "exit_code": 0,
+          "process_count_enforcement": "delegated",
+          "returncode": 0,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1798,11 +1973,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.009977,
           "exit_code": 1,
+          "process_count_enforcement": "delegated",
+          "returncode": 1,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1823,11 +2011,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.010099,
           "exit_code": 1,
+          "process_count_enforcement": "delegated",
+          "returncode": 1,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1848,11 +2049,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.010182,
           "exit_code": 55,
+          "process_count_enforcement": "delegated",
+          "returncode": 55,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1873,11 +2087,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.010157,
           "exit_code": 144,
+          "process_count_enforcement": "delegated",
+          "returncode": 144,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1898,11 +2125,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.009944,
           "exit_code": 55,
+          "process_count_enforcement": "delegated",
+          "returncode": 55,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1923,11 +2163,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.01005,
           "exit_code": 55,
+          "process_count_enforcement": "delegated",
+          "returncode": 55,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1948,11 +2201,24 @@ Args:
       },
       {
         "actual": {
+          "elapsed_seconds": 0.009529,
           "exit_code": 0,
+          "process_count_enforcement": "delegated",
+          "returncode": 0,
+          "signal": null,
           "stderr": "",
+          "stderr_bytes": 0,
+          "stderr_overflowed": false,
           "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_stored_bytes": 0,
+          "stderr_truncated_bytes": 0,
           "stdout": "",
-          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "stdout_bytes": 0,
+          "stdout_overflowed": false,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_stored_bytes": 0,
+          "stdout_truncated_bytes": 0,
+          "termination_reason": "exited"
         },
         "command": [
           "program"
@@ -1973,10 +2239,42 @@ Args:
       }
     ],
     "configured": true,
-    "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
+    "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
     "format": "weave-loupe-runtime-matrix-v1",
     "inherit_environment": false,
+    "limits": {
+      "address_space_bytes": 536870912,
+      "cpu_seconds": 6.0,
+      "excerpt_bytes_per_stream": 16384,
+      "file_size_bytes": 67108864,
+      "format": "weave-loupe-process-limits-v1",
+      "output_bytes_per_stream": 1048576,
+      "process_count": 114,
+      "resource_limits_supported": true,
+      "timeout_seconds": 5.0
+    },
     "passed": true,
+    "sandbox": {
+      "active": true,
+      "backend": "bubblewrap",
+      "environment": "explicit-only",
+      "filesystem": "read-only-system-and-declared-inputs",
+      "format": "weave-loupe-runtime-sandbox-v1",
+      "namespaces": [
+        "user",
+        "network",
+        "pid",
+        "ipc",
+        "uts",
+        "cgroup"
+      ],
+      "network": "disabled",
+      "process_count_enforcement": "sandbox-prlimit",
+      "writable_paths": [
+        "/tmp",
+        "/work"
+      ]
+    },
     "sidecar": "docs/audit/fibonacci_runtime.audit.json",
     "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2",
     "timeout_seconds": 5.0
@@ -2009,9 +2307,9 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-xat1zpo7/.audit.loupe.iku8cm3g/artifacts/program",
+  "output": "/tmp/loupe-audit-x0l03za3/.audit.loupe.q5ewl0se/artifacts/program",
   "sources": [
-    "docs/audit/fibonacci_runtime.weave"
+    "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ]
 }
 ```
@@ -2024,7 +2322,7 @@ Args:
   "status": "succeeded",
   "phase": "complete",
   "sources": [
-    "docs/audit/fibonacci_runtime.weave"
+    "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ],
   "events": []
 }
@@ -2033,33 +2331,34 @@ Args:
 ## LLM review
 
 ## Summary
-The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source semantics are preserved through cleaned WIR, raw LLVM, optimized LLVM, target assembly, and linked executable disassembly. The optimized LLVM contract and native optimization budget pass without failures. All 9 configured runtime cases pass, directly confirming the exact linked artifact's behavior. The final native code is a compact, ABI-compliant `main` function that correctly handles the runtime input, clamps out-of-range values, and executes an input-dependent Fibonacci loop without unnecessary overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes a runtime Fibonacci value with input clamping, which is preserved through cleaned WIR and raw LLVM. LLVM inlines `fib` into `main`, promotes stack temporaries to SSA registers, and emits a compact loop in optimized LLVM. The x86-64 assembly and linked executable disassembly match the optimized IR, use the System V ABI correctly for `getenv` and `atoi`, and return the Fibonacci result in `%eax`. The configured runtime matrix passes all 9 cases, the optimized LLVM contract passes, and the native optimization budget passes with no avoidable overhead remaining.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines a program that reads `WEAVE_AUDIT_N`, defaults to 10 if missing or out of 0..46 range, and computes Fibonacci. The runtime matrix in the complete analysis JSON shows all 9 cases passing with expected exit codes.
-- Weave-to-WIR semantic preservation: PASS. The WIR projection matches the source structure, including `getenv`, `atoi`, range checks, and the `fib` loop.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR contains the expected `alloca`, `store`, `load`, `icmp`, and `br` instructions corresponding to the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR uses valid SSA form, correct types (`i32`, `ptr`), and well-formed control flow with proper branching.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes stack variables to SSA registers, and preserves the input-dependent loop and range checks.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget in the analysis JSON shows 0 failures. Observed metrics match limits (e.g., 20 instructions, 2 calls, 0 alloca, 0 load, 0 store).
-- Integer signedness, overflow, shifts, and comparisons: PASS. The optimized LLVM uses `icmp ugt i32 %t3.fr, 46` for the upper bound check, which is safe because `atoi` returns a signed 32-bit integer and the `freeze` prevents poison propagation. The loop uses `icmp sgt` for the signed comparison.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The target assembly and disassembly show correct System V AMD64 ABI usage: `leaq` for the string pointer in `rdi`, `callq getenv@PLT`, `movq %rax, %rdi` for `atoi`, and `ret` with the result in `eax`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has 0 `alloca`, `load`, and `store` instructions. No memory leaks or UB are present.
-- Target compatibility and native instruction validity: PASS. The linked executable disassembly shows valid x86_64 instructions targeting `elf64-x86-64`.
-- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases in the analysis JSON passed, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget shows 0 failures. `main` has 25 instructions (max 32), 2 direct calls to `atoi@plt` and `getenv@plt`, and 1 backward conditional branch.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM is compact with no identity operations or unnecessary memory traffic. The final native code uses registers efficiently and contains only the essential loop logic.
+- Source semantics and expected result: PASS. Weave source `docs/audit/fibonacci_runtime.weave` defines `fib(n)` returning `n` for `n <= 1`, otherwise iterating from index 2 to `n` inclusive; `main` reads `WEAVE_AUDIT_N`, defaults to 10 if missing, clamps negative or >46 to 10, and returns `fib(n)`. Runtime cases confirm exit codes 0, 1, 55, 144, and fallbacks.
+- Weave-to-WIR semantic preservation: PASS. WIR projection preserves `fib` early return, loop bounds `le_i32 index n`, and `main` getenv/atoi/clamp logic with identical constants 0, 1, 2, 10, 46.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM `@fib` uses `icmp sle i32 %n, 1`, `icmp sle i32 %t1, %n`, `add i32` for Fibonacci and index increment; `@main` uses `icmp ne ptr %t1, null`, `icmp slt i32 %t4, 0`, `icmp sgt i32 %t6, 46` with stores of 10 as fallback.
+- Raw LLVM validity, SSA, types, and control flow: PASS. Raw LLVM has valid SSA, well-typed `i32`/`ptr` operations, 13 basic blocks, 10 branches, 3 calls, 5 icmps, 9 loads, 10 stores, 0 poison/undef uses per analysis JSON.
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM inlines `fib`, uses `phi` nodes for `index`, `current`, `previous`, preserves `icmp ugt i32 %t3.fr, 46` and `icmp ult i32 %t3.fr, 2` early exit, and `add i32` loop arithmetic.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. Observed metrics match limits exactly: 20 instructions, 6 basic blocks, 2 calls to `getenv` and `atoi`, 0 alloca/load/store, 0 poison/undef, 5 phi, 2 add, 4 icmp. Contract passed.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source limits input to 0..46, so `fib` loop `add i32` cannot overflow (Fib(46)=1836311903 < 2^31). Optimized LLVM uses `freeze i32 %t3` to prevent poison propagation from `atoi`. Native uses `cmpl $46, %eax; ja` for unsigned upper-bound and `cmpl $2, %eax; jb` for early exit, consistent with clamped domain.
+- Calls, return values, ABI, stack alignment, and register use: PASS. `main` pushes `%rbx` (callee-saved), aligns stack to 16, passes `"WEAVE_AUDIT_N"` in `%rdi` to `getenv@PLT`, passes result in `%rdi` to `atoi@PLT`, returns Fibonacci value in `%eax`, pops `%rbx`, `retq`. System V ABI compliant.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. No heap allocation or leak. Stack slot for `%rbx` spill is 8 bytes per optimization record. `getenv` null check prevents null pointer to `atoi`. `freeze` blocks poison. No prohibited memory traffic.
+- Target compatibility and native instruction validity: PASS. Target triple `x86_64-pc-linux-gnu`, assembly uses valid x86-64 instructions, linked ELF64 executable disassembly is consistent, `.note.GNU-stack` section present.
+- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases passed: missing-input (55), zero (0), one (1), two (1), ten (55), twelve (144), negative (55), too-large (55), non-numeric (0).
+- Configured native limits, required call targets, and loop backedges: PASS. `main` observed 25 instructions (max 32), 2 direct calls `atoi@plt` and `getenv@plt` (required), 1 backward conditional branch (min/max 1), 0 indirect calls. Budget passed.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. Optimized LLVM has no identity adds, no redundant stores/loads, no undef/poison. Native loop is tight: `movl/addl/incl/cmpl/jle` with one `nopw` padding. No avoidable overhead.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The `fib` loop in the optimized LLVM and native code is not vectorized, as noted in the optimization record. This is expected for a recurrence relation and is not a compiler-generated overhead defect.
-- The raw LLVM IR uses stack allocations (`alloca`) for variables, but these are optimized away in the optimized LLVM and native code, so this is not a defect.
+- The native loop body uses `movl %eax, %esi; movl %edx, %eax; addl %esi, %eax` to work around two-address constraints, generating 3 virtual register copies in the loop per the optimization record. This is a backend register-allocation artifact, not compiler-generated semantic overhead, and is within budget.
+- `atoi` is not a standard C function in the strictest sense (prefer `strtol`), but this is a source-level choice and does not affect correctness for the tested inputs.
 
 ## Suggested verification
-- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the exact upper boundary of the valid range.
-- Add a runtime case for a large numeric value like `WEAVE_AUDIT_N=100` to further confirm the clamping logic.
+- Add a runtime case for `WEAVE_AUDIT_N=46` to directly verify the upper boundary and largest Fibonacci value (1836311903, exit code modulo 256 = 239).
+- Add a runtime case for `WEAVE_AUDIT_N=45` to verify an intermediate large value.
+- Consider testing an empty-string environment variable to confirm `atoi` returns 0 and the program exits 0.
 
 <details>
 <summary>Raw model response</summary>
@@ -2067,32 +2366,33 @@ None found.
 ```text
 OK
 ## Summary
-The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source semantics are preserved through cleaned WIR, raw LLVM, optimized LLVM, target assembly, and linked executable disassembly. The optimized LLVM contract and native optimization budget pass without failures. All 9 configured runtime cases pass, directly confirming the exact linked artifact's behavior. The final native code is a compact, ABI-compliant `main` function that correctly handles the runtime input, clamps out-of-range values, and executes an input-dependent Fibonacci loop without unnecessary overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes a runtime Fibonacci value with input clamping, which is preserved through cleaned WIR and raw LLVM. LLVM inlines `fib` into `main`, promotes stack temporaries to SSA registers, and emits a compact loop in optimized LLVM. The x86-64 assembly and linked executable disassembly match the optimized IR, use the System V ABI correctly for `getenv` and `atoi`, and return the Fibonacci result in `%eax`. The configured runtime matrix passes all 9 cases, the optimized LLVM contract passes, and the native optimization budget passes with no avoidable overhead remaining.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines a program that reads `WEAVE_AUDIT_N`, defaults to 10 if missing or out of 0..46 range, and computes Fibonacci. The runtime matrix in the complete analysis JSON shows all 9 cases passing with expected exit codes.
-- Weave-to-WIR semantic preservation: PASS. The WIR projection matches the source structure, including `getenv`, `atoi`, range checks, and the `fib` loop.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR contains the expected `alloca`, `store`, `load`, `icmp`, and `br` instructions corresponding to the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR uses valid SSA form, correct types (`i32`, `ptr`), and well-formed control flow with proper branching.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes stack variables to SSA registers, and preserves the input-dependent loop and range checks.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget in the analysis JSON shows 0 failures. Observed metrics match limits (e.g., 20 instructions, 2 calls, 0 alloca, 0 load, 0 store).
-- Integer signedness, overflow, shifts, and comparisons: PASS. The optimized LLVM uses `icmp ugt i32 %t3.fr, 46` for the upper bound check, which is safe because `atoi` returns a signed 32-bit integer and the `freeze` prevents poison propagation. The loop uses `icmp sgt` for the signed comparison.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The target assembly and disassembly show correct System V AMD64 ABI usage: `leaq` for the string pointer in `rdi`, `callq getenv@PLT`, `movq %rax, %rdi` for `atoi`, and `ret` with the result in `eax`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has 0 `alloca`, `load`, and `store` instructions. No memory leaks or UB are present.
-- Target compatibility and native instruction validity: PASS. The linked executable disassembly shows valid x86_64 instructions targeting `elf64-x86-64`.
-- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases in the analysis JSON passed, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget shows 0 failures. `main` has 25 instructions (max 32), 2 direct calls to `atoi@plt` and `getenv@plt`, and 1 backward conditional branch.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM is compact with no identity operations or unnecessary memory traffic. The final native code uses registers efficiently and contains only the essential loop logic.
+- Source semantics and expected result: PASS. Weave source `docs/audit/fibonacci_runtime.weave` defines `fib(n)` returning `n` for `n <= 1`, otherwise iterating from index 2 to `n` inclusive; `main` reads `WEAVE_AUDIT_N`, defaults to 10 if missing, clamps negative or >46 to 10, and returns `fib(n)`. Runtime cases confirm exit codes 0, 1, 55, 144, and fallbacks.
+- Weave-to-WIR semantic preservation: PASS. WIR projection preserves `fib` early return, loop bounds `le_i32 index n`, and `main` getenv/atoi/clamp logic with identical constants 0, 1, 2, 10, 46.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM `@fib` uses `icmp sle i32 %n, 1`, `icmp sle i32 %t1, %n`, `add i32` for Fibonacci and index increment; `@main` uses `icmp ne ptr %t1, null`, `icmp slt i32 %t4, 0`, `icmp sgt i32 %t6, 46` with stores of 10 as fallback.
+- Raw LLVM validity, SSA, types, and control flow: PASS. Raw LLVM has valid SSA, well-typed `i32`/`ptr` operations, 13 basic blocks, 10 branches, 3 calls, 5 icmps, 9 loads, 10 stores, 0 poison/undef uses per analysis JSON.
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM inlines `fib`, uses `phi` nodes for `index`, `current`, `previous`, preserves `icmp ugt i32 %t3.fr, 46` and `icmp ult i32 %t3.fr, 2` early exit, and `add i32` loop arithmetic.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. Observed metrics match limits exactly: 20 instructions, 6 basic blocks, 2 calls to `getenv` and `atoi`, 0 alloca/load/store, 0 poison/undef, 5 phi, 2 add, 4 icmp. Contract passed.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source limits input to 0..46, so `fib` loop `add i32` cannot overflow (Fib(46)=1836311903 < 2^31). Optimized LLVM uses `freeze i32 %t3` to prevent poison propagation from `atoi`. Native uses `cmpl $46, %eax; ja` for unsigned upper-bound and `cmpl $2, %eax; jb` for early exit, consistent with clamped domain.
+- Calls, return values, ABI, stack alignment, and register use: PASS. `main` pushes `%rbx` (callee-saved), aligns stack to 16, passes `"WEAVE_AUDIT_N"` in `%rdi` to `getenv@PLT`, passes result in `%rdi` to `atoi@PLT`, returns Fibonacci value in `%eax`, pops `%rbx`, `retq`. System V ABI compliant.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. No heap allocation or leak. Stack slot for `%rbx` spill is 8 bytes per optimization record. `getenv` null check prevents null pointer to `atoi`. `freeze` blocks poison. No prohibited memory traffic.
+- Target compatibility and native instruction validity: PASS. Target triple `x86_64-pc-linux-gnu`, assembly uses valid x86-64 instructions, linked ELF64 executable disassembly is consistent, `.note.GNU-stack` section present.
+- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases passed: missing-input (55), zero (0), one (1), two (1), ten (55), twelve (144), negative (55), too-large (55), non-numeric (0).
+- Configured native limits, required call targets, and loop backedges: PASS. `main` observed 25 instructions (max 32), 2 direct calls `atoi@plt` and `getenv@plt` (required), 1 backward conditional branch (min/max 1), 0 indirect calls. Budget passed.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. Optimized LLVM has no identity adds, no redundant stores/loads, no undef/poison. Native loop is tight: `movl/addl/incl/cmpl/jle` with one `nopw` padding. No avoidable overhead.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The `fib` loop in the optimized LLVM and native code is not vectorized, as noted in the optimization record. This is expected for a recurrence relation and is not a compiler-generated overhead defect.
-- The raw LLVM IR uses stack allocations (`alloca`) for variables, but these are optimized away in the optimized LLVM and native code, so this is not a defect.
+- The native loop body uses `movl %eax, %esi; movl %edx, %eax; addl %esi, %eax` to work around two-address constraints, generating 3 virtual register copies in the loop per the optimization record. This is a backend register-allocation artifact, not compiler-generated semantic overhead, and is within budget.
+- `atoi` is not a standard C function in the strictest sense (prefer `strtol`), but this is a source-level choice and does not affect correctness for the tested inputs.
 
 ## Suggested verification
-- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the exact upper boundary of the valid range.
-- Add a runtime case for a large numeric value like `WEAVE_AUDIT_N=100` to further confirm the clamping logic.
+- Add a runtime case for `WEAVE_AUDIT_N=46` to directly verify the upper boundary and largest Fibonacci value (1836311903, exit code modulo 256 = 239).
+- Add a runtime case for `WEAVE_AUDIT_N=45` to verify an intermediate large value.
+- Consider testing an empty-string environment variable to confirm `atoi` returns 0 and the program exits 0.
 ```
 </details>
