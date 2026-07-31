@@ -42,6 +42,10 @@ def test_capture_bundle_records_sources_and_artifacts(
     bundle = load_bundle(output)
     assert bundle.manifest["format"] == BUNDLE_FORMAT
     assert bundle.sources[0]["input"] == str(source_file)
+    compiler = bundle.manifest["compiler"]
+    assert compiler["execution"]["termination_reason"] == "exited"
+    assert compiler["execution"]["limits"]["timeout_seconds"] == 120.0
+    assert len(compiler["execution"]["stdout"]["sha256"]) == 64
     raw_wir = bundle.artifact_text("wir")
     assert raw_wir is not None
     assert "(core-version 2)" in raw_wir
@@ -51,6 +55,32 @@ def test_capture_bundle_records_sources_and_artifacts(
     assert bundle.artifact_text("disassembly") is not None
     assert bundle.artifact_text("optimization_record") is not None
     assert bundle.artifact_path("executable") is None
+
+
+def test_capture_bundle_records_compiler_timeout(
+    tmp_path: Path, source_file: Path
+) -> None:
+    compiler = tmp_path / "weavec-timeout"
+    compiler.write_text(
+        "#!/usr/bin/env python3\nwhile True:\n    pass\n",
+        encoding="utf-8",
+    )
+    compiler.chmod(0o755)
+    output = tmp_path / "timeout.loupe"
+
+    result = capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=compiler,
+        compiler_timeout_seconds=0.2,
+    )
+
+    assert result.compiler_exit_code == 124
+    bundle = load_bundle(output)
+    execution = bundle.manifest["compiler"]["execution"]
+    assert execution["termination_reason"] == "timed_out"
+    assert execution["exit_code"] is None
+    assert execution["elapsed_seconds"] < 2.0
 
 
 def test_capture_bundle_can_keep_executable(
