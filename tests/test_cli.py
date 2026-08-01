@@ -50,6 +50,7 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
             "b.weave",
             "--report-out",
             "a.md",
+            "--allow-unsafe-http",
             "--compiler-timeout-seconds",
             "45",
             "--compiler-output-bytes",
@@ -62,10 +63,17 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
     )
     assert args.weave_files == [Path("a.weave"), Path("b.weave")]
     assert args.report_out == Path("a.md")
+    assert args.allow_unsafe_http is True
     assert args.compiler_timeout_seconds == 45.0
     assert args.compiler_output_bytes == 8192
     assert args.runtime_timeout_seconds == 3.5
     assert args.runtime_output_bytes == 2048
+
+
+def test_audit_parser_defers_unsafe_http_policy_to_environment() -> None:
+    args = build_parser().parse_args(["audit", "a.weave"])
+
+    assert args.allow_unsafe_http is None
 
 
 def test_verify_bundle_parser_supports_policy_and_json_output() -> None:
@@ -98,7 +106,8 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
             "--model",
             "z-ai/glm-5.2",
             "--llm-endpoint",
-            "https://example.test/v1",
+            "http://example.test/v1",
+            "--allow-unsafe-http",
             "--max-tokens",
             "4096",
             "--max-age-days",
@@ -112,7 +121,8 @@ def test_verify_report_parser_supports_explicit_identity_inputs() -> None:
     assert args.sources == [Path("first.weave"), Path("second.weave")]
     assert args.weavec == Path("bin/weavec")
     assert args.model == "z-ai/glm-5.2"
-    assert args.llm_endpoint == "https://example.test/v1"
+    assert args.llm_endpoint == "http://example.test/v1"
+    assert args.allow_unsafe_http is True
     assert args.max_tokens == 4096
     assert args.max_age_days == 14
     assert args.json_out == Path("validity.json")
@@ -126,6 +136,7 @@ def test_verify_report_identity_defaults_to_environment(monkeypatch) -> None:
 
     assert args.model == "configured-model"
     assert args.llm_endpoint == "https://example.test/v1"
+    assert args.allow_unsafe_http is None
     assert args.max_tokens is None
     assert args.sources is None
 
@@ -162,6 +173,7 @@ def test_main_dispatches_audit_limits() -> None:
             [
                 "audit",
                 "a.weave",
+                "--allow-unsafe-http",
                 "--compiler-timeout-seconds",
                 "60",
                 "--compiler-output-bytes",
@@ -187,6 +199,7 @@ def test_main_dispatches_audit_limits() -> None:
         compiler_output_bytes=4096,
         runtime_timeout_seconds=4.0,
         runtime_output_bytes=1024,
+        allow_unsafe_http=True,
     )
 
 
@@ -225,7 +238,8 @@ def test_main_dispatches_report_verification() -> None:
                 "--model",
                 "z-ai/glm-5.2",
                 "--llm-endpoint",
-                "https://example.test/v1",
+                "http://example.test/v1",
+                "--allow-unsafe-http",
                 "--max-tokens",
                 "4096",
             ]
@@ -237,8 +251,9 @@ def test_main_dispatches_report_verification() -> None:
         sources=[Path("a.weave"), Path("b.weave")],
         weavec=Path("weavec"),
         model="z-ai/glm-5.2",
-        endpoint="https://example.test/v1",
+        endpoint="http://example.test/v1",
         max_tokens=4096,
         max_age_days=30,
         json_out=None,
+        allow_unsafe_http=True,
     )

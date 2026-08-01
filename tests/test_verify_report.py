@@ -146,22 +146,81 @@ def test_verify_report_lists_all_stale_reasons(
     assert captured.err == ""
 
 
-def test_verify_report_normalizes_current_endpoint(
+def test_verify_report_normalizes_loopback_endpoint(
     source_file: Path,
     fake_weavec: Path,
     capsys,
 ) -> None:
-    report = _write_report(source_file, fake_weavec)
+    identity = "http://localhost:8000/v1"
+    report = _write_report(source_file, fake_weavec, endpoint=identity)
 
     code = run_verify_report(
         report=report,
         source=None,
         weavec=fake_weavec,
         model=_MODEL,
-        endpoint="http://user:secret@EXAMPLE.test/v1/?token=hidden",
+        endpoint=("http://user:secret@LOCALHOST:8000/v1/?token=hidden#fragment"),
         max_tokens=_MAX_TOKENS,
         max_age_days=30,
         json_out=None,
+    )
+
+    captured = capsys.readouterr()
+    assert code == 0
+    assert captured.out == f"VALID: {report}\n"
+    assert captured.err == ""
+
+
+def test_verify_report_rejects_remote_http_without_exposing_secrets(
+    source_file: Path,
+    fake_weavec: Path,
+    capsys,
+) -> None:
+    report = _write_report(
+        source_file,
+        fake_weavec,
+        endpoint="http://example.test/v1",
+    )
+
+    code = run_verify_report(
+        report=report,
+        source=None,
+        weavec=fake_weavec,
+        model=_MODEL,
+        endpoint=(
+            "http://private-user:private-password@example.test/v1"
+            "?token=private-token#private-fragment"
+        ),
+        max_tokens=_MAX_TOKENS,
+        max_age_days=30,
+        json_out=None,
+    )
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert captured.out == ""
+    assert "restricted to loopback" in captured.err
+    assert "private" not in captured.err
+
+
+def test_verify_report_accepts_explicit_remote_http_override(
+    source_file: Path,
+    fake_weavec: Path,
+    capsys,
+) -> None:
+    identity = "http://example.test/v1"
+    report = _write_report(source_file, fake_weavec, endpoint=identity)
+
+    code = run_verify_report(
+        report=report,
+        source=None,
+        weavec=fake_weavec,
+        model=_MODEL,
+        endpoint="http://user:secret@EXAMPLE.test:80/v1/?token=hidden",
+        max_tokens=_MAX_TOKENS,
+        max_age_days=30,
+        json_out=None,
+        allow_unsafe_http=True,
     )
 
     captured = capsys.readouterr()
