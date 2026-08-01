@@ -14,6 +14,11 @@ from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.report import run_report
 from weave_loupe.commands.verify_bundle import run_verify_bundle
 from weave_loupe.commands.verify_report import run_verify_report
+from weave_loupe.scalable_review import (
+    DEFAULT_ARTIFACT_REVIEW_TOKENS,
+    DEFAULT_REQUEST_REVIEW_TOKENS,
+    DEFAULT_TOTAL_REVIEW_TOKENS,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -127,6 +132,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write a Markdown report only when the audit verdict is OK.",
     )
     audit.add_argument("--max-tokens", type=int, default=4096)
+    audit.add_argument(
+        "--review-total-tokens",
+        type=int,
+        default=DEFAULT_TOTAL_REVIEW_TOKENS,
+        help=(
+            "Maximum conservative token budget for all review requests and "
+            "reserved completions."
+        ),
+    )
+    audit.add_argument(
+        "--review-request-tokens",
+        type=int,
+        default=DEFAULT_REQUEST_REVIEW_TOKENS,
+        help=(
+            "Maximum conservative token budget for one review request and its "
+            "reserved completion."
+        ),
+    )
+    audit.add_argument(
+        "--review-artifact-tokens",
+        type=int,
+        default=DEFAULT_ARTIFACT_REVIEW_TOKENS,
+        help="Maximum conservative token size accepted for one complete artifact.",
+    )
     audit.add_argument(
         "--allow-unsafe-http",
         action="store_true",
@@ -286,6 +315,9 @@ def main(argv: list[str] | None = None) -> int:
             runtime_timeout_seconds=args.runtime_timeout_seconds,
             runtime_output_bytes=args.runtime_output_bytes,
             allow_unsafe_http=args.allow_unsafe_http,
+            review_total_tokens=args.review_total_tokens,
+            review_request_tokens=args.review_request_tokens,
+            review_artifact_tokens=args.review_artifact_tokens,
         )
     if args.command == "verify-bundle":
         return run_verify_bundle(
