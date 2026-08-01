@@ -44,13 +44,31 @@ uv run loupe capture docs/audit/fibonacci.weave \
   --compiler-output-bytes 4194304
 ```
 
-Compare two compiler results:
+Compare two existing compiler results:
 
 ```sh
 uv run loupe diff before.loupe after.loupe \
   --json-out comparison.json \
   --html-out comparison.html
 ```
+
+Gate a candidate compiler against a baseline by compiling the same ordered inputs
+with both binaries:
+
+```sh
+uv run loupe compiler-audit docs/audit/fibonacci.weave \
+  --baseline-weavec /path/to/baseline/weavec \
+  --candidate-weavec /path/to/candidate/weavec \
+  --json-out build/compiler-audit.json \
+  --report-out build/compiler-audit.md
+```
+
+The differential audit compares compilation, deterministic analyses, runtime
+observations, diagnostics, evidence availability, optimized LLVM contracts, native
+budgets, and policy-bounded metric deltas. It returns `0` for a pass, `2` for a
+candidate regression, and `1` for infrastructure or configuration failure. An
+optional `--review-model` runs only after deterministic evidence is assembled and
+cannot waive a failed gate.
 
 Ask an OpenAI-compatible model to review the complete evidence:
 
@@ -84,7 +102,7 @@ intentional requirement.
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
-include the complete source, readable WIR, raw and optimized LLVM, the optimized
+include the complete source, readable WIR, raw LLVM, optimized LLVM, the optimized
 LLVM contract, assembly, linked native disassembly, optimization remarks, native
 optimization contract, direct runtime observations, diagnostics, deterministic
 analysis, build manifest, and compiler trace, together with timestamps, Git SHAs,
@@ -141,6 +159,7 @@ when the reviewing model returns `OK`.
 
 See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
 [process limit guide](docs/process-limits.md), the
+[compiler regression audit guide](docs/compiler-audits.md), the
 [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
 [architecture-aware native analysis guide](docs/native-analysis.md), the
 [native optimization budget guide](docs/native-budgets.md), the
