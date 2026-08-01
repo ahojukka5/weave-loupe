@@ -26,6 +26,8 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [LLM endpoint transport and identity](llm-endpoints.md) — HTTPS defaults,
+  loopback HTTP, explicit unsafe overrides, public identities, and redaction.
 - [Compiler and runtime process limits](process-limits.md) — bounded output,
   timeouts, process-tree cleanup, POSIX resources, configuration, and evidence.
 - [Optimized LLVM contracts](optimized-llvm-contracts.md) — versioned

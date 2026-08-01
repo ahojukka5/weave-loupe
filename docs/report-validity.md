@@ -49,10 +49,17 @@ any reviewer-request value, in which case only that comparison is disabled.
 Pull-request and scheduled workflows always provide all three, so repository-owned
 reports cannot remain valid after endpoint, model, or response-limit changes.
 
-Endpoint comparison uses a public normalized identity. Credentials, query strings,
-and fragments are removed, the hostname is lower-cased, trailing slashes are
-removed, and plain HTTP is upgraded to HTTPS. Verification never writes an API key
-or contacts the endpoint.
+Endpoint comparison uses a public identity derived from the configured transport
+URL. The `http` or `https` scheme is preserved; host names and IP addresses are
+normalized; default ports, trailing path slashes, credentials, query strings, and
+fragments are removed. Verification never writes an API key, publishes the private
+transport URL, or contacts the endpoint.
+
+Plain HTTP is accepted by default only for loopback hosts: `localhost`, IPv4
+`127.0.0.0/8`, and IPv6 `::1`. When intentionally comparing against a non-loopback
+HTTP endpoint, pass `--allow-unsafe-http` or set
+`WEAVE_LLM_ALLOW_UNSAFE_HTTP=1`. Both forms only permit identity normalization;
+verification remains offline.
 
 ## Ordered source identity
 
@@ -95,19 +102,24 @@ because a single first failure would hide the complete re-audit scope.
 
 Each report records:
 
-- normalized endpoint, requested model, maximum tokens, and temperature;
+- public endpoint identity, requested model, maximum tokens, and temperature;
 - SHA-256 of the exact UTF-8 prompt;
-- SHA-256 of a canonical request envelope containing endpoint, model, user message,
-  maximum tokens, and temperature;
+- SHA-256 of a canonical request envelope containing endpoint identity, model,
+  user message, maximum tokens, and temperature;
 - provider model, response ID, and system fingerprint when supplied;
 - finish reason and provider creation timestamp when supplied; and
 - prompt, completion, and total token counts when supplied.
 
 The prompt hash distinguishes any evidence or prompt-template change. The request
-hash also distinguishes endpoint or generation-setting changes. These values are
-provenance anchors for the request that produced the verdict. The offline verifier
-does not reconstruct the historical prompt from current code because machine,
-compiler, report, and evidence metadata may legitimately differ later.
+hash also distinguishes endpoint-identity or generation-setting changes. These
+values are provenance anchors for the request that produced the verdict. The
+offline verifier does not reconstruct the historical prompt from current code
+because machine, compiler, report, and evidence metadata may legitimately differ
+later.
+
+Transport-only credentials, query parameters, and fragments are excluded from the
+public identity and therefore from the canonical request hash. They remain private
+to the network client.
 
 Maximum tokens is checked directly because a smaller limit can truncate an
 otherwise identical review. Temperature remains fixed by the auditor implementation;
@@ -150,7 +162,7 @@ metadata claims. It verifies:
 - compiler executable SHA-256;
 - content fingerprint of the audit implementation and locked dependencies;
 - configured LLM model, when supplied;
-- configured LLM endpoint, when supplied;
+- configured public LLM endpoint identity, when supplied;
 - configured maximum completion size, when supplied;
 - development compiler version; and
 - migration to command-attested compiler identity when available.
@@ -194,11 +206,11 @@ This makes a changed second or later source directly diagnosable without parsing
 console text. A pure reorder is represented as a dedicated `reordered` mismatch
 rather than a set of false content changes.
 
-The identity also includes content, prompt, and request SHA-256 values; endpoint,
-model, maximum tokens, and temperature; provider model, response ID, system
-fingerprint, finish reason, creation timestamp, and token usage. The document
-records the current compiler identity and binary hash, auditor fingerprint,
-endpoint, model, and maximum-token value.
+The identity also includes content, prompt, and request SHA-256 values; public
+endpoint identity, model, maximum tokens, and temperature; provider model,
+response ID, system fingerprint, finish reason, creation timestamp, and token
+usage. The document records the current compiler identity and binary hash, auditor
+fingerprint, public endpoint identity, model, and maximum-token value.
 
 The JSON file is written for both valid and stale results. It is suitable for CI,
 release qualification, dashboards, and archival evidence.
