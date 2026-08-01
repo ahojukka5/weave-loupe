@@ -115,6 +115,18 @@ jobs:
         if: steps.guard.outputs.skip != 'true'
         run: uv sync --group dev
 
+      - name: Verify compiler self-comparison
+        if: steps.guard.outputs.skip != 'true'
+        shell: bash
+        run: |
+          compiler="$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec"
+          uv run loupe compiler-audit docs/audit/fibonacci.weave \
+            --baseline-weavec "$compiler" \
+            --candidate-weavec "$compiler" \
+            --work-dir build/compiler-self-audit \
+            --json-out build/compiler-self-audit.json \
+            --report-out build/compiler-self-audit.md
+
       - name: Run audits
         if: steps.guard.outputs.skip != 'true'
         id: audit
@@ -178,6 +190,8 @@ jobs:
         with:
           name: weave-loupe-audit-${{ github.event.pull_request.number }}
           path: |
+            build/compiler-self-audit.json
+            build/compiler-self-audit.md
             build/weave-audit-summary.md
             build/weave-audit-reports.txt
             build/report-validity
