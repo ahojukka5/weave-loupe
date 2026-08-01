@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `bc2cd0ef10a7f65ea3fcdd3904a2788257e280098757802440d8409bbca02bda`
-- **Audit timestamp (UTC):** `2026-08-01T09:32:36+00:00`
-- **Re-audit no later than (UTC):** `2026-08-31T09:32:36+00:00`
+- **Report content SHA-256:** `c4c8328c5dc43d1d1c4fa2c4147af95f64cf81d218aaa0e03de70acb48416d40`
+- **Audit timestamp (UTC):** `2026-08-01T12:42:11+00:00`
+- **Re-audit no later than (UTC):** `2026-08-31T12:42:11+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,38 +19,45 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `720068af7597221aa3a805021c394996b0b76cca`
+- **Audited source Git SHA:** `2210e02925c580f170a70adff30b019537a5f3c4`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `720068af7597221aa3a805021c394996b0b76cca`
-- **Auditor content SHA-256:** `962923a4736df99a5ae33c94f0a2f2f9b299714f21965c6e219e4cea78b85657`
-- **weavec Git SHA:** `3d865013f2c65d327f8f3bf508ec741e4f7b5c22`
-- **weavec binary SHA-256:** `1d4ea5e53e69754b4db409d702e5f9d5303f2f45753537d2e858af0340513a31`
-- **weavec version:** `weavec v0.3.0+git.3d865013f2c6`
+- **Weave Loupe Git SHA:** `2210e02925c580f170a70adff30b019537a5f3c4`
+- **Auditor content SHA-256:** `d9429c938b4dc5cdecdd7e3ae1c3fe67afd18ef8e1626f60d0e04fd393c230d3`
+- **weavec Git SHA:** `ee868025e9e7f8f2c71a1acb7ee32cce19a7c3af`
+- **weavec binary SHA-256:** `f219fb51041ee41356860dda3bf34b5d868e9e0fcd795d49773b709fa2b2f4e0`
+- **weavec version:** `weavec v0.3.0+git.ee868025e9e7`
 - **weavec build kind:** `development`
 - **weavec version source:** `command`
+- **Native analysis supported:** `True`
+- **Native target architecture:** `x86_64`
+- **Native object format:** `elf`
+- **Native disassembler:** `llvm-objdump`
+- **Native disassembler version:** `unavailable`
+- **Native parser format:** `weave-loupe-native-disassembly-v1`
+- **Native analysis failure:** `unavailable`
 - **LLM endpoint:** `https://integrate.api.nvidia.com/v1`
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `01ff92b0835440a8a205b30bc0fcdfdd7b739e6c4ea866d57289bdd669456ca3`
-- **LLM request SHA-256:** `be5911194f24391afe3a057e932b8943ae74f26cfc631b74ea3c5bfe29d5293d`
+- **LLM prompt SHA-256:** `04b8d1334b59a5b419d75b8755029a125b71edb9bada8d3364a5afa8cddc0c73`
+- **LLM request SHA-256:** `3d8c4bd7afb99505a8c2b366338f1c5bbd4d462aaec4e8a53f7c4334290ccb2e`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-8dea5112-e440-4101-b98f-f70d36262eaf`
+- **Provider response ID:** `chatcmpl-388fc004-74ae-41c6-be8d-e738b2d42393`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785576757`
-- **Provider prompt tokens:** `13800`
-- **Provider completion tokens:** `982`
-- **Provider total tokens:** `14782`
-- **GitHub run ID:** `30693921335`
-- **GitHub workflow SHA:** `b5fed274264869c9b3f59549ed535a21d7b8089d`
+- **Provider created (Unix):** `1785588132`
+- **Provider prompt tokens:** `14433`
+- **Provider completion tokens:** `900`
+- **Provider total tokens:** `15333`
+- **GitHub run ID:** `30700206251`
+- **GitHub workflow SHA:** `a0f4cbdee76d862ee83d7b9f718cf98eabc1da1b`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `AMD EPYC 9V74 80-Core Processor`
+- **CPU:** `AMD EPYC 7763 64-Core Processor`
 - **Logical CPUs:** `4`
 - **Memory:** `16766423040` bytes
 - **Python:** `3.12.13`
@@ -64,11 +71,11 @@
 ## Captured evidence
 
 - `assembly` — SHA-256 `c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`
-- `build_manifest` — SHA-256 `c21327e1549b4bdc96f4d2cf4dd9a66e119ef25a6b168f7ec1e4034189fa0e99`
+- `build_manifest` — SHA-256 `5cbfe6ffffec0508e00eabbd7b0e5ac9454571c663183ed41d4dc4572b083f22`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
 - `disassembly` — SHA-256 `3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`
 - `executable` — SHA-256 `90a568e286f9d2d5ae1873d965c2364f89a46d071136e1cd18a1914f9e95ef89`
-- `llvm` — SHA-256 `0f95a3d84a3b46e06bde1ed5b3e4f1fb5d9d442f6e795482371e0368e9458e5d`
+- `llvm` — SHA-256 `726435e9786155a1d3cf447a4a9a9a0e3584880ec16bc457c28c1d64121bb8e2`
 - `optimization_record` — SHA-256 `3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`
 - `optimized_llvm` — SHA-256 `057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`
 - `trace` — SHA-256 `973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
@@ -151,7 +158,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-YYgPEK/program.wir
+; source: /tmp/weavec-build-ofH7eZ/program.wir
 ; core-version: 2
 
 ; weave.source kind=function index=0 bytes=836..933 wir-bytes=3064..3616 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
@@ -602,7 +609,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.011285,
+        "elapsed_seconds": 0.010997,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -648,7 +655,7 @@ Args:
     "file_size_bytes": 67108864,
     "format": "weave-loupe-process-limits-v1",
     "output_bytes_per_stream": 1048576,
-    "process_count": 118,
+    "process_count": 119,
     "resource_limits_supported": true,
     "timeout_seconds": 5.0
   },
@@ -743,106 +750,152 @@ Args:
     "undef_uses": 0
   },
   "native": {
+    "architecture": "x86_64",
     "available": true,
+    "disassembler": "llvm-objdump",
+    "disassembler_version": null,
     "entry_point": "main",
+    "failure_reason": null,
     "functions": {
       ".plt": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 0,
         "direct_calls": [],
+        "indirect_branches": 1,
         "indirect_calls": 0,
         "instructions": 2,
-        "padding_instructions": 1
+        "padding_instructions": 1,
+        "returns": 0,
+        "unconditional_branches": 1
       },
       "__cxa_finalize@plt": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 0,
         "direct_calls": [],
+        "indirect_branches": 1,
         "indirect_calls": 0,
         "instructions": 1,
-        "padding_instructions": 1
+        "padding_instructions": 1,
+        "returns": 0,
+        "unconditional_branches": 1
       },
       "__do_global_dtors_aux": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 2,
+        "direct_branches": 2,
         "direct_calls": [
           "__cxa_finalize@plt",
           "deregister_tm_clones"
         ],
+        "indirect_branches": 0,
         "indirect_calls": 0,
         "instructions": 14,
-        "padding_instructions": 2
+        "padding_instructions": 2,
+        "returns": 2,
+        "unconditional_branches": 0
       },
       "_fini": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 0,
         "direct_calls": [],
+        "indirect_branches": 0,
         "indirect_calls": 0,
         "instructions": 4,
-        "padding_instructions": 0
+        "padding_instructions": 0,
+        "returns": 1,
+        "unconditional_branches": 0
       },
       "_init": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 1,
+        "direct_branches": 1,
         "direct_calls": [],
+        "indirect_branches": 0,
         "indirect_calls": 1,
         "instructions": 8,
-        "padding_instructions": 0
+        "padding_instructions": 0,
+        "returns": 1,
+        "unconditional_branches": 0
       },
       "_start": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 0,
         "direct_calls": [],
+        "indirect_branches": 0,
         "indirect_calls": 1,
         "instructions": 13,
-        "padding_instructions": 1
+        "padding_instructions": 1,
+        "returns": 0,
+        "unconditional_branches": 0
       },
       "deregister_tm_clones": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 2,
+        "direct_branches": 2,
         "direct_calls": [],
+        "indirect_branches": 1,
         "indirect_calls": 0,
         "instructions": 9,
-        "padding_instructions": 2
+        "padding_instructions": 2,
+        "returns": 1,
+        "unconditional_branches": 1
       },
       "frame_dummy": {
         "backward_branches": 1,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 1,
         "direct_calls": [],
+        "indirect_branches": 0,
         "indirect_calls": 0,
         "instructions": 2,
-        "padding_instructions": 1
+        "padding_instructions": 1,
+        "returns": 0,
+        "unconditional_branches": 1
       },
       "main": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 0,
+        "direct_branches": 0,
         "direct_calls": [],
+        "indirect_branches": 0,
         "indirect_calls": 0,
         "instructions": 2,
-        "padding_instructions": 0
+        "padding_instructions": 0,
+        "returns": 1,
+        "unconditional_branches": 0
       },
       "register_tm_clones": {
         "backward_branches": 0,
         "backward_conditional_branches": 0,
         "conditional_branches": 2,
+        "direct_branches": 2,
         "direct_calls": [],
+        "indirect_branches": 1,
         "indirect_calls": 0,
         "instructions": 14,
-        "padding_instructions": 2
+        "padding_instructions": 2,
+        "returns": 1,
+        "unconditional_branches": 1
       }
     },
     "llvm_functions": [
       "main"
     ],
+    "object_format": "elf",
+    "parser_format": "weave-loupe-native-disassembly-v1",
     "program_owned_functions": [
       "main"
     ],
@@ -852,6 +905,7 @@ Args:
       "main"
     ],
     "runtime_functions": [],
+    "supported": true,
     "unreachable_program_functions": [],
     "unreachable_program_instructions": 0
   },
@@ -989,7 +1043,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.011285,
+          "elapsed_seconds": 0.010997,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -1035,7 +1089,7 @@ Args:
       "file_size_bytes": 67108864,
       "format": "weave-loupe-process-limits-v1",
       "output_bytes_per_stream": 1048576,
-      "process_count": 118,
+      "process_count": 119,
       "resource_limits_supported": true,
       "timeout_seconds": 5.0
     },
@@ -1093,7 +1147,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-ohq4xr7_/.audit.loupe.to48gd75/artifacts/program",
+  "output": "/tmp/loupe-audit-n492hdo1/.audit.loupe.nyo3k7ww/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
   ]
@@ -1117,32 +1171,32 @@ Args:
 ## LLM review
 
 ## Summary
-The Weave compiler toolchain successfully compiles the iterative Fibonacci program to a constant-folded native executable. The source computes `fib(10)` iteratively, which is correctly lowered to WIR and raw LLVM IR. The LLVM optimizer successfully inlines the `fib` function into `main`, evaluates the loop, and folds the return value to the constant `55`. The final native assembly for `main` is a minimal two-instruction sequence (`movl $55, %eax; retq`) that perfectly matches the optimized LLVM IR and the System V AMD64 ABI. The runtime matrix confirms the linked executable exits with code `55`, matching the expected source semantics. All configured optimized LLVM and native optimization budgets pass without violations.
+The Weave compiler toolchain successfully translates the `fibonacci.weave` source into a correct, ABI-valid, and fully optimized native executable. The iterative Fibonacci computation is correctly preserved through the Weave-to-WIR and WIR-to-raw-LLVM stages. The LLVM optimizer successfully evaluates the constant-foldable loop and inlines the `fib` function into `main`, reducing the program to a single `ret i32 55` instruction in the optimized LLVM IR. The target assembly and linked executable disassembly reflect this perfectly, yielding a 2-instruction `main` function (`movl $55, %eax; retq`) that adheres to the System V AMD64 ABI. All configured optimized LLVM metrics, native optimization budgets, and runtime matrix expectations pass without violations.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source `docs/audit/fibonacci.weave` computes `fib(10)` iteratively and returns `55`. The runtime matrix in the analysis JSON confirms the executable exits with code `55`.
-- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves the `fib` function logic, the `le_i32` condition, the iterative `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR uses `icmp sle` for the `le_i32` condition, `add i32` for the iterative step, and correctly branches and loops according to the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, properly typed `i32` values, and valid control flow blocks with `br`, `ret`, and `load`/`store` operations.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { entry: ret i32 55 }`, which is the correct constant-folded result of `fib(10)`.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 0 calls, 0 loads, 0 stores, 1 function (`main`), and 1 instruction. All limits are respected and `passed: true`.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses signed comparisons (`icmp sle`) and signed additions (`add i32`). For `fib(10)`, no overflow occurs, and the constant-folded result `55` is correct.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final assembly uses `movl $55, %eax` to set the return value in the `%eax` register, conforming to the System V AMD64 ABI. Stack alignment is not modified in `main` (0 stack bytes used).
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM allocates and uses stack memory safely. The optimized LLVM has `memory(none)`, indicating no memory traffic. No `undef` or `poison` uses are present.
-- Target compatibility and native instruction validity: PASS. The target assembly uses valid x86_64 instructions (`movl`, `retq`) and targets `x86_64-pc-linux-gnu`. The linked disassembly matches.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the linked artifact and observed `exit_code: 55`, matching the expected value from the sidecar.
-- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` shows `main` has 2 instructions, 0 direct calls, and 0 backward branches. All observed metrics are within limits and `passed: true`.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. No overhead remains. The optimized LLVM is a single `ret` instruction, and the native code is a 2-instruction `mov` and `ret`. The `fib` function was completely removed as expected.
+- Source semantics and expected result: PASS. The source defines an iterative `fib(10)` returning `55`. The runtime matrix confirms the executable exits with code `55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR projection accurately captures the `fib` function's parameters, conditional branch, iterative loop, and `main`'s call to `fib(10)`.
+- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR conditionals, `let` allocations, and `set` mutations to corresponding `alloca`, `store`, `load`, `icmp`, and `br` instructions.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, maintains proper types (`i32`), and has well-formed control flow with 7 basic blocks.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { entry: ret i32 55 }`, correctly preserving the semantic result of `fib(10)`.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget passed. Observed metrics (1 function, 1 instruction, 0 calls, 0 memory traffic) match the configured limits exactly.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the `le_i32` WIR token. The `add_i32` operations are safe within `i32` bounds for `fib(10)`.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The final native code uses `movl $0x37, %eax` to set the return value, conforming to the System V AMD64 ABI. Stack alignment is standard, managed by the standard libc `_start` prologue.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM IR uses valid `alloca` and memory access patterns. The optimized LLVM IR has `memory(none)` and `willreturn` attributes, indicating no memory side effects or UB.
+- Target compatibility and native instruction validity: PASS. The target assembly and linked disassembly are valid x86_64 ELF instructions, compatible with the specified `x86_64-pc-linux-gnu` target.
+- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the exact linked artifact and observed `exit_code: 55`, matching the expected value.
+- Configured native limits, required call targets, and loop backedges: PASS. The native budget passed. `main` has 2 instructions, 0 direct calls, and 0 backward branches, matching the strict limits.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. No compiler-generated overhead remains. The optimizer completely eliminated all stack traffic and loops, producing the theoretical minimum instruction sequence.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The compiler successfully eliminated all stack traffic and temporary computations from the raw LLVM, achieving the theoretical minimum for this constant-folded program.
+None found. The compiler successfully eliminated all raw LLVM stack traffic and temporary instructions, achieving a theoretically optimal final native instruction sequence.
 
 ## Suggested verification
-- Add a runtime test case with a larger Fibonacci number (e.g., `fib(20)`) to ensure the loop unrolling and constant-folding logic scales correctly without hitting optimization limits.
-- Add a test case for `fib(0)` and `fib(1)` to explicitly verify the `le_i32 n (const_i32 1)` base case branch in the final native code.
+- Add a runtime matrix case with a non-constant Fibonacci input (e.g., reading from stdin) to verify the iterative loop logic dynamically when constant folding cannot occur.
+- Add a test case with a larger Fibonacci number (e.g., `fib(46)`) to ensure signed `i32` overflow behavior is handled or documented as expected.
 
 <details>
 <summary>Raw model response</summary>
@@ -1150,31 +1204,31 @@ None found. The compiler successfully eliminated all stack traffic and temporary
 ```text
 OK
 ## Summary
-The Weave compiler toolchain successfully compiles the iterative Fibonacci program to a constant-folded native executable. The source computes `fib(10)` iteratively, which is correctly lowered to WIR and raw LLVM IR. The LLVM optimizer successfully inlines the `fib` function into `main`, evaluates the loop, and folds the return value to the constant `55`. The final native assembly for `main` is a minimal two-instruction sequence (`movl $55, %eax; retq`) that perfectly matches the optimized LLVM IR and the System V AMD64 ABI. The runtime matrix confirms the linked executable exits with code `55`, matching the expected source semantics. All configured optimized LLVM and native optimization budgets pass without violations.
+The Weave compiler toolchain successfully translates the `fibonacci.weave` source into a correct, ABI-valid, and fully optimized native executable. The iterative Fibonacci computation is correctly preserved through the Weave-to-WIR and WIR-to-raw-LLVM stages. The LLVM optimizer successfully evaluates the constant-foldable loop and inlines the `fib` function into `main`, reducing the program to a single `ret i32 55` instruction in the optimized LLVM IR. The target assembly and linked executable disassembly reflect this perfectly, yielding a 2-instruction `main` function (`movl $55, %eax; retq`) that adheres to the System V AMD64 ABI. All configured optimized LLVM metrics, native optimization budgets, and runtime matrix expectations pass without violations.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source `docs/audit/fibonacci.weave` computes `fib(10)` iteratively and returns `55`. The runtime matrix in the analysis JSON confirms the executable exits with code `55`.
-- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves the `fib` function logic, the `le_i32` condition, the iterative `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR uses `icmp sle` for the `le_i32` condition, `add i32` for the iterative step, and correctly branches and loops according to the WIR structure.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, properly typed `i32` values, and valid control flow blocks with `br`, `ret`, and `load`/`store` operations.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { entry: ret i32 55 }`, which is the correct constant-folded result of `fib(10)`.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 0 calls, 0 loads, 0 stores, 1 function (`main`), and 1 instruction. All limits are respected and `passed: true`.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses signed comparisons (`icmp sle`) and signed additions (`add i32`). For `fib(10)`, no overflow occurs, and the constant-folded result `55` is correct.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final assembly uses `movl $55, %eax` to set the return value in the `%eax` register, conforming to the System V AMD64 ABI. Stack alignment is not modified in `main` (0 stack bytes used).
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM allocates and uses stack memory safely. The optimized LLVM has `memory(none)`, indicating no memory traffic. No `undef` or `poison` uses are present.
-- Target compatibility and native instruction validity: PASS. The target assembly uses valid x86_64 instructions (`movl`, `retq`) and targets `x86_64-pc-linux-gnu`. The linked disassembly matches.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the linked artifact and observed `exit_code: 55`, matching the expected value from the sidecar.
-- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` shows `main` has 2 instructions, 0 direct calls, and 0 backward branches. All observed metrics are within limits and `passed: true`.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. No overhead remains. The optimized LLVM is a single `ret` instruction, and the native code is a 2-instruction `mov` and `ret`. The `fib` function was completely removed as expected.
+- Source semantics and expected result: PASS. The source defines an iterative `fib(10)` returning `55`. The runtime matrix confirms the executable exits with code `55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR projection accurately captures the `fib` function's parameters, conditional branch, iterative loop, and `main`'s call to `fib(10)`.
+- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR conditionals, `let` allocations, and `set` mutations to corresponding `alloca`, `store`, `load`, `icmp`, and `br` instructions.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, uses correct SSA form, maintains proper types (`i32`), and has well-formed control flow with 7 basic blocks.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { entry: ret i32 55 }`, correctly preserving the semantic result of `fib(10)`.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget passed. Observed metrics (1 function, 1 instruction, 0 calls, 0 memory traffic) match the configured limits exactly.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the `le_i32` WIR token. The `add_i32` operations are safe within `i32` bounds for `fib(10)`.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The final native code uses `movl $0x37, %eax` to set the return value, conforming to the System V AMD64 ABI. Stack alignment is standard, managed by the standard libc `_start` prologue.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM IR uses valid `alloca` and memory access patterns. The optimized LLVM IR has `memory(none)` and `willreturn` attributes, indicating no memory side effects or UB.
+- Target compatibility and native instruction validity: PASS. The target assembly and linked disassembly are valid x86_64 ELF instructions, compatible with the specified `x86_64-pc-linux-gnu` target.
+- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the exact linked artifact and observed `exit_code: 55`, matching the expected value.
+- Configured native limits, required call targets, and loop backedges: PASS. The native budget passed. `main` has 2 instructions, 0 direct calls, and 0 backward branches, matching the strict limits.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. No compiler-generated overhead remains. The optimizer completely eliminated all stack traffic and loops, producing the theoretical minimum instruction sequence.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The compiler successfully eliminated all stack traffic and temporary computations from the raw LLVM, achieving the theoretical minimum for this constant-folded program.
+None found. The compiler successfully eliminated all raw LLVM stack traffic and temporary instructions, achieving a theoretically optimal final native instruction sequence.
 
 ## Suggested verification
-- Add a runtime test case with a larger Fibonacci number (e.g., `fib(20)`) to ensure the loop unrolling and constant-folding logic scales correctly without hitting optimization limits.
-- Add a test case for `fib(0)` and `fib(1)` to explicitly verify the `le_i32 n (const_i32 1)` base case branch in the final native code.
+- Add a runtime matrix case with a non-constant Fibonacci input (e.g., reading from stdin) to verify the iterative loop logic dynamically when constant folding cannot occur.
+- Add a test case with a larger Fibonacci number (e.g., `fib(46)`) to ensure signed `i32` overflow behavior is handled or documented as expected.
 ```
 </details>
