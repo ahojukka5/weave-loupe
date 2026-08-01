@@ -173,6 +173,13 @@ def test_identical_compiler_produces_sealed_pass(tmp_path: Path) -> None:
     assert report["status"] == "pass"
     assert report["passed"] is True
     assert report["comparison"]["runtime_equal"] is True
+    bundle_diff = report["comparison"]["bundle_diff"]
+    assert bundle_diff["format"] == "weave-loupe-diff-v2"
+    supplemental = bundle_diff["supplemental"]
+    assert supplemental["runtime"]["available"] is True
+    assert supplemental["runtime"]["changed"] is False
+    assert supplemental["native_budget"]["available"] is True
+    assert supplemental["optimized_llvm_budget"]["available"] is True
     assert report["failures"] == []
     assert (
         report["baseline"]["compiler"]["sha256"]
