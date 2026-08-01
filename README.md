@@ -90,6 +90,13 @@ optimization contract, direct runtime observations, diagnostics, deterministic
 analysis, build manifest, and compiler trace, together with timestamps, Git SHAs,
 hashes, and machine specifications.
 
+Linked-disassembly analysis uses architecture-specific x86-64 and AArch64
+classifiers behind one normalized control-flow model. Analysis evidence records
+the architecture, object format, disassembler identity and version when known,
+parser format, call graph, branches, backedges, returns, padding, and explicit
+support status. Unknown or contradictory targets fail closed rather than
+publishing synthetic zero-valued native metrics.
+
 The report also records the normalized public LLM endpoint identity, requested
 model, maximum tokens, temperature, exact prompt SHA-256, canonical request
 SHA-256, and any provider-returned model, response ID, system fingerprint, finish
@@ -135,6 +142,7 @@ when the reviewing model returns `OK`.
 See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
 [process limit guide](docs/process-limits.md), the
 [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
+[architecture-aware native analysis guide](docs/native-analysis.md), the
 [native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
 [pull-request audit gate](docs/audit-gate.md).
