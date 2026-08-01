@@ -138,6 +138,12 @@ def evaluate_native_budget(
     native = native_analysis if isinstance(native_analysis, dict) else {}
     if native.get("available") is not True:
         failures.append("linked executable disassembly is unavailable")
+    if native.get("supported") is False:
+        reason = native.get("failure_reason")
+        if isinstance(reason, str) and reason:
+            failures.append(f"native disassembly analysis is unsupported: {reason}")
+        else:
+            failures.append("native disassembly analysis is unsupported")
     if native.get("reachability_complete") is not True:
         failures.append("native program-function reachability is incomplete")
 
