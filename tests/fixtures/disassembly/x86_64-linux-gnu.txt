@@ -1,0 +1,16 @@
+GNU objdump 2.42
+
+demo:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0: 90 nop
+   1: e8 1a 00 00 00 callq 20 <fib>
+   6: ff d0 callq *%rax
+   8: 7e f7 jle 1 <main+0x1>
+   a: c3 retq
+
+0000000000000020 <fib>:
+  20: 89 f8 movl %edi, %eax
+  22: c3 retq

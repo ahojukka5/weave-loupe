@@ -1,0 +1,14 @@
+llvm-objdump 19.1.7
+
+demo: file format mach-o arm64
+
+0000000100003f40 <_main>:
+100003f40: nop
+100003f44: bl 100003f60 <_fib>
+100003f48: blr x8
+100003f4c: b.le 100003f44 <_main+0x4>
+100003f50: ret
+
+0000000100003f60 <_fib>:
+100003f60: mov w0, w0
+100003f64: ret
