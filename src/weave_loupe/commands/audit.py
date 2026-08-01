@@ -6,13 +6,13 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from weave_loupe.analysis import analyze_bundle
 from weave_loupe.audit_result import (
     AuditProtocolError,
     collect_audit_metadata,
     metadata_json,
-    parse_audit_response,
     render_audit_report,
 )
 from weave_loupe.bundle import Bundle, BundleError, capture_bundle, load_bundle
@@ -25,7 +25,14 @@ from weave_loupe.optimized_llvm_budget import (
     evaluate_optimized_llvm_budget,
 )
 from weave_loupe.report_integrity import seal_audit_report
+from weave_loupe.review_report import insert_review_provenance
 from weave_loupe.runtime_cases import RuntimeCasesError, execute_runtime_cases
+from weave_loupe.scalable_review import (
+    EvidenceArtifact,
+    ReviewPlanningError,
+    ReviewPolicy,
+    review_evidence,
+)
 from weave_loupe.templates import render_audit_prompt
 from weave_loupe.wir_review import clean_wir_for_review
 
@@ -45,6 +52,9 @@ def run_audit(
     runtime_timeout_seconds: float | None = None,
     runtime_output_bytes: int | None = None,
     allow_unsafe_http: bool | None = None,
+    review_total_tokens: int = 524_288,
+    review_request_tokens: int = 98_304,
+    review_artifact_tokens: int = 262_144,
 ) -> int:
     response = ""
     report = ""
@@ -148,6 +158,8 @@ def run_audit(
                     native_analysis if isinstance(native_analysis, dict) else None
                 ),
             )
+            stable_metadata = _stable_review_metadata(metadata)
+            stable_metadata_text = metadata_json(stable_metadata)
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),
                 weave_source=weave_source,
@@ -159,19 +171,49 @@ def run_audit(
                 optimization_record=optimization_record,
                 diagnostics_json=diagnostics_text,
                 analysis_json=analysis_text,
-                metadata_json=metadata_json(metadata),
+                metadata_json=stable_metadata_text,
+                build_manifest=build_manifest,
+                trace_json=trace,
             )
-
-            completion = chat_completion(config, prompt)
-            response = completion.content
-            metadata["llm"] = completion.metadata()
-            model_verdict = parse_audit_response(response)
-            verdict = apply_deterministic_gate(model_verdict, analysis)
+            artifacts = _review_artifacts(
+                weave_source=weave_source,
+                review_wir=review_wir,
+                llvm_ir=llvm_ir,
+                optimized_llvm=optimized_llvm,
+                assembly=assembly,
+                disassembly=disassembly,
+                optimization_record=optimization_record,
+                diagnostics_text=diagnostics_text,
+                analysis_text=analysis_text,
+                metadata_text=stable_metadata_text,
+                build_manifest=build_manifest,
+                trace=trace,
+            )
+            outcome = review_evidence(
+                config=config,
+                full_prompt=prompt,
+                artifacts=artifacts,
+                deterministic_summary=_deterministic_summary(
+                    metadata=stable_metadata,
+                    analysis=analysis,
+                ),
+                policy=ReviewPolicy(
+                    max_total_tokens=review_total_tokens,
+                    max_request_tokens=review_request_tokens,
+                    max_artifact_tokens=review_artifact_tokens,
+                ),
+                complete=chat_completion,
+            )
+            response = outcome.response
+            metadata["llm"] = outcome.final_completion.metadata()
+            metadata["review"] = outcome.metadata
+            verdict = apply_deterministic_gate(outcome.verdict, analysis)
             report = render_audit_report(
                 verdict=verdict,
                 metadata=metadata,
                 model_response=response,
             )
+            report = insert_review_provenance(report, outcome.metadata)
             if verbose:
                 report = insert_complete_evidence(
                     report,
@@ -231,6 +273,7 @@ def run_audit(
         NativeBudgetError,
         OptimizedLlvmBudgetError,
         RuntimeCasesError,
+        ReviewPlanningError,
     ) as exc:
         if report_out is not None and report_out.exists():
             report_out.unlink()
@@ -240,6 +283,140 @@ def run_audit(
                 sys.stdout.write("\n")
         print(f"loupe audit: {exc}", file=sys.stderr)
         return 1
+
+
+def _review_artifacts(
+    *,
+    weave_source: str,
+    review_wir: str,
+    llvm_ir: str,
+    optimized_llvm: str,
+    assembly: str,
+    disassembly: str,
+    optimization_record: str,
+    diagnostics_text: str,
+    analysis_text: str,
+    metadata_text: str,
+    build_manifest: str,
+    trace: str,
+) -> tuple[EvidenceArtifact, ...]:
+    return (
+        EvidenceArtifact("metadata", "Reproducibility metadata", "json", metadata_text),
+        EvidenceArtifact("source", "Weave source", "lisp", weave_source),
+        EvidenceArtifact("wir", "WIR review projection", "lisp", review_wir),
+        EvidenceArtifact("raw_llvm", "Raw LLVM IR", "llvm", llvm_ir),
+        EvidenceArtifact("optimized_llvm", "Optimized LLVM IR", "llvm", optimized_llvm),
+        EvidenceArtifact("assembly", "Target assembly", "asm", assembly),
+        EvidenceArtifact(
+            "disassembly", "Linked executable disassembly", "asm", disassembly
+        ),
+        EvidenceArtifact(
+            "optimization_record",
+            "LLVM optimization record",
+            "yaml",
+            optimization_record,
+        ),
+        EvidenceArtifact("diagnostics", "Diagnostics", "json", diagnostics_text),
+        EvidenceArtifact(
+            "analysis", "Complete deterministic analysis", "json", analysis_text
+        ),
+        EvidenceArtifact(
+            "build_manifest", "Compiler build manifest", "json", build_manifest
+        ),
+        EvidenceArtifact("trace", "Compiler trace", "json", trace),
+    )
+
+
+def _stable_review_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
+    """Remove run-specific facts while retaining review-relevant identities."""
+    source_repository = _mapping(metadata.get("source_repository"))
+    loupe_repository = _mapping(metadata.get("loupe_repository"))
+    weavec = _mapping(metadata.get("weavec"))
+    weavec_repository = _mapping(weavec.get("repository"))
+    return {
+        "format": "weave-loupe-review-metadata-v1",
+        "model": metadata.get("model"),
+        "llm": {
+            "endpoint": _mapping(metadata.get("llm")).get("endpoint"),
+        },
+        "source_repository_sha": source_repository.get("sha"),
+        "loupe_repository_sha": loupe_repository.get("sha"),
+        "auditor": metadata.get("auditor"),
+        "weavec": {
+            "sha256": weavec.get("sha256"),
+            "version": weavec.get("version"),
+            "base_version": weavec.get("base_version"),
+            "git_sha": weavec.get("git_sha"),
+            "development": weavec.get("development"),
+            "version_source": weavec.get("version_source"),
+            "repository_sha": weavec_repository.get("sha"),
+        },
+        "native": metadata.get("native"),
+        "sources": metadata.get("sources"),
+        "runtime_input": metadata.get("runtime_input"),
+        "bundle": metadata.get("bundle"),
+    }
+
+
+def _deterministic_summary(
+    *,
+    metadata: dict[str, Any],
+    analysis: dict[str, Any],
+) -> dict[str, Any]:
+    native = _mapping(analysis.get("native"))
+    return {
+        "format": "weave-loupe-deterministic-review-summary-v1",
+        "metadata": metadata,
+        "compiler_exit_code": analysis.get("compiler_exit_code"),
+        "evidence": analysis.get("evidence"),
+        "native": {
+            "supported": native.get("supported"),
+            "failure_reason": native.get("failure_reason"),
+            "architecture": native.get("architecture"),
+            "object_format": native.get("object_format"),
+            "parser_format": native.get("parser_format"),
+            "reachability_complete": native.get("reachability_complete"),
+            "program_instruction_count": native.get("program_instruction_count"),
+            "unreachable_program_instructions": native.get(
+                "unreachable_program_instructions"
+            ),
+            "reachable_indirect_calls": native.get("reachable_indirect_calls"),
+        },
+        "deterministic_gates": {
+            "optimized_llvm_budget": _gate_summary(
+                analysis.get("optimized_llvm_budget")
+            ),
+            "native_budget": _gate_summary(analysis.get("native_budget")),
+            "runtime": _runtime_summary(analysis.get("runtime")),
+        },
+    }
+
+
+def _gate_summary(value: object) -> dict[str, Any]:
+    gate = _mapping(value)
+    failures = gate.get("failures")
+    return {
+        "configured": gate.get("configured"),
+        "passed": gate.get("passed"),
+        "format": gate.get("format"),
+        "failure_count": len(failures) if isinstance(failures, list) else None,
+    }
+
+
+def _runtime_summary(value: object) -> dict[str, Any]:
+    runtime = _mapping(value)
+    failures = runtime.get("failures")
+    return {
+        "configured": runtime.get("configured"),
+        "passed": runtime.get("passed"),
+        "format": runtime.get("format"),
+        "case_count": runtime.get("case_count"),
+        "failure_count": len(failures) if isinstance(failures, list) else None,
+    }
+
+
+def _mapping(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
 def _compiler_failure_message(bundle: Bundle, exit_code: int) -> str:
