@@ -66,6 +66,21 @@ uv run loupe audit docs/audit/fibonacci.weave \
   --report-out docs/audit/fibonacci.md
 ```
 
+Local OpenAI-compatible servers may use plain HTTP on loopback without an unsafe
+flag:
+
+```sh
+export WEAVE_LLM_ENDPOINT=http://localhost:8000/v1
+export WEAVE_LLM_API_KEY=local
+uv run loupe audit docs/audit/fibonacci.weave \
+  --model local-model \
+  --report-out build/fibonacci-local.md
+```
+
+Non-loopback HTTP is rejected by default. Use `--allow-unsafe-http`, or set
+`WEAVE_LLM_ALLOW_UNSAFE_HTTP=1`, only when an insecure remote transport is an
+intentional requirement.
+
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
@@ -75,11 +90,12 @@ optimization contract, direct runtime observations, diagnostics, deterministic
 analysis, build manifest, and compiler trace, together with timestamps, Git SHAs,
 hashes, and machine specifications.
 
-The report also records the normalized LLM endpoint, requested model, maximum
-tokens, temperature, exact prompt SHA-256, canonical request SHA-256, and any
-provider-returned model, response ID, system fingerprint, finish reason, creation
-time, and token usage. URL credentials, query parameters, fragments, and API keys
-are never published.
+The report also records the normalized public LLM endpoint identity, requested
+model, maximum tokens, temperature, exact prompt SHA-256, canonical request
+SHA-256, and any provider-returned model, response ID, system fingerprint, finish
+reason, creation time, and token usage. The private transport URL remains available
+only to the network client. URL credentials, query parameters, fragments, and API
+keys are never published.
 
 Verify later that a report still covers the current source, audit sidecar,
 compiler executable, audit implementation, reviewer request, complete published
@@ -98,7 +114,9 @@ Model and endpoint options default to their matching environment variables.
 Maximum-token comparison is explicit. The verifier exits `0` for a valid report,
 `2` for a stale report, and `1` for an invalid invocation or infrastructure
 failure. A stale result lists every detected reason instead of hiding later
-mismatches behind the first one.
+mismatches behind the first one. Verification compares the sanitized public
+endpoint identity. Add `--allow-unsafe-http` when intentionally verifying a report
+against a non-loopback HTTP endpoint.
 
 Generated reports contain a portable SHA-256 content seal covering the exact
 Markdown, including request and provider provenance, model review, and verbose
@@ -114,7 +132,8 @@ backedges. Runtime cases describe arguments, environment, input, and expected
 observable results. Loupe deterministically rejects any violated contract even
 when the reviewing model returns `OK`.
 
-See the [process limit guide](docs/process-limits.md), the
+See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
+[process limit guide](docs/process-limits.md), the
 [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
 [native optimization budget guide](docs/native-budgets.md), the
 [audit corpus](docs/audit/README.md), and the
