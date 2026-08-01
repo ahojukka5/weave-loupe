@@ -15,6 +15,7 @@ from weave_loupe.llm import (
     chat_completion,
     load_config,
     normalize_endpoint_identity,
+    resolve_endpoint,
 )
 
 
@@ -69,18 +70,91 @@ def test_load_config_rejects_invalid_max_attempts(
         load_config(model="z-ai/glm-5.2", max_tokens=16)
 
 
-def test_load_config_upgrades_http_and_reads_retry_limit(
+def test_load_config_preserves_loopback_transport_and_reads_retry_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "http://example.test/v1/")
+    transport = "http://user:secret@LOCALHOST:8000/v1/?token=hidden#fragment"
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", transport)
     monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
     monkeypatch.setenv("WEAVE_LLM_MAX_ATTEMPTS", "7")
+
     config = load_config(model="z-ai/glm-5.2", max_tokens=32)
-    assert config.endpoint == "https://example.test/v1"
+
+    assert config.endpoint == transport
+    assert config.endpoint_identity == "http://localhost:8000/v1"
     assert config.api_key == "secret"
     assert config.model == "z-ai/glm-5.2"
     assert config.max_tokens == 32
     assert config.max_attempts == 7
+
+
+def test_load_config_rejects_nonloopback_http_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "http://example.test/v1")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+
+    with pytest.raises(LlmError, match="restricted to loopback"):
+        load_config(model="model", max_tokens=16)
+
+
+def test_load_config_accepts_explicit_nonloopback_http_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "http://example.test:8080/v1/")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+
+    config = load_config(
+        model="model",
+        max_tokens=16,
+        allow_unsafe_http=True,
+    )
+
+    assert config.endpoint == "http://example.test:8080/v1/"
+    assert config.endpoint_identity == "http://example.test:8080/v1"
+    assert config.allow_unsafe_http is True
+
+
+def test_load_config_accepts_environment_nonloopback_http_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "http://example.test/v1")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+    monkeypatch.setenv("WEAVE_LLM_ALLOW_UNSAFE_HTTP", "yes")
+
+    config = load_config(model="model", max_tokens=16)
+
+    assert config.endpoint_identity == "http://example.test/v1"
+    assert config.allow_unsafe_http is True
+
+
+def test_load_config_rejects_invalid_unsafe_http_environment_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("WEAVE_LLM_ENDPOINT", "https://example.test/v1")
+    monkeypatch.setenv("WEAVE_LLM_API_KEY", "secret")
+    monkeypatch.setenv("WEAVE_LLM_ALLOW_UNSAFE_HTTP", "sometimes")
+
+    with pytest.raises(LlmError, match="must be one of"):
+        load_config(model="model", max_tokens=16)
+
+
+@pytest.mark.parametrize(
+    ("transport", "identity"),
+    [
+        ("http://LOCALHOST:80/v1/", "http://localhost/v1"),
+        ("http://localhost.:8000/v1/", "http://localhost:8000/v1"),
+        ("http://127.42.0.8:8000/v1/", "http://127.42.0.8:8000/v1"),
+        ("http://[0:0:0:0:0:0:0:1]:80/v1/", "http://[::1]/v1"),
+        ("https://Example.TEST:443/v1/", "https://example.test/v1"),
+        ("https://Example.TEST:8443/v1/", "https://example.test:8443/v1"),
+    ],
+)
+def test_endpoint_identity_normalizes_supported_urls(
+    transport: str,
+    identity: str,
+) -> None:
+    assert normalize_endpoint_identity(transport) == identity
 
 
 def test_endpoint_identity_removes_private_url_components() -> None:
@@ -91,14 +165,63 @@ def test_endpoint_identity_removes_private_url_components() -> None:
     assert endpoint == "https://example.test:8443/v1"
 
 
-def test_endpoint_identity_rejects_non_http_transport() -> None:
-    with pytest.raises(ValueError, match="HTTPS"):
-        normalize_endpoint_identity("ftp://example.test/v1")
+def test_endpoint_resolution_records_transport_security() -> None:
+    loopback = resolve_endpoint("http://127.0.0.2:8000/v1")
+    secure = resolve_endpoint("https://example.test/v1")
+
+    assert loopback.loopback is True
+    assert loopback.secure is False
+    assert secure.loopback is False
+    assert secure.secure is True
+
+
+def test_endpoint_identity_requires_override_for_nonloopback_http() -> None:
+    with pytest.raises(ValueError, match="restricted to loopback"):
+        normalize_endpoint_identity("http://example.test/v1")
+
+    assert (
+        normalize_endpoint_identity(
+            "http://example.test/v1",
+            allow_unsafe_http=True,
+        )
+        == "http://example.test/v1"
+    )
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    [
+        "ftp://example.test/v1",
+        "https:///v1",
+        "https://example.test:invalid/v1",
+        "https://example.test/v 1",
+        "http://[fe80::1%25eth0]/v1",
+    ],
+)
+def test_endpoint_identity_rejects_invalid_urls(endpoint: str) -> None:
+    with pytest.raises(ValueError):
+        normalize_endpoint_identity(endpoint)
+
+
+def test_config_repr_hides_transport_credentials_and_api_key() -> None:
+    config = LlmConfig(
+        endpoint="https://user:transport-secret@example.test/v1?token=hidden",
+        api_key="api-secret",
+        model="model",
+    )
+
+    rendered = repr(config)
+
+    assert "transport-secret" not in rendered
+    assert "api-secret" not in rendered
+    assert "token=hidden" not in rendered
+    assert "https://example.test/v1" in rendered
 
 
 def test_chat_completion_returns_request_and_provider_metadata() -> None:
+    transport = "https://user:secret@Example.TEST:443/v1/?token=hidden#fragment"
     config = LlmConfig(
-        endpoint="https://example.test/v1",
+        endpoint=transport,
         api_key="secret",
         model="z-ai/glm-5.2",
         max_tokens=16,
@@ -160,7 +283,7 @@ def test_chat_completion_returns_request_and_provider_metadata() -> None:
     }
     openai_cls.assert_called_once_with(
         api_key="secret",
-        base_url="https://example.test/v1",
+        base_url=transport,
         timeout=300.0,
     )
     client.chat.completions.create.assert_called_once_with(
@@ -169,6 +292,31 @@ def test_chat_completion_returns_request_and_provider_metadata() -> None:
         max_tokens=16,
         temperature=0.0,
     )
+
+
+def test_request_hash_uses_public_identity_not_transport_secrets() -> None:
+    client = MagicMock()
+    client.chat.completions.create.return_value = _ok_response()
+    first = LlmConfig(
+        endpoint="https://user:one@example.test/v1?token=first#one",
+        api_key="secret",
+        model="model",
+        max_tokens=16,
+    )
+    second = LlmConfig(
+        endpoint="https://other:two@EXAMPLE.TEST:443/v1/?token=second#two",
+        api_key="secret",
+        model="model",
+        max_tokens=16,
+    )
+
+    with patch("weave_loupe.llm.OpenAI", return_value=client):
+        one = chat_completion(first, "prompt")
+        two = chat_completion(second, "prompt")
+
+    assert first.endpoint != second.endpoint
+    assert first.endpoint_identity == second.endpoint_identity
+    assert one.request_sha256 == two.request_sha256
 
 
 def test_request_hash_changes_with_prompt_or_settings() -> None:
@@ -259,6 +407,33 @@ def test_chat_completion_does_not_retry_permanent_client_error() -> None:
 
     client.chat.completions.create.assert_called_once()
     sleep.assert_not_called()
+
+
+def test_chat_completion_errors_do_not_expose_transport_secrets() -> None:
+    config = LlmConfig(
+        endpoint=(
+            "https://private-user:private-password@example.test/v1"
+            "?token=private-token#private-fragment"
+        ),
+        api_key="private-api-key",
+        model="model",
+        max_attempts=1,
+    )
+    client = MagicMock()
+    client.chat.completions.create.side_effect = _status_error(
+        500,
+        message="private-token private-password",
+    )
+
+    with (
+        patch("weave_loupe.llm.OpenAI", return_value=client),
+        pytest.raises(LlmError) as captured,
+    ):
+        chat_completion(config, "prompt")
+
+    message = str(captured.value)
+    assert message == "LLM request failed with HTTP 500"
+    assert "private" not in message
 
 
 def test_chat_completion_accepts_missing_optional_attestation() -> None:
