@@ -9,6 +9,7 @@ from pathlib import Path
 
 from weave_loupe.commands.audit import run_audit
 from weave_loupe.commands.capture import run_capture
+from weave_loupe.commands.compiler_audit import run_compiler_audit
 from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.report import run_report
 from weave_loupe.commands.verify_bundle import run_verify_bundle
@@ -57,6 +58,59 @@ def build_parser() -> argparse.ArgumentParser:
     diff.add_argument("after", type=Path)
     diff.add_argument("--json-out", type=Path, default=None)
     diff.add_argument("--html-out", type=Path, default=None)
+
+    compiler_audit = subparsers.add_parser(
+        "compiler-audit",
+        help="Compare identical inputs with baseline and candidate compilers.",
+    )
+    compiler_audit.add_argument("weave_files", nargs="+", type=Path)
+    compiler_audit.add_argument("--baseline-weavec", type=Path, required=True)
+    compiler_audit.add_argument("--candidate-weavec", type=Path, required=True)
+    compiler_audit.add_argument(
+        "--work-dir",
+        type=Path,
+        default=Path("build/compiler-audit"),
+        help="Directory for isolated baseline and candidate evidence bundles.",
+    )
+    compiler_audit.add_argument("--policy", type=Path, default=None)
+    compiler_audit.add_argument("--json-out", type=Path, default=None)
+    compiler_audit.add_argument("--report-out", type=Path, default=None)
+    compiler_audit.add_argument(
+        "--review-model",
+        default=None,
+        help="Optionally add a non-gating model review after deterministic comparison.",
+    )
+    compiler_audit.add_argument("--review-max-tokens", type=int, default=4096)
+    compiler_audit.add_argument(
+        "--allow-unsafe-http",
+        action="store_true",
+        default=None,
+        help="Allow an optional review model on a non-loopback HTTP endpoint.",
+    )
+    compiler_audit.add_argument(
+        "--compiler-timeout-seconds",
+        type=float,
+        default=None,
+        help="Apply the same compiler wall-clock limit to both builds.",
+    )
+    compiler_audit.add_argument(
+        "--compiler-output-bytes",
+        type=int,
+        default=None,
+        help="Apply the same compiler output ceiling to both builds.",
+    )
+    compiler_audit.add_argument(
+        "--runtime-timeout-seconds",
+        type=float,
+        default=None,
+        help="Apply the same runtime-case wall-clock limit to both executables.",
+    )
+    compiler_audit.add_argument(
+        "--runtime-output-bytes",
+        type=int,
+        default=None,
+        help="Apply the same runtime output ceiling to both executables.",
+    )
 
     audit = subparsers.add_parser(
         "audit", help="Ask an LLM to review the complete compiler evidence."
@@ -199,6 +253,23 @@ def main(argv: list[str] | None = None) -> int:
             after=args.after,
             json_out=args.json_out,
             html_out=args.html_out,
+        )
+    if args.command == "compiler-audit":
+        return run_compiler_audit(
+            weave_files=args.weave_files,
+            baseline_weavec=args.baseline_weavec,
+            candidate_weavec=args.candidate_weavec,
+            work_dir=args.work_dir,
+            policy=args.policy,
+            json_out=args.json_out,
+            report_out=args.report_out,
+            review_model=args.review_model,
+            review_max_tokens=args.review_max_tokens,
+            allow_unsafe_http=args.allow_unsafe_http,
+            compiler_timeout_seconds=args.compiler_timeout_seconds,
+            compiler_output_bytes=args.compiler_output_bytes,
+            runtime_timeout_seconds=args.runtime_timeout_seconds,
+            runtime_output_bytes=args.runtime_output_bytes,
         )
     if args.command == "audit":
         return run_audit(
