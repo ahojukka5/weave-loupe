@@ -74,6 +74,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     audit.add_argument("--max-tokens", type=int, default=4096)
     audit.add_argument(
+        "--allow-unsafe-http",
+        action="store_true",
+        default=None,
+        help=(
+            "Allow a non-loopback plain HTTP LLM endpoint. This can also be "
+            "enabled with WEAVE_LLM_ALLOW_UNSAFE_HTTP=1."
+        ),
+    )
+    audit.add_argument(
         "--compiler-timeout-seconds",
         type=float,
         default=None,
@@ -147,6 +156,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Current LLM endpoint; defaults to WEAVE_LLM_ENDPOINT when set.",
     )
     verify.add_argument(
+        "--allow-unsafe-http",
+        action="store_true",
+        default=None,
+        help=(
+            "Allow a non-loopback HTTP endpoint, or defer to "
+            "WEAVE_LLM_ALLOW_UNSAFE_HTTP when omitted."
+        ),
+    )
+    verify.add_argument(
         "--max-tokens",
         type=int,
         default=None,
@@ -196,6 +214,7 @@ def main(argv: list[str] | None = None) -> int:
             compiler_output_bytes=args.compiler_output_bytes,
             runtime_timeout_seconds=args.runtime_timeout_seconds,
             runtime_output_bytes=args.runtime_output_bytes,
+            allow_unsafe_http=args.allow_unsafe_http,
         )
     if args.command == "verify-bundle":
         return run_verify_bundle(
@@ -214,6 +233,7 @@ def main(argv: list[str] | None = None) -> int:
             max_tokens=args.max_tokens,
             max_age_days=args.max_age_days,
             json_out=args.json_out,
+            allow_unsafe_http=args.allow_unsafe_http,
         )
     parser.error(f"unknown command: {args.command}")
     return 2

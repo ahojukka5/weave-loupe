@@ -44,6 +44,7 @@ def run_audit(
     compiler_output_bytes: int | None = None,
     runtime_timeout_seconds: float | None = None,
     runtime_output_bytes: int | None = None,
+    allow_unsafe_http: bool | None = None,
 ) -> int:
     response = ""
     report = ""
@@ -130,12 +131,16 @@ def run_audit(
             analysis_text = json.dumps(
                 analysis, indent=2, sort_keys=True, ensure_ascii=False
             )
-            config = load_config(model=model, max_tokens=max_tokens)
+            config = load_config(
+                model=model,
+                max_tokens=max_tokens,
+                allow_unsafe_http=allow_unsafe_http,
+            )
             metadata = collect_audit_metadata(
                 sources=weave_files,
                 weavec=weavec,
                 model=model,
-                llm_endpoint=config.endpoint,
+                llm_endpoint=config.endpoint_identity,
                 bundle=bundle,
                 runtime_matrix=runtime_matrix,
             )
