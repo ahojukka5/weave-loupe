@@ -29,6 +29,9 @@ presentation format.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
+- [Complete compiler evidence comparisons](diff-format.md) — versioned v2 bundle
+  diffs, classifications, deterministic ordering, HTML navigation, supplemental
+  compiler-audit context, and v1 compatibility.
 - [Compiler regression audits](compiler-audits.md) — baseline-versus-candidate
   compilation, differential policies, sealed evidence, and stable exit codes.
 - [LLM endpoint transport and identity](llm-endpoints.md) — HTTPS defaults,
@@ -55,10 +58,13 @@ presentation format.
 - `loupe capture` builds one portable evidence bundle.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
   JSON.
-- `loupe diff` compares structural LLVM metrics and stable trace actions.
+- `loupe diff` compares the complete stable compiler evidence chain with
+  `weave-loupe-diff-v2`, emits classified changes and navigable HTML, and offers
+  `--format-version v1` for the original compact projection.
 - `loupe compiler-audit` compiles the same ordered inputs with baseline and
-  candidate compilers, applies deterministic differential policy, and publishes
-  sealed JSON and Markdown evidence.
+  candidate compilers, supplies runtime and contract results to the complete v2
+  diff, applies deterministic differential policy, and publishes sealed JSON and
+  Markdown evidence.
 - `loupe audit` reviews complete evidence in one request when it fits or through
   deterministic artifact ranges plus final synthesis when it does not. It records
   full coverage and request provenance, applies runtime, optimized-LLVM, and native
