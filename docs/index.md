@@ -32,6 +32,8 @@ presentation format.
   timeouts, process-tree cleanup, POSIX resources, configuration, and evidence.
 - [Optimized LLVM contracts](optimized-llvm-contracts.md) — versioned
   post-optimization metric and dependency requirements.
+- [Architecture-aware native analysis](native-analysis.md) — x86-64 and AArch64
+  parsing, normalized control flow, tool evidence, and fail-closed targets.
 - [Native optimization budgets](native-budgets.md) — versioned linked-executable
   limits and structural requirements that make final-code regressions blocking.
 - [Audit report validity](report-validity.md) — deterministic freshness checks,

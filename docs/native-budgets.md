@@ -72,16 +72,21 @@ matching maximum. `required_direct_calls` is a duplicate-free list of exact
 normalized targets from the linked disassembly.
 
 Backward conditional branches are control-flow edges whose direct target address
-is lower than the branch instruction address. Loupe recognizes common x86 jump
-mnemonics, AArch64 conditional branches, and RISC-V conditional branches. This is
-a structural observation, not a source-level guess: one required backedge proves
-that a native loop remains in the linked function.
+is lower than the branch instruction address. Loupe recognizes x86-64 and AArch64
+through architecture-specific classifiers. This is a structural observation, not
+a source-level guess: one required backedge proves that a native loop remains in
+the linked function.
 
 Direct-call targets use the symbol shown by the disassembler after removing a
-function offset such as `+0x20`. On the canonical Linux x86-64 target, external
-calls appear as `getenv@plt` and `atoi@plt`. Contracts are target-specific and must
-be reviewed when changing operating system, object format, linker, architecture,
-or disassembler conventions.
+function offset such as `+0x20`. On Linux x86-64, external calls commonly appear as
+`getenv@plt` and `atoi@plt`. Mach-O public symbols have one ABI leading underscore
+removed so they match LLVM identities. Compiler-created suffixes such as `.cold`
+and `.llvm.123` remain distinct.
+
+Contracts remain target-sensitive even though x86-64 and AArch64 share normalized
+metric names. Instruction count and external-symbol conventions may change with
+the operating system, object format, linker, architecture, or disassembler. Review
+and update tight budgets intentionally when changing those inputs.
 
 Unknown fields, negative values, empty function names, duplicate required calls,
 and empty contracts are rejected as infrastructure errors rather than silently
@@ -102,9 +107,17 @@ The generated failure evidence lists every violated requirement. Model prose
 cannot waive the deterministic result, and the report output file is not published
 for a failed gate.
 
-Evaluation fails closed when linked disassembly is unavailable or the
-program-owned call graph is incomplete. Indirect calls make complete reachability
-impossible and should normally be bounded to zero for small audit fixtures.
+Evaluation fails closed when linked disassembly is unavailable, its architecture
+is unsupported or contradictory, symbols cannot be normalized safely, the parser
+cannot recover functions reliably, or the program-owned call graph is incomplete.
+Indirect calls make complete reachability impossible and should normally be bounded
+to zero for small audit fixtures.
+
+Unsupported targets do not produce synthetic zero-valued metrics. The analysis
+records `supported: false` and a clear `failure_reason`, while configured native
+budgets reject incomplete reachability. See the
+[architecture-aware native analysis guide](native-analysis.md) for the parser and
+evidence contract.
 
 The sidecar SHA-256 participates in report validity. Changing a limit or structural
 requirement, adding a budget, or removing one invalidates the adjacent report and
