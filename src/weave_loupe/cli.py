@@ -57,12 +57,18 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--analysis-json", type=Path, default=None)
 
     diff = subparsers.add_parser(
-        "diff", help="Compare trace actions and LLVM structure between bundles."
+        "diff", help="Compare the complete deterministic compiler evidence chain."
     )
     diff.add_argument("before", type=Path)
     diff.add_argument("after", type=Path)
     diff.add_argument("--json-out", type=Path, default=None)
     diff.add_argument("--html-out", type=Path, default=None)
+    diff.add_argument(
+        "--format-version",
+        choices=("v2", "v1"),
+        default="v2",
+        help="Output v2 complete evidence or the original compact v1 shape.",
+    )
 
     compiler_audit = subparsers.add_parser(
         "compiler-audit",
@@ -282,6 +288,7 @@ def main(argv: list[str] | None = None) -> int:
             after=args.after,
             json_out=args.json_out,
             html_out=args.html_out,
+            format_version=args.format_version,
         )
     if args.command == "compiler-audit":
         return run_compiler_audit(
