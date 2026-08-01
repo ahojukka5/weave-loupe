@@ -199,7 +199,12 @@ def audit_compilers(
         "baseline": baseline,
         "candidate": candidate,
         "comparison": {
-            "bundle_diff": compare_bundles(baseline_bundle, candidate_bundle),
+            "bundle_diff": compare_bundles(
+                baseline_bundle,
+                candidate_bundle,
+                before_context=baseline,
+                after_context=candidate,
+            ),
             "metric_deltas": metric_deltas,
             "runtime_equal": _stable_runtime(baseline["runtime"])
             == _stable_runtime(candidate["runtime"]),
