@@ -84,7 +84,8 @@ analysis JSON. Inspect final native code instruction by instruction, including
 calls, returns, signed comparisons, arithmetic width, register values, stack
 behavior, ABI rules, and control-flow edges. Cross-check all stages against each
 other, the deterministic analysis, runtime observations, optimized LLVM contract,
-native optimization budget, and optimization remarks.
+native optimization budget, optimization remarks, build manifest, and compiler
+trace.
 
 A configured runtime matrix is direct evidence from executing the exact linked
 artifact. Its expected values come from a versioned, hash-addressed sidecar. Any
@@ -173,6 +174,14 @@ Source paths: {source_path}
 {analysis_json}
 === End analysis ===
 
+=== Compiler build manifest ===
+{build_manifest}
+=== End build manifest ===
+
+=== Compiler trace JSON ===
+{trace_json}
+=== End compiler trace ===
+
 === Report template ===
 {report_template}
 === End report template ===
@@ -192,6 +201,8 @@ def render_audit_prompt(
     diagnostics_json: str = "null",
     analysis_json: str = "{}",
     metadata_json: str = "{}",
+    build_manifest: str = "{}",
+    trace_json: str = "{}",
 ) -> str:
     """Insert evidence without treating artifact braces as format syntax."""
     replacements = {
@@ -206,6 +217,8 @@ def render_audit_prompt(
         "{diagnostics_json}": diagnostics_json,
         "{analysis_json}": analysis_json,
         "{metadata_json}": metadata_json,
+        "{build_manifest}": build_manifest,
+        "{trace_json}": trace_json,
         "{report_template}": AUDIT_REPORT_TEMPLATE,
     }
     prompt = AUDIT_PROMPT_TEMPLATE
