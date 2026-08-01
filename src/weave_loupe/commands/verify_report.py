@@ -11,7 +11,11 @@ from typing import Any
 
 from weave_loupe.auditor_identity import identify_auditor, sha256_file
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
-from weave_loupe.llm import normalize_endpoint_identity
+from weave_loupe.llm import (
+    LlmError,
+    normalize_endpoint_identity,
+    resolve_unsafe_http_policy,
+)
 from weave_loupe.report_validity import ValidityResult, evaluate_report
 from weave_loupe.weavec import WeavecError, resolve_weavec
 
@@ -27,6 +31,7 @@ def run_verify_report(
     max_age_days: int,
     json_out: Path | None,
     sources: list[Path] | None = None,
+    allow_unsafe_http: bool | None = None,
 ) -> int:
     """Verify a report without compiling sources or calling an LLM."""
     try:
@@ -38,8 +43,14 @@ def run_verify_report(
             raise ValueError(f"audit report not found: {report}")
         if source is not None and sources is not None:
             raise ValueError("source and sources cannot both be provided")
+        unsafe_http = resolve_unsafe_http_policy(allow_unsafe_http)
         current_endpoint = (
-            normalize_endpoint_identity(endpoint) if endpoint is not None else None
+            normalize_endpoint_identity(
+                endpoint,
+                allow_unsafe_http=unsafe_http,
+            )
+            if endpoint is not None
+            else None
         )
         binary = resolve_weavec(weavec)
         compiler = identify_weavec(binary)
@@ -78,7 +89,7 @@ def run_verify_report(
             )
         _print_result(result)
         return 0 if result.valid else 2
-    except (OSError, ValueError, WeavecError) as exc:
+    except (OSError, ValueError, WeavecError, LlmError) as exc:
         print(f"loupe verify-report: {exc}", file=sys.stderr)
         return 1
 
