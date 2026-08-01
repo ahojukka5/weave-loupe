@@ -136,6 +136,7 @@ def run_audit(
                 max_tokens=max_tokens,
                 allow_unsafe_http=allow_unsafe_http,
             )
+            native_analysis = analysis.get("native")
             metadata = collect_audit_metadata(
                 sources=weave_files,
                 weavec=weavec,
@@ -143,6 +144,9 @@ def run_audit(
                 llm_endpoint=config.endpoint_identity,
                 bundle=bundle,
                 runtime_matrix=runtime_matrix,
+                native_analysis=(
+                    native_analysis if isinstance(native_analysis, dict) else None
+                ),
             )
             prompt = render_audit_prompt(
                 source_path=", ".join(source_names),

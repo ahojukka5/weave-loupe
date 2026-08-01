@@ -20,6 +20,15 @@ from weave_loupe.compiler_version import identify_weavec
 from weave_loupe.weavec import resolve_weavec
 
 _FAILED = re.compile(r"^FAILED:\s*([a-z0-9]+(?:-[a-z0-9]+)*):\s*(\S(?:.*\S)?)\s*$")
+_NATIVE_METADATA_FIELDS = (
+    "supported",
+    "failure_reason",
+    "architecture",
+    "object_format",
+    "disassembler",
+    "disassembler_version",
+    "parser_format",
+)
 
 
 class AuditProtocolError(ValueError):
@@ -71,8 +80,9 @@ def collect_audit_metadata(
     llm_endpoint: str,
     bundle: Bundle,
     runtime_matrix: dict[str, Any] | None = None,
+    native_analysis: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Collect source, compiler, auditor, runtime, and machine facts."""
+    """Collect source, compiler, auditor, runtime, native, and machine facts."""
     binary = resolve_weavec(weavec)
     identity = identify_weavec(binary)
     auditor = identify_auditor()
@@ -102,6 +112,7 @@ def collect_audit_metadata(
             "version_source": identity.source,
             "repository": _git_metadata(binary),
         },
+        "native": _native_metadata(native_analysis),
         "machine": _machine_metadata(),
         "sources": [
             {
@@ -130,6 +141,7 @@ def render_audit_report(
     auditor = _mapping(metadata.get("auditor"))
     weavec = _mapping(metadata.get("weavec"))
     weavec_repo = _mapping(weavec.get("repository"))
+    native = _mapping(metadata.get("native"))
     llm = _mapping(metadata.get("llm"))
     validity = _mapping(metadata.get("validity"))
     runtime_input = _mapping(metadata.get("runtime_input"))
@@ -171,6 +183,16 @@ def render_audit_report(
         f"- **weavec version:** `{weavec.get('version', 'unavailable')}`",
         f"- **weavec build kind:** `{build_kind}`",
         f"- **weavec version source:** `{weavec.get('version_source', 'unavailable')}`",
+        f"- **Native analysis supported:** `{_report_value(native.get('supported'))}`",
+        f"- **Native target architecture:** "
+        f"`{_report_value(native.get('architecture'))}`",
+        f"- **Native object format:** `{_report_value(native.get('object_format'))}`",
+        f"- **Native disassembler:** `{_report_value(native.get('disassembler'))}`",
+        "- **Native disassembler version:** "
+        f"`{_report_value(native.get('disassembler_version'))}`",
+        f"- **Native parser format:** `{_report_value(native.get('parser_format'))}`",
+        f"- **Native analysis failure:** "
+        f"`{_report_value(native.get('failure_reason'))}`",
         f"- **LLM endpoint:** `{llm.get('endpoint', 'unavailable')}`",
         f"- **LLM model:** `{llm.get('requested_model', metadata['model'])}`",
         f"- **LLM max tokens:** `{_report_value(llm.get('max_tokens'))}`",
@@ -258,6 +280,16 @@ def render_audit_report(
 def metadata_json(metadata: dict[str, Any]) -> str:
     """Serialize metadata for verbose diagnostics and tests."""
     return json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=False)
+
+
+def _native_metadata(native_analysis: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(native_analysis, dict):
+        return {}
+    return {
+        key: native_analysis.get(key)
+        for key in _NATIVE_METADATA_FIELDS
+        if key in native_analysis
+    }
 
 
 def _runtime_input_metadata(
