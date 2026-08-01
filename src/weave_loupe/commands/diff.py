@@ -17,9 +17,14 @@ def run_diff(
     after: Path,
     json_out: Path | None,
     html_out: Path | None,
+    format_version: str = "v2",
 ) -> int:
     try:
-        comparison = compare_bundles(load_bundle(before), load_bundle(after))
+        comparison = compare_bundles(
+            load_bundle(before),
+            load_bundle(after),
+            format_version=format_version,
+        )
         payload = (
             json.dumps(comparison, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         )
