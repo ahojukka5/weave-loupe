@@ -30,10 +30,88 @@ def test_bundle_report_is_deterministic(
     assert render_bundle_report(bundle) == render_bundle_report(bundle)
 
 
-def test_diff_report_contains_metric_table() -> None:
+def test_v1_diff_report_contains_metric_table() -> None:
     report = render_diff_report(
-        {"llvm_metrics": {"instructions": {"before": 5, "after": 4, "delta": -1}}}
+        {
+            "format": "weave-loupe-diff-v1",
+            "llvm_metrics": {"instructions": {"before": 5, "after": 4, "delta": -1}},
+        }
     )
     assert "Weave Loupe comparison" in report
+    assert "Legacy" in report
     assert "instructions" in report
     assert "-1" in report
+
+
+def test_v2_diff_report_contains_navigation_and_all_major_sections() -> None:
+    report = render_diff_report(
+        {
+            "format": "weave-loupe-diff-v2",
+            "summary": {
+                "total_changes": 2,
+                "by_classification": {"semantic": 1, "quality": 1},
+                "by_severity": {"error": 1, "warning": 1},
+            },
+            "changes": [
+                {
+                    "severity": "error",
+                    "classification": "semantic",
+                    "section": "analysis.diagnostics",
+                    "path": "abc",
+                    "kind": "added",
+                    "before": None,
+                    "after": {"message": "<unsafe>"},
+                }
+            ],
+            "analysis": {
+                "llvm": {
+                    "metrics": {
+                        "instructions": {
+                            "before": 5,
+                            "after": 6,
+                            "delta": 1,
+                            "changed": True,
+                        }
+                    }
+                },
+                "optimized_llvm": {"metrics": {}},
+                "native": {
+                    "functions": {
+                        "added": ["helper"],
+                        "removed": [],
+                        "modified": {},
+                    }
+                },
+                "diagnostics": {"added": [{"message": "<unsafe>"}]},
+            },
+            "sources": {"items": {}},
+            "artifacts": {
+                "items": {
+                    "llvm": {
+                        "status": "hash-changed",
+                        "before": {"sha256": "a"},
+                        "after": {"sha256": "b"},
+                    }
+                }
+            },
+            "logs": {"items": {}},
+            "supplemental": {
+                "runtime": {"available": True, "changed": True},
+                "native_budget": {"available": True, "changed": False},
+            },
+            "manifest": {"changed": True},
+            "optimization_remarks": {"changed": True},
+        }
+    )
+
+    assert "complete evidence comparison" in report
+    assert 'href="#changes"' in report
+    assert "Raw LLVM metrics" in report
+    assert "Optimized LLVM metrics" in report
+    assert "Native code and reachability" in report
+    assert "Runtime and deterministic contracts" in report
+    assert "Manifest and optimization remarks" in report
+    assert "helper" in report
+    assert "hash-changed" in report
+    assert "&lt;unsafe&gt;" in report
+    assert "<unsafe>" not in report
