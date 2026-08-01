@@ -50,6 +50,12 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
             "b.weave",
             "--report-out",
             "a.md",
+            "--review-total-tokens",
+            "120000",
+            "--review-request-tokens",
+            "30000",
+            "--review-artifact-tokens",
+            "60000",
             "--allow-unsafe-http",
             "--compiler-timeout-seconds",
             "45",
@@ -63,6 +69,9 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
     )
     assert args.weave_files == [Path("a.weave"), Path("b.weave")]
     assert args.report_out == Path("a.md")
+    assert args.review_total_tokens == 120000
+    assert args.review_request_tokens == 30000
+    assert args.review_artifact_tokens == 60000
     assert args.allow_unsafe_http is True
     assert args.compiler_timeout_seconds == 45.0
     assert args.compiler_output_bytes == 8192
@@ -74,6 +83,9 @@ def test_audit_parser_defers_unsafe_http_policy_to_environment() -> None:
     args = build_parser().parse_args(["audit", "a.weave"])
 
     assert args.allow_unsafe_http is None
+    assert args.review_total_tokens == 524_288
+    assert args.review_request_tokens == 98_304
+    assert args.review_artifact_tokens == 262_144
 
 
 def test_verify_bundle_parser_supports_policy_and_json_output() -> None:
@@ -173,6 +185,12 @@ def test_main_dispatches_audit_limits() -> None:
             [
                 "audit",
                 "a.weave",
+                "--review-total-tokens",
+                "100000",
+                "--review-request-tokens",
+                "25000",
+                "--review-artifact-tokens",
+                "50000",
                 "--allow-unsafe-http",
                 "--compiler-timeout-seconds",
                 "60",
@@ -200,6 +218,9 @@ def test_main_dispatches_audit_limits() -> None:
         runtime_timeout_seconds=4.0,
         runtime_output_bytes=1024,
         allow_unsafe_http=True,
+        review_total_tokens=100000,
+        review_request_tokens=25000,
+        review_artifact_tokens=50000,
     )
 
 
