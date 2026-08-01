@@ -26,6 +26,8 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [Compiler regression audits](compiler-audits.md) — baseline-versus-candidate
+  compilation, differential policies, sealed evidence, and stable exit codes.
 - [LLM endpoint transport and identity](llm-endpoints.md) — HTTPS defaults,
   loopback HTTP, explicit unsafe overrides, public identities, and redaction.
 - [Compiler and runtime process limits](process-limits.md) — bounded output,
@@ -51,6 +53,9 @@ presentation format.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
   JSON.
 - `loupe diff` compares structural LLVM metrics and stable trace actions.
+- `loupe compiler-audit` compiles the same ordered inputs with baseline and
+  candidate compilers, applies deterministic differential policy, and publishes
+  sealed JSON and Markdown evidence.
 - `loupe audit` sends the complete evidence to an OpenAI-compatible model, applies
   runtime, optimized-LLVM, and native deterministic gates, and with `--verbose`
   embeds the evidence in the generated Markdown report.
