@@ -36,10 +36,16 @@ def test_report_parser() -> None:
     assert args.analysis_json == Path("a.json")
 
 
-def test_diff_parser() -> None:
-    args = build_parser().parse_args(["diff", "a.loupe", "b.loupe"])
-    assert args.command == "diff"
-    assert args.before == Path("a.loupe")
+def test_diff_parser_defaults_to_v2_and_accepts_v1() -> None:
+    default = build_parser().parse_args(["diff", "a.loupe", "b.loupe"])
+    legacy = build_parser().parse_args(
+        ["diff", "a.loupe", "b.loupe", "--format-version", "v1"]
+    )
+
+    assert default.command == "diff"
+    assert default.before == Path("a.loupe")
+    assert default.format_version == "v2"
+    assert legacy.format_version == "v1"
 
 
 def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
@@ -176,6 +182,28 @@ def test_main_dispatches_capture_limits() -> None:
         include_executable=False,
         compiler_timeout_seconds=12.0,
         compiler_output_bytes=2048,
+    )
+
+
+def test_main_dispatches_diff_format() -> None:
+    with patch("weave_loupe.cli.run_diff", return_value=0) as command:
+        result = main(
+            [
+                "diff",
+                "before.loupe",
+                "after.loupe",
+                "--format-version",
+                "v1",
+            ]
+        )
+
+    assert result == 0
+    command.assert_called_once_with(
+        before=Path("before.loupe"),
+        after=Path("after.loupe"),
+        json_out=None,
+        html_out=None,
+        format_version="v1",
     )
 
 
