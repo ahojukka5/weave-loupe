@@ -84,6 +84,27 @@ uv run loupe audit docs/audit/fibonacci.weave \
   --report-out docs/audit/fibonacci.md
 ```
 
+Small audits use one complete request. When evidence does not fit, Loupe reviews
+every deterministic, hash-addressed artifact byte range and then synthesizes one
+strict final verdict. Configure conservative review admission and chunking budgets
+explicitly when needed:
+
+```sh
+uv run loupe audit program.weave \
+  --model "$WEAVE_LLM_MODEL" \
+  --max-tokens 4096 \
+  --review-total-tokens 524288 \
+  --review-request-tokens 98304 \
+  --review-artifact-tokens 262144 \
+  --report-out build/program.md
+```
+
+The report records review mode, request count, conservative estimates, artifact
+hashes and complete UTF-8 byte ranges, prompt and request hashes, request
+dependencies, provider finish reasons, and provider token usage. Loupe fails rather
+than silently omitting evidence when complete coverage, a partial request, or final
+synthesis cannot satisfy policy.
+
 Local OpenAI-compatible servers may use plain HTTP on loopback without an unsafe
 flag:
 
@@ -158,6 +179,7 @@ observable results. Loupe deterministically rejects any violated contract even
 when the reviewing model returns `OK`.
 
 See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
+[scalable review guide](docs/scalable-review.md), the
 [process limit guide](docs/process-limits.md), the
 [compiler regression audit guide](docs/compiler-audits.md), the
 [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
