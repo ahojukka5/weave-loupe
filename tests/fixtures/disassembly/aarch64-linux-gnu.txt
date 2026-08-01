@@ -1,0 +1,16 @@
+GNU objdump 2.42
+
+demo:     file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000000100 <main>:
+ 100: d503201f nop
+ 104: 94000007 bl 120 <fib>
+ 108: d63f0100 blr x8
+ 10c: 54ffffad b.le 104 <main+0x4>
+ 110: d65f03c0 ret
+
+0000000000000120 <fib>:
+ 120: 2a0003e0 mov w0, w0
+ 124: d65f03c0 ret
