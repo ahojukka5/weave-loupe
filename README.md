@@ -52,6 +52,15 @@ uv run loupe diff before.loupe after.loupe \
   --html-out comparison.html
 ```
 
+The default `weave-loupe-diff-v2` output compares the complete stable evidence
+chain: raw and optimized LLVM, native functions and reachability, diagnostics,
+trace membership and order, source and artifact identities, manifests, and
+optimization records. Every changed fact is classified as semantic, quality,
+provenance, or evidence. Standalone bundle comparisons mark post-capture runtime
+and contract results unavailable; compiler audits supply those already-computed
+results. Legacy consumers can request the original compact shape with
+`--format-version v1`.
+
 Gate a candidate compiler against a baseline by compiling the same ordered inputs
 with both binaries:
 
@@ -180,6 +189,7 @@ when the reviewing model returns `OK`.
 
 See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
 [scalable review guide](docs/scalable-review.md), the
+[complete comparison format guide](docs/diff-format.md), the
 [process limit guide](docs/process-limits.md), the
 [compiler regression audit guide](docs/compiler-audits.md), the
 [optimized LLVM contract guide](docs/optimized-llvm-contracts.md), the
