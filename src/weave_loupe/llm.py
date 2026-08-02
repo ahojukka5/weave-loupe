@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import json
+import math
 import os
 import time
 from dataclasses import dataclass, field
@@ -20,7 +21,8 @@ from openai import (
 )
 from openai.types.chat import ChatCompletion
 
-_DEFAULT_MAX_ATTEMPTS = 5
+DEFAULT_RETRY_ATTEMPTS = 7
+DEFAULT_RETRY_MAX_SECONDS = 60.0
 _RETRYABLE_STATUS_CODES = frozenset({404, 408, 409, 425, 429, 500, 502, 503, 504})
 _TRUE_ENVIRONMENT_VALUES = frozenset({"1", "true", "yes", "on"})
 _FALSE_ENVIRONMENT_VALUES = frozenset({"0", "false", "no", "off"})
@@ -47,7 +49,7 @@ class LlmConfig:
     model: str
     max_tokens: int = 4096
     temperature: float = 0.0
-    max_attempts: int = _DEFAULT_MAX_ATTEMPTS
+    max_attempts: int = DEFAULT_RETRY_ATTEMPTS
     allow_unsafe_http: bool = False
     endpoint_identity: str = field(init=False)
 
@@ -186,7 +188,7 @@ def load_config(
         raise LlmError("max_tokens must be positive")
     max_attempts = _positive_environment_integer(
         "WEAVE_LLM_MAX_ATTEMPTS",
-        default=_DEFAULT_MAX_ATTEMPTS,
+        default=DEFAULT_RETRY_ATTEMPTS,
     )
     unsafe_http = resolve_unsafe_http_policy(allow_unsafe_http)
     try:
@@ -268,13 +270,14 @@ def _create_completion(
                 raise LlmError(
                     f"LLM request failed with HTTP {exc.status_code}"
                 ) from None
-            time.sleep(_retry_delay_seconds(attempt))
+            fallback = _retry_delay_seconds(attempt)
+            time.sleep(_retry_delay(exc, fallback, DEFAULT_RETRY_MAX_SECONDS))
         except (APIConnectionError, APITimeoutError):
             if attempt == config.max_attempts:
                 raise LlmError(
                     f"LLM request could not reach {config.endpoint_identity}"
                 ) from None
-            time.sleep(_retry_delay_seconds(attempt))
+            time.sleep(min(_retry_delay_seconds(attempt), DEFAULT_RETRY_MAX_SECONDS))
         except (APIError, OpenAIError) as exc:
             raise LlmError(f"LLM request failed ({type(exc).__name__})") from None
     raise AssertionError("unreachable LLM retry loop")
@@ -302,6 +305,25 @@ def _is_loopback_hostname(hostname: str) -> bool:
         return ipaddress.ip_address(hostname).is_loopback
     except ValueError:
         return False
+
+
+def _retry_delay(error: object, fallback_seconds: float, max_seconds: float) -> float:
+    fallback = min(max(float(fallback_seconds), 0.0), max_seconds)
+    response = getattr(error, "response", None)
+    headers = getattr(response, "headers", None)
+    if headers is None:
+        return fallback
+    try:
+        raw_value = headers.get("retry-after")
+    except AttributeError:
+        return fallback
+    try:
+        retry_after = float(raw_value)
+    except (TypeError, ValueError):
+        return fallback
+    if retry_after < 0.0 or not math.isfinite(retry_after):
+        return fallback
+    return min(retry_after, max_seconds)
 
 
 def _retry_delay_seconds(attempt: int) -> float:
