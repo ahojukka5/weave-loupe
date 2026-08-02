@@ -1,7 +1,8 @@
-"""Tests for WIR-aware compiler audit policy."""
+"""Tests for complete compiler audit policy."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -67,12 +68,74 @@ def test_default_wir_metric_increase_fails_and_is_published(tmp_path: Path) -> N
     assert report["review"]["status"] == "OK"
 
 
+def test_forbidden_optimization_remark_fails(tmp_path: Path) -> None:
+    baseline = _result(valid=True)
+    candidate = _result(
+        valid=True,
+        remarks=[_remark("missed-1", "missed", "inline", "NoDefinition")],
+    )
+    policy = {
+        "format": "weave-loupe-compiler-audit-policy-v1",
+        "optimization_remarks": {
+            "forbidden": [{"category": "missed", "pass": "inline"}]
+        },
+    }
+
+    report = _run(
+        tmp_path,
+        baseline=baseline,
+        candidate=candidate,
+        policy=policy,
+    )
+
+    assert report["passed"] is False
+    assert "forbidden-optimization-remark-present" in _codes(report)
+    assert report["policy"]["optimization_remarks"] == {
+        "required": [],
+        "forbidden": [{"category": "missed", "pass": "inline"}],
+        "forbid_added": [],
+        "forbid_removed": [],
+    }
+
+
+def test_required_added_and_removed_remark_rules_fail(tmp_path: Path) -> None:
+    baseline = _result(
+        valid=True,
+        remarks=[_remark("passed-1", "passed", "inline", "Inlined")],
+    )
+    candidate = _result(
+        valid=True,
+        remarks=[_remark("missed-1", "missed", "inline", "NoDefinition")],
+    )
+    policy = {
+        "format": "weave-loupe-compiler-audit-policy-v1",
+        "optimization_remarks": {
+            "required": [{"category": "passed", "name": "Inlined"}],
+            "forbid_added": [{"category": "missed"}],
+            "forbid_removed": [{"category": "passed"}],
+        },
+    }
+
+    report = _run(
+        tmp_path,
+        baseline=baseline,
+        candidate=candidate,
+        policy=policy,
+    )
+
+    codes = _codes(report)
+    assert "required-optimization-remark-missing" in codes
+    assert "forbidden-optimization-remark-added" in codes
+    assert "forbidden-optimization-remark-removed" in codes
+
+
 def _run(
     tmp_path: Path,
     *,
     baseline: dict[str, Any],
     candidate: dict[str, Any],
     reviewer=None,
+    policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     original = {
         "format": "weave-loupe-compiler-audit-v1",
@@ -93,15 +156,31 @@ def _run(
     }
     bundle = Bundle(root=tmp_path, manifest={"format": "weave-loupe-bundle-v1"})
     wir_changed = baseline["analysis"]["wir"] != candidate["analysis"]["wir"]
+    before_records = baseline["analysis"]["optimization_remarks"]["records"]
+    after_records = candidate["analysis"]["optimization_remarks"]["records"]
+    before_ids = {item["identity"] for item in before_records}
+    after_ids = {item["identity"] for item in after_records}
     complete_diff = {
         "format": "weave-loupe-diff-v2",
         "analysis": {"wir": {"changed": wir_changed}},
+        "optimization_remarks": {
+            "added": [
+                item for item in after_records if item["identity"] not in before_ids
+            ],
+            "removed": [
+                item for item in before_records if item["identity"] not in after_ids
+            ],
+        },
         "changes": [],
         "summary": {"changed": wir_changed},
     }
+    policy_path = None
+    if policy is not None:
+        policy_path = tmp_path / "policy.json"
+        policy_path.write_text(json.dumps(policy), encoding="utf-8")
     with (
         patch(
-            "weave_loupe.complete_compiler_audit._audit_without_wir",
+            "weave_loupe.complete_compiler_audit._audit_without_extensions",
             return_value=original,
         ),
         patch(
@@ -118,11 +197,17 @@ def _run(
             baseline_weavec=tmp_path / "baseline-weavec",
             candidate_weavec=tmp_path / "candidate-weavec",
             work_dir=tmp_path,
+            policy_path=policy_path,
             reviewer=reviewer,
         )
 
 
-def _result(*, valid: bool, reason: str | None = None) -> dict[str, Any]:
+def _result(
+    *,
+    valid: bool,
+    reason: str | None = None,
+    remarks: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     zero_metrics = {
         "unreachable_blocks": 0,
         "unresolved_symbols": 0,
@@ -146,6 +231,12 @@ def _result(*, valid: bool, reason: str | None = None) -> dict[str, Any]:
                 "metrics": zero_metrics,
                 "cross_stage": {"metrics": zero_cross_stage},
             },
+            "optimization_remarks": {
+                "available": True,
+                "valid": True,
+                "failure_reason": None,
+                "records": remarks or [],
+            },
             "diagnostics": {},
             "evidence": {},
         },
@@ -153,6 +244,22 @@ def _result(*, valid: bool, reason: str | None = None) -> dict[str, Any]:
         "native_budget": {},
         "optimized_llvm_budget": {},
         "artifacts": {},
+    }
+
+
+def _remark(
+    identity: str,
+    category: str,
+    pass_name: str,
+    name: str,
+) -> dict[str, Any]:
+    return {
+        "identity": identity,
+        "category": category,
+        "pass": pass_name,
+        "name": name,
+        "function": "main",
+        "message": "",
     }
 
 

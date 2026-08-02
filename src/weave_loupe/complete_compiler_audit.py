@@ -1,4 +1,4 @@
-"""WIR-aware extension of baseline-versus-candidate compiler audits."""
+"""Complete baseline-versus-candidate compiler audits."""
 
 from __future__ import annotations
 
@@ -20,7 +20,12 @@ from weave_loupe.compiler_audit import (
     resolve_compiler_input,
     seal_compiler_audit,
 )
-from weave_loupe.compiler_audit import audit_compilers as _audit_without_wir
+from weave_loupe.compiler_audit import audit_compilers as _audit_without_extensions
+from weave_loupe.optimization_remark_policy import (
+    base_policy_path,
+    evaluate_optimization_remark_policy,
+    load_optimization_remark_policy,
+)
 
 _WIR_DEFAULT_PATHS = (
     "analysis.wir.metrics.unreachable_blocks",
@@ -48,13 +53,18 @@ def audit_compilers(
     runtime_output_bytes: int | None = None,
     reviewer: ReviewCallback | None = None,
 ) -> dict[str, Any]:
-    """Run the established audit and add complete deterministic WIR evidence."""
-    report = _audit_without_wir(
+    """Run the established audit and add complete deterministic evidence."""
+    remark_policy = load_optimization_remark_policy(policy_path)
+    core_policy = base_policy_path(
+        policy_path,
+        work_dir.expanduser().resolve() / "core-policy.json",
+    )
+    report = _audit_without_extensions(
         sources=sources,
         baseline_weavec=baseline_weavec,
         candidate_weavec=candidate_weavec,
         work_dir=work_dir,
-        policy_path=policy_path,
+        policy_path=core_policy,
         compiler_timeout_seconds=compiler_timeout_seconds,
         compiler_output_bytes=compiler_output_bytes,
         runtime_timeout_seconds=runtime_timeout_seconds,
@@ -74,9 +84,21 @@ def audit_compilers(
     )
     report["comparison"] = comparison
 
+    policy = dict(_mapping(report.get("policy")))
+    policy["optimization_remarks"] = remark_policy
+    report["policy"] = policy
+
     failures = [dict(item) for item in _mapping_list(report.get("failures"))]
     _append_validity_failures(baseline, candidate, failures)
     _append_default_metric_rules(report, baseline, candidate, failures)
+    failures.extend(
+        evaluate_optimization_remark_policy(
+            remark_policy,
+            baseline,
+            candidate,
+            _mapping(comparison.get("bundle_diff")),
+        )
+    )
     report["failures"] = failures
     infrastructure = any(item.get("category") == "infrastructure" for item in failures)
     report["passed"] = not failures
