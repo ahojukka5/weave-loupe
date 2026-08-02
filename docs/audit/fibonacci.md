@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `05e2d86d537d3a4c4188d2f7aa2b7fbee90c51c36e4024660fca2ac15ad23502`
-- **Audit timestamp (UTC):** `2026-08-02T15:45:29+00:00`
-- **Re-audit no later than (UTC):** `2026-09-01T15:45:29+00:00`
+- **Report content SHA-256:** `6816c43235656e7faa408dfedb0519eb834b1ed103a3f89b44faa0b1286ee412`
+- **Audit timestamp (UTC):** `2026-08-02T23:01:43+00:00`
+- **Re-audit no later than (UTC):** `2026-09-01T23:01:43+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,13 +19,13 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
+- **Audited source Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
+- **Weave Loupe Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
 - **Auditor content SHA-256:** `f14fe2e8261f65fc26968d7d7a9418732863631a205d54d3602313bd24a8912d`
-- **weavec Git SHA:** `ccf2ac6a3b22cf88461793ea6c4f64287cfc743c`
-- **weavec binary SHA-256:** `950e57c792ac4a98da89ca5049719ef964a39870ef384cb20a4e8027aaf3c870`
-- **weavec version:** `weavec v0.3.0+git.ccf2ac6a3b22`
+- **weavec Git SHA:** `1ba3dc73a459e0f4d9449225060d580953d74e7d`
+- **weavec binary SHA-256:** `afdf6f523342bb5484e43a2d9a0006863b7629217da3d97af4aad0c1417563c4`
+- **weavec version:** `weavec v0.3.0+git.1ba3dc73a459`
 - **weavec build kind:** `development`
 - **weavec version source:** `command`
 - **Native analysis supported:** `True`
@@ -39,27 +39,27 @@
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `c22018a2b3d940055d43895931a1e4243f3072b93247080d72cbdc319bde4a6f`
-- **LLM request SHA-256:** `05203e8d61c6cfb22f39d8addf1a4940578e1de6c1a9e457efcff73185b3d642`
+- **LLM prompt SHA-256:** `a9c4fc66535d322c3c6f8b54089fe9ff6baa2ae73c452d153bf9f325872bdaa0`
+- **LLM request SHA-256:** `c57a2e962e47c372f0d8f3cca17c7a22108cbad5dcf61d4d2b1a94cc2164f7c7`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-f06856b4-002e-4fce-9041-b1a4f37a1be5`
+- **Provider response ID:** `chatcmpl-46580f2f-062b-45a3-9262-02fe2a3569db`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785685530`
-- **Provider prompt tokens:** `25171`
-- **Provider completion tokens:** `1123`
-- **Provider total tokens:** `26294`
-- **GitHub run ID:** `30754646619`
-- **GitHub workflow SHA:** `63392d7157d473e9da82df6ddc07e2f3448e8d86`
+- **Provider created (Unix):** `1785711704`
+- **Provider prompt tokens:** `25169`
+- **Provider completion tokens:** `1507`
+- **Provider total tokens:** `26676`
+- **GitHub run ID:** `30771351635`
+- **GitHub workflow SHA:** `da1a9c551bdf5bf4afe28a8cc46fe7725a1abf00`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `AMD EPYC 7763 64-Core Processor`
+- **CPU:** `INTEL(R) XEON(R) PLATINUM 8573C`
 - **Logical CPUs:** `4`
-- **Memory:** `16770756608` bytes
+- **Memory:** `16765386752` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
@@ -71,11 +71,11 @@
 ## Captured evidence
 
 - `assembly` — SHA-256 `c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`
-- `build_manifest` — SHA-256 `751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
+- `build_manifest` — SHA-256 `03b573416e1fff442088affd28018021725ea9e940caa92b0e02c2045d95b7cc`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
 - `disassembly` — SHA-256 `3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`
 - `executable` — SHA-256 `90a568e286f9d2d5ae1873d965c2364f89a46d071136e1cd18a1914f9e95ef89`
-- `llvm` — SHA-256 `194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
+- `llvm` — SHA-256 `1794665629072763db0e09778cd48247d1c6352b5a9f715f9ea38cb3809444e2`
 - `optimization_record` — SHA-256 `3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`
 - `optimized_llvm` — SHA-256 `057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`
 - `trace` — SHA-256 `973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
@@ -100,9 +100,9 @@
 - Language: `json`
 - UTF-8 bytes: `10278`
 - Estimated tokens: `10294`
-- SHA-256: `ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`
+- SHA-256: `404ba2aa0e4becabd32974ee861bb51f9ba946d8ec143752b3b5434f6145ef8f`
 - Complete coverage: `True`
-- Covered ranges: `metadata:[0, 10278)@ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`
+- Covered ranges: `metadata:[0, 10278)@404ba2aa0e4becabd32974ee861bb51f9ba946d8ec143752b3b5434f6145ef8f`
 
 #### `source` — Weave source
 
@@ -127,9 +127,9 @@
 - Language: `llvm`
 - UTF-8 bytes: `3418`
 - Estimated tokens: `3434`
-- SHA-256: `194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
+- SHA-256: `1794665629072763db0e09778cd48247d1c6352b5a9f715f9ea38cb3809444e2`
 - Complete coverage: `True`
-- Covered ranges: `raw_llvm:[0, 3418)@194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
+- Covered ranges: `raw_llvm:[0, 3418)@1794665629072763db0e09778cd48247d1c6352b5a9f715f9ea38cb3809444e2`
 
 #### `optimized_llvm` — Optimized LLVM IR
 
@@ -181,18 +181,18 @@
 - Language: `json`
 - UTF-8 bytes: `47429`
 - Estimated tokens: `47445`
-- SHA-256: `3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`
+- SHA-256: `fcc4029282798d4d993b710a585655901818c76f6510d64085e35e6e5976f7df`
 - Complete coverage: `True`
-- Covered ranges: `analysis:[0, 47429)@3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`
+- Covered ranges: `analysis:[0, 47429)@fcc4029282798d4d993b710a585655901818c76f6510d64085e35e6e5976f7df`
 
 #### `build_manifest` — Compiler build manifest
 
 - Language: `json`
 - UTF-8 bytes: `688`
 - Estimated tokens: `704`
-- SHA-256: `751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
+- SHA-256: `03b573416e1fff442088affd28018021725ea9e940caa92b0e02c2045d95b7cc`
 - Complete coverage: `True`
-- Covered ranges: `build_manifest:[0, 688)@751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
+- Covered ranges: `build_manifest:[0, 688)@03b573416e1fff442088affd28018021725ea9e940caa92b0e02c2045d95b7cc`
 
 #### `trace` — Compiler trace
 
@@ -211,16 +211,16 @@
 - Estimated input tokens: `80447`
 - Reserved output tokens: `4096`
 - Depends on: none
-- Covered ranges: `metadata:[0, 10278)@ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`, `source:[0, 970)@08cc4b43b17a3614d68ae9fe381c7f33aac01c5ddd56b11efe6c79a9d9593dae`, `wir:[0, 670)@725de77fa242cc92db08ca66c30d686c2c1264a3e59555bcf0da5c88347dc34c`, `raw_llvm:[0, 3418)@194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`, `optimized_llvm:[0, 444)@057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`, `assembly:[0, 390)@c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`, `disassembly:[0, 5681)@3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`, `optimization_record:[0, 2406)@3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 47429)@3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`, `build_manifest:[0, 688)@751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`, `trace:[0, 205)@973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
-- Prompt SHA-256: `c22018a2b3d940055d43895931a1e4243f3072b93247080d72cbdc319bde4a6f`
-- Request SHA-256: `05203e8d61c6cfb22f39d8addf1a4940578e1de6c1a9e457efcff73185b3d642`
+- Covered ranges: `metadata:[0, 10278)@404ba2aa0e4becabd32974ee861bb51f9ba946d8ec143752b3b5434f6145ef8f`, `source:[0, 970)@08cc4b43b17a3614d68ae9fe381c7f33aac01c5ddd56b11efe6c79a9d9593dae`, `wir:[0, 670)@725de77fa242cc92db08ca66c30d686c2c1264a3e59555bcf0da5c88347dc34c`, `raw_llvm:[0, 3418)@1794665629072763db0e09778cd48247d1c6352b5a9f715f9ea38cb3809444e2`, `optimized_llvm:[0, 444)@057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`, `assembly:[0, 390)@c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`, `disassembly:[0, 5681)@3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`, `optimization_record:[0, 2406)@3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 47429)@fcc4029282798d4d993b710a585655901818c76f6510d64085e35e6e5976f7df`, `build_manifest:[0, 688)@03b573416e1fff442088affd28018021725ea9e940caa92b0e02c2045d95b7cc`, `trace:[0, 205)@973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
+- Prompt SHA-256: `a9c4fc66535d322c3c6f8b54089fe9ff6baa2ae73c452d153bf9f325872bdaa0`
+- Request SHA-256: `c57a2e962e47c372f0d8f3cca17c7a22108cbad5dcf61d4d2b1a94cc2164f7c7`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-f06856b4-002e-4fce-9041-b1a4f37a1be5`
+- Provider response ID: `chatcmpl-46580f2f-062b-45a3-9262-02fe2a3569db`
 - Finish reason: `stop`
-- Provider prompt tokens: `25171`
-- Provider completion tokens: `1123`
-- Provider total tokens: `26294`
+- Provider prompt tokens: `25169`
+- Provider completion tokens: `1507`
+- Provider total tokens: `26676`
 
 ## Complete compiler evidence
 
@@ -299,7 +299,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-8xzFOu/program.wir
+; source: /tmp/weavec-build-gLgs8K/program.wir
 ; core-version: 2
 
 ; weave.source kind=function index=0 bytes=836..933 wir-bytes=3030..3582 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
@@ -750,7 +750,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.010827,
+        "elapsed_seconds": 0.007267,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -796,7 +796,7 @@ Args:
     "file_size_bytes": 67108864,
     "format": "weave-loupe-process-limits-v1",
     "output_bytes_per_stream": 1048576,
-    "process_count": 119,
+    "process_count": 118,
     "resource_limits_supported": true,
     "timeout_seconds": 5.0
   },
@@ -1184,7 +1184,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.010827,
+          "elapsed_seconds": 0.007267,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -1230,7 +1230,7 @@ Args:
       "file_size_bytes": 67108864,
       "format": "weave-loupe-process-limits-v1",
       "output_bytes_per_stream": 1048576,
-      "process_count": 119,
+      "process_count": 118,
       "resource_limits_supported": true,
       "timeout_seconds": 5.0
     },
@@ -2444,7 +2444,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-00njzfr3/.audit.loupe.hgoh4n6s/artifacts/program",
+  "output": "/tmp/loupe-audit-lkgywhv8/.audit.loupe.f9kfeq9i/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
   ]
@@ -2468,32 +2468,36 @@ Args:
 ## LLM review
 
 ## Summary
-The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and expects a signed `i32` return value of `55`. The cleaned WIR preserves this structure. The raw LLVM IR allocates stack space for the iterative loop, but the LLVM optimizer (`loop-delete` and `inline` passes, as shown in the optimization record) evaluates the loop at compile-time and constant-folds the result. The optimized LLVM IR consists of a single `ret i32 55` instruction. The target assembly and linked executable disassembly confirm this is lowered to `movl $55, %eax; retq`, which exactly matches the x86_64 SysV ABI for a function returning an `i32`. The configured runtime matrix successfully executes the exact linked artifact and observes an exit code of `55`, matching the expected sidecar values. Both the optimized LLVM contract and native optimization budget pass without failure, and no avoidable overhead remains in the final code.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and returns `55`; the optimized LLVM module is a single `ret i32 55`; the linked executable disassembly is `movl $0x37, %eax; retq`; and the configured runtime matrix executed the exact linked artifact and observed exit code `55`. The optimized LLVM contract and native optimization budget both pass with zero failures, and no overhead remains in the final native code.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source (`docs/audit/fibonacci.weave`) defines an iterative `fib(10)` returning `55`. The runtime matrix in the analysis JSON confirms the linked executable exits with code `55`.
-- Weave-to-WIR semantic preservation: PASS. The WIR review projection preserves the `fib` function logic, the `le_i32` comparisons, the `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR `if` condition to `icmp sle i32 %n, 1`, the `while` loop to a backedge branching to `while.cond1`, and the `main` call to `call i32 @fib(i32 10)`.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA values, correctly typed `i32` operations, and valid branching. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR computes the constant `55` and returns it, preserving the semantic result of the source `fib(10)` call.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses. All limits are respected and `passed: true`.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the WIR `le_i32`. For `n=10`, the iterative additions do not overflow `i32`.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final disassembly uses `movl $55, %eax` to return the `i32` result in the correct SysV ABI register (`%eax`), followed by `retq`. The `StackSize` analysis confirms 0 stack bytes used in `main`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM is marked `nofree norecurse nosync nounwind willreturn memory(none)`, proving no memory unsafety, leaks, or UB remain.
-- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions (`endbr64`, `movl`, `retq`, etc.) and standard ELF64 structure.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the artifact and observed `exit_code: 55`, matching the expected sidecar value. No stderr/stdout output was produced, as expected.
-- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` in the analysis JSON confirms `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches. `passed: true`.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM contains only a single `ret` instruction. The final native code contains only `movl` and `retq`. No overhead remains.
+- Source semantics and expected result: PASS. `docs/audit/fibonacci.weave` defines `fib(n)` with base case `n <= 1` returning `n`, then iterates `index` from `2` to `n` updating `previous`/`current`; `main` returns `fib(10)`. The source comment states the expected signed i32 return value is `55`, and the runtime sidecar expects `exit_code: 55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves both functions, the `le_i32 n (const_i32 1)` guard, the `let previous/current/index`, the `while (le_i32 index n)` loop with `add_i32 previous current`, the `set previous/current/index` updates, and `main`'s `return (call_i32 fib (const_i32 10))`.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM defines `@main` calling `@fib(i32 10)` and `@fib` with `icmp sle i32 %n, 1`, stack slots for `previous.addr`, `current.addr`, `index.addr`, the `while.cond1` loop comparing `%index.addr` to `%n`, `add i32 %t3, %t4` for `next`, the `previous`/`current`/`index` stores, and final `load i32, ptr %current.addr` return.
+- Raw LLVM validity, SSA, types, and control flow: PASS. SSA is well-formed, types are `i32`/`ptr` as expected, `alloca`/`load`/`store` are valid, branches are explicit, and the complete analysis JSON reports `poison_uses: 0`, `undef_uses: 0`, `identity_adds: 0`, `invoke: 0`, `switch: 0`.
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM is `define noundef i32 @main() ... { entry: ret i32 55 }`, matching the source semantics after constant-folding `fib(10)` to `55`.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. `optimized_llvm_budget.passed` is `true` with `failures: []`; observed `functions: 1`, `defined_functions: ["main"]`, `instructions: 1`, `ret: 1`, `alloca: 0`, `load: 0`, `store: 0`, `call: 0`, `br: 0`, `phi: 0`, `poison_uses: 0`, `undef_uses: 0`, `identity_adds: 0`, all within limits.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source uses `le_i32` and `add_i32`; raw LLVM uses `icmp sle` and `add i32`. For `n=10` the iteration is small and no overflow occurs; the folded result `55` is correct and within signed i32 range.
+- Calls, return values, ABI, stack alignment, and register use: PASS. `main` is `i32`-returning per System V AMD64; final code uses `movl $0x37, %eax; retq`, returning through `%eax` with no stack frame (`StackSize: 0`, `NumStackBytes: '0'`).
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. Raw LLVM stack traffic is valid and scoped; optimized LLVM has `memory(none)` and `nounwind willreturn`; no leaks or UB are present. Runtime sandbox executed with `termination_reason: "exited"` and no stderr.
+- Target compatibility and native instruction validity: PASS. Build manifest targets `x86_64-unknown-linux-gnu`; disassembly is valid ELF64 x86-64; `main` at `0x1130` is `b8 37 00 00 00 movl $0x37, %eax` / `c3 retq`.
+- Native runtime cases and expected observable behavior: PASS. Runtime matrix `constant-fibonacci` passed: `exit_code: 55`, `returncode: 55`, `signal: null`, `stdout: ""`, `stderr: ""`, `termination_reason: "exited"`, matching expected `exit_code: 55`.
+- Configured native limits, required call targets, and loop backedges: PASS. `native_budget.passed` is `true` with `failures: []`; `main` observed `instructions: 2`, `direct_calls: 0`, `indirect_calls: 0`, `backward_conditional_branches: 0`, `padding_instructions: 0`; `max_program_owned_functions: 1` observed; `max_unreachable_program_functions: 0` observed.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. Optimized LLVM has exactly one instruction (`ret i32 55`); final `main` has exactly two native instructions (`movl`, `retq`); no calls, branches, stack traffic, or padding remain in the program-owned function.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The raw LLVM IR uses `alloca` and `load`/`store` traffic for the iterative loop variables, but this is standard unoptimized codegen and is completely eliminated by the LLVM optimizer, resulting in zero overhead in the final native code.
+- The WIR provenance analysis reports `malformed_provenance: 48` with many `"no following WIR form"` span notes. This does not affect codegen or final correctness, but improving WIR span mapping would make audits easier to debug.
+- Raw LLVM uses `alloca`/`load`/`store` for `previous`, `current`, and `index`. This is expected for a straightforward lowering and is fully removed by LLVM optimization, so it is not compiler-generated overhead in the final artifact.
+- The source algorithm itself is iterative and simple; no source-level algorithmic improvement is needed for `fib(10)`.
 
 ## Suggested verification
-- Add additional runtime matrix cases testing edge conditions for `fib` (e.g., `fib(0)`, `fib(1)`, `fib(2)`) to further validate the `le_i32 n 1` branch of the WIR logic across the compilation pipeline.
-- Consider adding a test case with a non-constant input to `fib` to verify the loop's machine code generation and ABI compliance when the optimizer cannot constant-fold the result.
+- Add runtime cases for `fib(0)`, `fib(1)`, `fib(2)`, and a larger value such as `fib(20)` to guard against base-case and loop-bound regressions.
+- Add a signed-overflow case near `fib(46)`/`fib(47)` to document intended wrap or error behavior for `i32`.
+- Add a native budget sidecar that also records required absence of `fib` in the linked symbol table, so the constant-folding guarantee is enforced structurally across audits.
+- Add a check that WIR provenance has zero malformed spans, or explicitly mark span notes as non-blocking, to reduce audit noise.
 
 <details>
 <summary>Raw model response</summary>
@@ -2501,31 +2505,35 @@ None found. The raw LLVM IR uses `alloca` and `load`/`store` traffic for the ite
 ```text
 OK
 ## Summary
-The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and expects a signed `i32` return value of `55`. The cleaned WIR preserves this structure. The raw LLVM IR allocates stack space for the iterative loop, but the LLVM optimizer (`loop-delete` and `inline` passes, as shown in the optimization record) evaluates the loop at compile-time and constant-folds the result. The optimized LLVM IR consists of a single `ret i32 55` instruction. The target assembly and linked executable disassembly confirm this is lowered to `movl $55, %eax; retq`, which exactly matches the x86_64 SysV ABI for a function returning an `i32`. The configured runtime matrix successfully executes the exact linked artifact and observes an exit code of `55`, matching the expected sidecar values. Both the optimized LLVM contract and native optimization budget pass without failure, and no avoidable overhead remains in the final code.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and returns `55`; the optimized LLVM module is a single `ret i32 55`; the linked executable disassembly is `movl $0x37, %eax; retq`; and the configured runtime matrix executed the exact linked artifact and observed exit code `55`. The optimized LLVM contract and native optimization budget both pass with zero failures, and no overhead remains in the final native code.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source (`docs/audit/fibonacci.weave`) defines an iterative `fib(10)` returning `55`. The runtime matrix in the analysis JSON confirms the linked executable exits with code `55`.
-- Weave-to-WIR semantic preservation: PASS. The WIR review projection preserves the `fib` function logic, the `le_i32` comparisons, the `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR `if` condition to `icmp sle i32 %n, 1`, the `while` loop to a backedge branching to `while.cond1`, and the `main` call to `call i32 @fib(i32 10)`.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA values, correctly typed `i32` operations, and valid branching. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR computes the constant `55` and returns it, preserving the semantic result of the source `fib(10)` call.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses. All limits are respected and `passed: true`.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the WIR `le_i32`. For `n=10`, the iterative additions do not overflow `i32`.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final disassembly uses `movl $55, %eax` to return the `i32` result in the correct SysV ABI register (`%eax`), followed by `retq`. The `StackSize` analysis confirms 0 stack bytes used in `main`.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM is marked `nofree norecurse nosync nounwind willreturn memory(none)`, proving no memory unsafety, leaks, or UB remain.
-- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions (`endbr64`, `movl`, `retq`, etc.) and standard ELF64 structure.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the artifact and observed `exit_code: 55`, matching the expected sidecar value. No stderr/stdout output was produced, as expected.
-- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` in the analysis JSON confirms `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches. `passed: true`.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM contains only a single `ret` instruction. The final native code contains only `movl` and `retq`. No overhead remains.
+- Source semantics and expected result: PASS. `docs/audit/fibonacci.weave` defines `fib(n)` with base case `n <= 1` returning `n`, then iterates `index` from `2` to `n` updating `previous`/`current`; `main` returns `fib(10)`. The source comment states the expected signed i32 return value is `55`, and the runtime sidecar expects `exit_code: 55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves both functions, the `le_i32 n (const_i32 1)` guard, the `let previous/current/index`, the `while (le_i32 index n)` loop with `add_i32 previous current`, the `set previous/current/index` updates, and `main`'s `return (call_i32 fib (const_i32 10))`.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM defines `@main` calling `@fib(i32 10)` and `@fib` with `icmp sle i32 %n, 1`, stack slots for `previous.addr`, `current.addr`, `index.addr`, the `while.cond1` loop comparing `%index.addr` to `%n`, `add i32 %t3, %t4` for `next`, the `previous`/`current`/`index` stores, and final `load i32, ptr %current.addr` return.
+- Raw LLVM validity, SSA, types, and control flow: PASS. SSA is well-formed, types are `i32`/`ptr` as expected, `alloca`/`load`/`store` are valid, branches are explicit, and the complete analysis JSON reports `poison_uses: 0`, `undef_uses: 0`, `identity_adds: 0`, `invoke: 0`, `switch: 0`.
+- Optimized LLVM semantic preservation: PASS. Optimized LLVM is `define noundef i32 @main() ... { entry: ret i32 55 }`, matching the source semantics after constant-folding `fib(10)` to `55`.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. `optimized_llvm_budget.passed` is `true` with `failures: []`; observed `functions: 1`, `defined_functions: ["main"]`, `instructions: 1`, `ret: 1`, `alloca: 0`, `load: 0`, `store: 0`, `call: 0`, `br: 0`, `phi: 0`, `poison_uses: 0`, `undef_uses: 0`, `identity_adds: 0`, all within limits.
+- Integer signedness, overflow, shifts, and comparisons: PASS. Source uses `le_i32` and `add_i32`; raw LLVM uses `icmp sle` and `add i32`. For `n=10` the iteration is small and no overflow occurs; the folded result `55` is correct and within signed i32 range.
+- Calls, return values, ABI, stack alignment, and register use: PASS. `main` is `i32`-returning per System V AMD64; final code uses `movl $0x37, %eax; retq`, returning through `%eax` with no stack frame (`StackSize: 0`, `NumStackBytes: '0'`).
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. Raw LLVM stack traffic is valid and scoped; optimized LLVM has `memory(none)` and `nounwind willreturn`; no leaks or UB are present. Runtime sandbox executed with `termination_reason: "exited"` and no stderr.
+- Target compatibility and native instruction validity: PASS. Build manifest targets `x86_64-unknown-linux-gnu`; disassembly is valid ELF64 x86-64; `main` at `0x1130` is `b8 37 00 00 00 movl $0x37, %eax` / `c3 retq`.
+- Native runtime cases and expected observable behavior: PASS. Runtime matrix `constant-fibonacci` passed: `exit_code: 55`, `returncode: 55`, `signal: null`, `stdout: ""`, `stderr: ""`, `termination_reason: "exited"`, matching expected `exit_code: 55`.
+- Configured native limits, required call targets, and loop backedges: PASS. `native_budget.passed` is `true` with `failures: []`; `main` observed `instructions: 2`, `direct_calls: 0`, `indirect_calls: 0`, `backward_conditional_branches: 0`, `padding_instructions: 0`; `max_program_owned_functions: 1` observed; `max_unreachable_program_functions: 0` observed.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. Optimized LLVM has exactly one instruction (`ret i32 55`); final `main` has exactly two native instructions (`movl`, `retq`); no calls, branches, stack traffic, or padding remain in the program-owned function.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The raw LLVM IR uses `alloca` and `load`/`store` traffic for the iterative loop variables, but this is standard unoptimized codegen and is completely eliminated by the LLVM optimizer, resulting in zero overhead in the final native code.
+- The WIR provenance analysis reports `malformed_provenance: 48` with many `"no following WIR form"` span notes. This does not affect codegen or final correctness, but improving WIR span mapping would make audits easier to debug.
+- Raw LLVM uses `alloca`/`load`/`store` for `previous`, `current`, and `index`. This is expected for a straightforward lowering and is fully removed by LLVM optimization, so it is not compiler-generated overhead in the final artifact.
+- The source algorithm itself is iterative and simple; no source-level algorithmic improvement is needed for `fib(10)`.
 
 ## Suggested verification
-- Add additional runtime matrix cases testing edge conditions for `fib` (e.g., `fib(0)`, `fib(1)`, `fib(2)`) to further validate the `le_i32 n 1` branch of the WIR logic across the compilation pipeline.
-- Consider adding a test case with a non-constant input to `fib` to verify the loop's machine code generation and ABI compliance when the optimizer cannot constant-fold the result.
+- Add runtime cases for `fib(0)`, `fib(1)`, `fib(2)`, and a larger value such as `fib(20)` to guard against base-case and loop-bound regressions.
+- Add a signed-overflow case near `fib(46)`/`fib(47)` to document intended wrap or error behavior for `i32`.
+- Add a native budget sidecar that also records required absence of `fib` in the linked symbol table, so the constant-folding guarantee is enforced structurally across audits.
+- Add a check that WIR provenance has zero malformed spans, or explicitly mark span notes as non-blocking, to reduce audit noise.
 ```
 </details>
