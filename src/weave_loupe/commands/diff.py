@@ -7,8 +7,9 @@ import sys
 from pathlib import Path
 
 from weave_loupe.bundle import BundleError, load_bundle
-from weave_loupe.diffing import compare_bundles
-from weave_loupe.reporting import render_diff_report, write_report
+from weave_loupe.bundle_diffing import compare_bundles
+from weave_loupe.complete_reporting import render_diff_report
+from weave_loupe.reporting import write_report
 
 
 def run_diff(
