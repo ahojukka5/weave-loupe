@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `c88a18ea89c16bc8982e152d6a9ed566680d214dfad3816ebb196ee3c019d625`
-- **Audit timestamp (UTC):** `2026-08-01T20:47:18+00:00`
-- **Re-audit no later than (UTC):** `2026-08-31T20:47:18+00:00`
+- **Report content SHA-256:** `d020b287068700b645dd154b0c80540e901af17f26a08eb4dc8d48eef5cc7c30`
+- **Audit timestamp (UTC):** `2026-08-02T06:18:38+00:00`
+- **Re-audit no later than (UTC):** `2026-09-01T06:18:38+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,13 +19,13 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `4bd74de32c87221ef828ee0da2c3c1263abe9c4a`
+- **Audited source Git SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `4bd74de32c87221ef828ee0da2c3c1263abe9c4a`
+- **Weave Loupe Git SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
 - **Auditor content SHA-256:** `feb6f4b141181eeb0982aa71215cd4a860bd581043365fd1da9ee6d64a54afe6`
-- **weavec Git SHA:** `254cce2108c771e651f875ab97965c72e7416e6d`
-- **weavec binary SHA-256:** `cc26164a503490b3706ef5168171dd56a72ac31905203d55315e9c5c758b9dbb`
-- **weavec version:** `weavec v0.3.0+git.254cce2108c7`
+- **weavec Git SHA:** `ccf2ac6a3b22cf88461793ea6c4f64287cfc743c`
+- **weavec binary SHA-256:** `950e57c792ac4a98da89ca5049719ef964a39870ef384cb20a4e8027aaf3c870`
+- **weavec version:** `weavec v0.3.0+git.ccf2ac6a3b22`
 - **weavec build kind:** `development`
 - **weavec version source:** `command`
 - **Native analysis supported:** `True`
@@ -39,18 +39,18 @@
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `c6021bb1149e49ffb07afa05ba6a7640657cdec05deecba7a5385631cf5c548d`
-- **LLM request SHA-256:** `2c2aeba41b67548e6508e659531465ef2f81e996406aad7860bb1fb463fbc297`
+- **LLM prompt SHA-256:** `b29e347c091af084bb702775c2ab16011405c8f8d6d6fa8e719939e09ab20a0d`
+- **LLM request SHA-256:** `bb642d5244047b3d24cb39a18d36e34d37c0013e9811eba66f1d926365f10b89`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-b58aa5bb-377a-4dda-91c0-3d4f02a93eb1`
+- **Provider response ID:** `chatcmpl-17d11a82-eefb-4435-8626-2d59e7e89469`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785617239`
-- **Provider prompt tokens:** `22843`
-- **Provider completion tokens:** `1242`
-- **Provider total tokens:** `24085`
-- **GitHub run ID:** `30717683339`
-- **GitHub workflow SHA:** `61152d3daef68b4a6ccd405537a7c32b33732bd7`
+- **Provider created (Unix):** `1785651519`
+- **Provider prompt tokens:** `22956`
+- **Provider completion tokens:** `1204`
+- **Provider total tokens:** `24160`
+- **GitHub run ID:** `30735421228`
+- **GitHub workflow SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
 
 ## Machine and running conditions
 
@@ -59,23 +59,23 @@
 - **Architecture:** `x86_64`
 - **CPU:** `AMD EPYC 7763 64-Core Processor`
 - **Logical CPUs:** `4`
-- **Memory:** `16766423040` bytes
+- **Memory:** `16766418944` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
 ## Audited inputs
 
-- Source `docs/audit/fibonacci_runtime.weave` — SHA-256 `a0df013d2e54ac1426498c7fda686d113ae4ca4f7371fe3836c490ccf9343ba4` — 1779 bytes
-- Runtime matrix `docs/audit/fibonacci_runtime.audit.json` — SHA-256 `dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2`
+- Source `/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave` — SHA-256 `a0df013d2e54ac1426498c7fda686d113ae4ca4f7371fe3836c490ccf9343ba4` — 1779 bytes
+- Runtime matrix `/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json` — SHA-256 `dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2`
 
 ## Captured evidence
 
 - `assembly` — SHA-256 `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
-- `build_manifest` — SHA-256 `ed59e518c650734a4fe3001f793e4c7a386bfc3a9c05c5561823e5c69a239fd9`
+- `build_manifest` — SHA-256 `000fbb68768c46cd11e753e642f37b8c334d1170527e79891cd532157b1c1d86`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
 - `disassembly` — SHA-256 `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
 - `executable` — SHA-256 `8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d`
-- `llvm` — SHA-256 `9cb730438139bf6dcaebc5af8fb94716cd290301833cdd21f79d9ccd9757705d`
+- `llvm` — SHA-256 `621a7bc7d9515c25e189b2398943cd48b9be2e541e4162d6cbb6c47f7d200c24`
 - `optimization_record` — SHA-256 `c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
 - `optimized_llvm` — SHA-256 `7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
 - `trace` — SHA-256 `c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
@@ -86,7 +86,7 @@
 - **Review format:** `weave-loupe-review-plan-v1`
 - **Review mode:** `single`
 - **Token estimator:** `utf8-byte-upper-bound-v1`
-- **Estimated complete review tokens:** `74446`
+- **Estimated complete review tokens:** `74740`
 - **Request count:** `1`
 - **Maximum total tokens:** `524288`
 - **Maximum request tokens:** `98304`
@@ -98,20 +98,20 @@
 #### `metadata` — Reproducibility metadata
 
 - Language: `json`
-- UTF-8 bytes: `9200`
-- Estimated tokens: `9216`
-- SHA-256: `a2065989820ee067d914e266cc6c9ca498bab61cf504c9edd5c699ba77825040`
+- UTF-8 bytes: `9284`
+- Estimated tokens: `9300`
+- SHA-256: `c8c76406952b43ee2a923fe3f6412414b33795c378bad8e5abd0a6acb1144b91`
 - Complete coverage: `True`
-- Covered ranges: `metadata:[0, 9200)@a2065989820ee067d914e266cc6c9ca498bab61cf504c9edd5c699ba77825040`
+- Covered ranges: `metadata:[0, 9284)@c8c76406952b43ee2a923fe3f6412414b33795c378bad8e5abd0a6acb1144b91`
 
 #### `source` — Weave source
 
 - Language: `lisp`
-- UTF-8 bytes: `1822`
-- Estimated tokens: `1838`
-- SHA-256: `344883c033044766e2bfbac4a1bf838b9e07900faffb15f9fe919da6fe69b759`
+- UTF-8 bytes: `1864`
+- Estimated tokens: `1880`
+- SHA-256: `1c3dde0933dccc894fe4810b0d2ddedb00457f837fe51ee05b344a35da922b26`
 - Complete coverage: `True`
-- Covered ranges: `source:[0, 1822)@344883c033044766e2bfbac4a1bf838b9e07900faffb15f9fe919da6fe69b759`
+- Covered ranges: `source:[0, 1864)@1c3dde0933dccc894fe4810b0d2ddedb00457f837fe51ee05b344a35da922b26`
 
 #### `wir` — WIR review projection
 
@@ -127,9 +127,9 @@
 - Language: `llvm`
 - UTF-8 bytes: `5767`
 - Estimated tokens: `5783`
-- SHA-256: `9cb730438139bf6dcaebc5af8fb94716cd290301833cdd21f79d9ccd9757705d`
+- SHA-256: `621a7bc7d9515c25e189b2398943cd48b9be2e541e4162d6cbb6c47f7d200c24`
 - Complete coverage: `True`
-- Covered ranges: `raw_llvm:[0, 5767)@9cb730438139bf6dcaebc5af8fb94716cd290301833cdd21f79d9ccd9757705d`
+- Covered ranges: `raw_llvm:[0, 5767)@621a7bc7d9515c25e189b2398943cd48b9be2e541e4162d6cbb6c47f7d200c24`
 
 #### `optimized_llvm` — Optimized LLVM IR
 
@@ -179,20 +179,20 @@
 #### `analysis` — Complete deterministic analysis
 
 - Language: `json`
-- UTF-8 bytes: `21457`
-- Estimated tokens: `21473`
-- SHA-256: `9511cd32bd064ada3a3f8ca1216cc286fa4ddb49acb14ab37b91fe3985325f29`
+- UTF-8 bytes: `21583`
+- Estimated tokens: `21599`
+- SHA-256: `3a4c179db1357cf2f73d00e652ea8537ec82e117efe0f40598fc67ef32188cd8`
 - Complete coverage: `True`
-- Covered ranges: `analysis:[0, 21457)@9511cd32bd064ada3a3f8ca1216cc286fa4ddb49acb14ab37b91fe3985325f29`
+- Covered ranges: `analysis:[0, 21583)@3a4c179db1357cf2f73d00e652ea8537ec82e117efe0f40598fc67ef32188cd8`
 
 #### `build_manifest` — Compiler build manifest
 
 - Language: `json`
 - UTF-8 bytes: `696`
 - Estimated tokens: `712`
-- SHA-256: `ed59e518c650734a4fe3001f793e4c7a386bfc3a9c05c5561823e5c69a239fd9`
+- SHA-256: `000fbb68768c46cd11e753e642f37b8c334d1170527e79891cd532157b1c1d86`
 - Complete coverage: `True`
-- Covered ranges: `build_manifest:[0, 696)@ed59e518c650734a4fe3001f793e4c7a386bfc3a9c05c5561823e5c69a239fd9`
+- Covered ranges: `build_manifest:[0, 696)@000fbb68768c46cd11e753e642f37b8c334d1170527e79891cd532157b1c1d86`
 
 #### `trace` — Compiler trace
 
@@ -208,19 +208,19 @@
 
 #### `single-0001` — single
 
-- Estimated input tokens: `70350`
+- Estimated input tokens: `70644`
 - Reserved output tokens: `4096`
 - Depends on: none
-- Covered ranges: `metadata:[0, 9200)@a2065989820ee067d914e266cc6c9ca498bab61cf504c9edd5c699ba77825040`, `source:[0, 1822)@344883c033044766e2bfbac4a1bf838b9e07900faffb15f9fe919da6fe69b759`, `wir:[0, 1269)@66955504c5683801f61dc176cc98d0c0c27909698197099712ef53956b70d471`, `raw_llvm:[0, 5767)@9cb730438139bf6dcaebc5af8fb94716cd290301833cdd21f79d9ccd9757705d`, `optimized_llvm:[0, 2227)@7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`, `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`, `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`, `optimization_record:[0, 11024)@c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 21457)@9511cd32bd064ada3a3f8ca1216cc286fa4ddb49acb14ab37b91fe3985325f29`, `build_manifest:[0, 696)@ed59e518c650734a4fe3001f793e4c7a386bfc3a9c05c5561823e5c69a239fd9`, `trace:[0, 213)@c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
-- Prompt SHA-256: `c6021bb1149e49ffb07afa05ba6a7640657cdec05deecba7a5385631cf5c548d`
-- Request SHA-256: `2c2aeba41b67548e6508e659531465ef2f81e996406aad7860bb1fb463fbc297`
+- Covered ranges: `metadata:[0, 9284)@c8c76406952b43ee2a923fe3f6412414b33795c378bad8e5abd0a6acb1144b91`, `source:[0, 1864)@1c3dde0933dccc894fe4810b0d2ddedb00457f837fe51ee05b344a35da922b26`, `wir:[0, 1269)@66955504c5683801f61dc176cc98d0c0c27909698197099712ef53956b70d471`, `raw_llvm:[0, 5767)@621a7bc7d9515c25e189b2398943cd48b9be2e541e4162d6cbb6c47f7d200c24`, `optimized_llvm:[0, 2227)@7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`, `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`, `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`, `optimization_record:[0, 11024)@c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 21583)@3a4c179db1357cf2f73d00e652ea8537ec82e117efe0f40598fc67ef32188cd8`, `build_manifest:[0, 696)@000fbb68768c46cd11e753e642f37b8c334d1170527e79891cd532157b1c1d86`, `trace:[0, 213)@c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
+- Prompt SHA-256: `b29e347c091af084bb702775c2ab16011405c8f8d6d6fa8e719939e09ab20a0d`
+- Request SHA-256: `bb642d5244047b3d24cb39a18d36e34d37c0013e9811eba66f1d926365f10b89`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-b58aa5bb-377a-4dda-91c0-3d4f02a93eb1`
+- Provider response ID: `chatcmpl-17d11a82-eefb-4435-8626-2d59e7e89469`
 - Finish reason: `stop`
-- Provider prompt tokens: `22843`
-- Provider completion tokens: `1242`
-- Provider total tokens: `24085`
+- Provider prompt tokens: `22956`
+- Provider completion tokens: `1204`
+- Provider total tokens: `24160`
 
 ## Complete compiler evidence
 
@@ -230,7 +230,7 @@ source-to-native lowering can also be inspected manually.
 ### Weave source
 
 ```lisp
---- docs/audit/fibonacci_runtime.weave ---
+--- /home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave ---
 ; Runtime-input Weave Loupe audit corpus example.
 ; Reads WEAVE_AUDIT_N at runtime so LLVM cannot constant-fold the result.
 ; The audit harness supplies a decimal value in 0..46. Missing or numerically
@@ -361,7 +361,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-hwowVg/program.wir
+; source: /tmp/weavec-build-K9odg9/program.wir
 ; core-version: 2
 
 ; declarations
@@ -1247,7 +1247,7 @@ Args:
     "undef_uses": 0
   },
   "passed": true,
-  "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
   "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2"
 }
 ```
@@ -1300,7 +1300,7 @@ Args:
     "unreachable_program_instructions": 0
   },
   "passed": true,
-  "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
   "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2"
 }
 ```
@@ -1313,7 +1313,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.011214,
+        "elapsed_seconds": 0.010118,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1349,7 +1349,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010415,
+        "elapsed_seconds": 0.009478,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1387,7 +1387,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010832,
+        "elapsed_seconds": 0.009872,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1425,7 +1425,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010594,
+        "elapsed_seconds": 0.009652,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1463,7 +1463,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.011001,
+        "elapsed_seconds": 0.009515,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1501,7 +1501,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.011288,
+        "elapsed_seconds": 0.009552,
         "exit_code": 144,
         "process_count_enforcement": "delegated",
         "returncode": 144,
@@ -1539,7 +1539,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010616,
+        "elapsed_seconds": 0.009695,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1577,7 +1577,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010573,
+        "elapsed_seconds": 0.009658,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1615,7 +1615,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.010841,
+        "elapsed_seconds": 0.009604,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1689,7 +1689,7 @@ Args:
       "/work"
     ]
   },
-  "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
   "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2",
   "timeout_seconds": 5.0
 }
@@ -1991,7 +1991,7 @@ Args:
       "unreachable_program_instructions": 0
     },
     "passed": true,
-    "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
     "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2"
   },
   "optimized_llvm": {
@@ -2094,7 +2094,7 @@ Args:
       "undef_uses": 0
     },
     "passed": true,
-    "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
     "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2"
   },
   "runtime": {
@@ -2102,7 +2102,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.011214,
+          "elapsed_seconds": 0.010118,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2138,7 +2138,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010415,
+          "elapsed_seconds": 0.009478,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2176,7 +2176,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010832,
+          "elapsed_seconds": 0.009872,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2214,7 +2214,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010594,
+          "elapsed_seconds": 0.009652,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2252,7 +2252,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.011001,
+          "elapsed_seconds": 0.009515,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2290,7 +2290,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.011288,
+          "elapsed_seconds": 0.009552,
           "exit_code": 144,
           "process_count_enforcement": "delegated",
           "returncode": 144,
@@ -2328,7 +2328,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010616,
+          "elapsed_seconds": 0.009695,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2366,7 +2366,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010573,
+          "elapsed_seconds": 0.009658,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2404,7 +2404,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.010841,
+          "elapsed_seconds": 0.009604,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2478,7 +2478,7 @@ Args:
         "/work"
       ]
     },
-    "sidecar": "docs/audit/fibonacci_runtime.audit.json",
+    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.audit.json",
     "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2",
     "timeout_seconds": 5.0
   },
@@ -2510,7 +2510,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-8mtww1wc/.audit.loupe.6lu93ulb/artifacts/program",
+  "output": "/tmp/loupe-audit-_pdsohbg/.audit.loupe.7aa3r15w/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ]
@@ -2534,34 +2534,34 @@ Args:
 ## LLM review
 
 ## Summary
-The final native program for `docs/audit/fibonacci_runtime.weave` is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source semantics are preserved through cleaned WIR, raw LLVM, optimized LLVM, target assembly, and linked executable disassembly. The runtime matrix of 9 cases passes perfectly, matching expected exit codes derived from the versioned sidecar. The optimized LLVM contract and native optimization budget are satisfied without any exceeded limits or missing required structure. The final native code is a compact, ABI-compliant `main` function that correctly handles external calls (`getenv`, `atoi`), input validation, and an inlined Fibonacci loop with no memory traffic or overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes a Fibonacci sequence based on runtime environment input, falling back to 10 if the input is missing, negative, or greater than 46. The cleaned WIR, raw LLVM, optimized LLVM, and final x86_64 assembly faithfully preserve these semantics. The optimized LLVM inlines the `fib` function, promotes all stack allocations to registers, and eliminates memory traffic while preserving the required runtime calls to `getenv` and `atoi`. The final native assembly correctly implements the loop and ABI conventions, and all 9 configured runtime matrix cases pass exactly as expected. Both the optimized LLVM contract and native optimization budget pass without any structural or metric violations.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines a program that reads `WEAVE_AUDIT_N`, defaults to 10 if missing or out of range (0..46), and returns `fib(n)` as the exit code. The runtime matrix confirms this exactly (e.g., `WEAVE_AUDIT_N=10` yields exit code 55, `WEAVE_AUDIT_N=12` yields 144).
-- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves all control flow, variables, and calls from the source, including the `fib` function and `main` entry point.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR matches the WIR structure, including the `fib` and `main` functions, `alloca`, `load`, `store`, and `icmp` instructions for the while loop and if conditions.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, with correct SSA form, typed instructions, and well-formed control flow blocks. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes stack allocations to registers, and preserves the Fibonacci loop semantics. The `freeze i32 %t3` instruction correctly handles potential uninitialized value from `atoi`.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget passes with 20 instructions, 6 basic blocks, 2 calls (`atoi`, `getenv`), 0 `alloca`, 0 `load`, 0 `store`, and 0 `poison_uses`, all within configured limits.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The optimized LLVM IR uses `icmp ugt i32 %t3.fr, 46` for the upper bound check, which is safe for non-negative values. The `freeze` instruction prevents poison propagation from `atoi`. The Fibonacci loop uses `add i32`, which is safe for the constrained input range (0..46).
-- Calls, return values, ABI, stack alignment, and register use: PASS. The native code follows the x86_64 SysV ABI: `getenv` and `atoi` are called via PLT with correct argument registers (`%rdi`), return values in `%rax`, and `main` returns in `%eax`. Stack is 16-byte aligned (`pushq %rbx` saves callee-saved register, 8 bytes stack).
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has no `alloca`, `load`, or `store`, eliminating stack memory safety concerns. The `freeze` instruction prevents undefined behavior from `atoi` returning uninitialized values. No leaks or lifetime issues.
-- Target compatibility and native instruction validity: PASS. The target assembly and disassembly show valid x86_64 instructions (`leaq`, `callq`, `movl`, `cmpl`, `addl`, `incl`, `jle`, `retq`). The build manifest confirms target `x86_64-unknown-linux-gnu`.
-- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases pass, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs. Exit codes match expected Fibonacci values or fallback to 10.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget passes with 25 instructions, 1 backward conditional branch (loop backedge), 2 direct calls (`atoi@plt`, `getenv@plt`), 0 indirect calls, and 1 padding instruction, all within configured limits.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM IR is compact with no identity operations or memory traffic. The final native code has no overhead beyond the necessary loop and ABI requirements. The optimization record shows successful inlining of `fib` and no spills or reloads in the final code.
+- Source semantics and expected result: PASS. The Weave source defines a `fib` function that returns `n` if `n <= 1`, otherwise iteratively computes Fibonacci up to `n`. `main` reads `WEAVE_AUDIT_N`, falls back to 10 if missing/out-of-range, and returns `fib(n)`. Runtime cases confirm expected exit codes (e.g., `WEAVE_AUDIT_N=10` yields exit code 55).
+- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves all source logic: `getenv`/`atoi` externs, `fib` control flow, `main` input validation, and the `while` loop structure.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM implements the WIR exactly, using `alloca` for locals, `icmp sle` for `le_i32`, and `call` instructions for `getenv`/`atoi`/`fib`.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM is valid, uses proper SSA form, correct types (`i32`, `ptr`), and well-formed control flow branches.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM inlines `fib` into `main`, promotes all variables to SSA registers, and preserves the input validation logic. The `freeze` instruction on `atoi`'s return prevents undefined behavior from propagating poison.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The analysis JSON confirms the optimized LLVM budget passes: 20 instructions (max 20), 2 calls (max 2), 0 stores/loads (max 0), 5 phi nodes (max 5), and required calls to `atoi` and `getenv` are present.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The source limits input to 0..46, preventing 32-bit overflow in Fibonacci. The optimized LLVM uses `icmp ult` for the `< 2` check and `icmp ugt` for the `> 46` check, which is safe because the value is already frozen and known non-negative after the `slt 0` check.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The native code follows the System V x86_64 ABI: `getenv` and `atoi` are called via PLT with arguments in `%rdi`, return values are in `%rax`, and `%rbx` is preserved across calls. Stack alignment is maintained.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has 0 memory traffic instructions. The `freeze` instruction prevents poison propagation from `atoi`. No memory leaks or undefined behavior are present.
+- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions and standard ELF structure.
+- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases in the analysis JSON pass, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs.
+- Configured native limits, required call targets, and loop backedges: PASS. The native budget passes: `main` has 25 instructions (max 32), 2 direct calls (max 2), 1 backward conditional branch (min 1, max 1), and required calls to `atoi@plt` and `getenv@plt` are present.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM is compact with no identity operations or redundant memory traffic. The native code uses a tight loop with minimal register copies. No avoidable compiler-generated overhead remains.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The optimization record notes that the loop-vectorize and slp-vectorizer passes could not vectorize the Fibonacci loop due to non-reduction value used outside the loop and unknown iteration count. This is expected for a recurrence relation like Fibonacci and not a compiler-generated overhead defect.
-- The raw LLVM IR uses stack allocations (`alloca`) for local variables, but these are optimized away in the optimized LLVM IR and final native code. This is not a defect.
+- The native loop body uses `movl %eax, %esi; movl %edx, %eax; addl %esi, %eax; movl %esi, %edx` to update the Fibonacci state. This is a standard pattern for two-variable recurrence, but a more aggressive optimizer could potentially explore alternative register allocations or instruction sequences to reduce the number of moves. This is a micro-optimization and does not represent a defect.
+- The `nopw` padding instruction in the native code is for loop alignment and is standard practice for performance optimization on x86_64, but it does count as a padding instruction in the native budget.
 
 ## Suggested verification
-- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the upper bound of the Fibonacci calculation and ensure no integer overflow occurs at the boundary.
-- Add a runtime case for `WEAVE_AUDIT_N=3` to verify a small Fibonacci value (e.g., 2) and increase coverage of the loop entry path.
-- Consider adding a runtime case with a very large numeric string (e.g., `WEAVE_AUDIT_N=999999999999`) to verify `atoi` behavior and the fallback logic for values exceeding `i32` range.
+- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the upper boundary of the Fibonacci computation directly.
+- Add a runtime case for `WEAVE_AUDIT_N=45` to verify the largest Fibonacci number (1134903170) that fits in a signed 32-bit integer without overflow.
+- Add a runtime case for `WEAVE_AUDIT_N=` (empty string) to verify the behavior of `atoi` on empty input.
 
 <details>
 <summary>Raw model response</summary>
@@ -2569,33 +2569,33 @@ None found.
 ```text
 OK
 ## Summary
-The final native program for `docs/audit/fibonacci_runtime.weave` is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source semantics are preserved through cleaned WIR, raw LLVM, optimized LLVM, target assembly, and linked executable disassembly. The runtime matrix of 9 cases passes perfectly, matching expected exit codes derived from the versioned sidecar. The optimized LLVM contract and native optimization budget are satisfied without any exceeded limits or missing required structure. The final native code is a compact, ABI-compliant `main` function that correctly handles external calls (`getenv`, `atoi`), input validation, and an inlined Fibonacci loop with no memory traffic or overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes a Fibonacci sequence based on runtime environment input, falling back to 10 if the input is missing, negative, or greater than 46. The cleaned WIR, raw LLVM, optimized LLVM, and final x86_64 assembly faithfully preserve these semantics. The optimized LLVM inlines the `fib` function, promotes all stack allocations to registers, and eliminates memory traffic while preserving the required runtime calls to `getenv` and `atoi`. The final native assembly correctly implements the loop and ABI conventions, and all 9 configured runtime matrix cases pass exactly as expected. Both the optimized LLVM contract and native optimization budget pass without any structural or metric violations.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines a program that reads `WEAVE_AUDIT_N`, defaults to 10 if missing or out of range (0..46), and returns `fib(n)` as the exit code. The runtime matrix confirms this exactly (e.g., `WEAVE_AUDIT_N=10` yields exit code 55, `WEAVE_AUDIT_N=12` yields 144).
-- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves all control flow, variables, and calls from the source, including the `fib` function and `main` entry point.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR matches the WIR structure, including the `fib` and `main` functions, `alloca`, `load`, `store`, and `icmp` instructions for the while loop and if conditions.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is valid, with correct SSA form, typed instructions, and well-formed control flow blocks. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR inlines `fib` into `main`, promotes stack allocations to registers, and preserves the Fibonacci loop semantics. The `freeze i32 %t3` instruction correctly handles potential uninitialized value from `atoi`.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The optimized LLVM budget passes with 20 instructions, 6 basic blocks, 2 calls (`atoi`, `getenv`), 0 `alloca`, 0 `load`, 0 `store`, and 0 `poison_uses`, all within configured limits.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The optimized LLVM IR uses `icmp ugt i32 %t3.fr, 46` for the upper bound check, which is safe for non-negative values. The `freeze` instruction prevents poison propagation from `atoi`. The Fibonacci loop uses `add i32`, which is safe for the constrained input range (0..46).
-- Calls, return values, ABI, stack alignment, and register use: PASS. The native code follows the x86_64 SysV ABI: `getenv` and `atoi` are called via PLT with correct argument registers (`%rdi`), return values in `%rax`, and `main` returns in `%eax`. Stack is 16-byte aligned (`pushq %rbx` saves callee-saved register, 8 bytes stack).
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has no `alloca`, `load`, or `store`, eliminating stack memory safety concerns. The `freeze` instruction prevents undefined behavior from `atoi` returning uninitialized values. No leaks or lifetime issues.
-- Target compatibility and native instruction validity: PASS. The target assembly and disassembly show valid x86_64 instructions (`leaq`, `callq`, `movl`, `cmpl`, `addl`, `incl`, `jle`, `retq`). The build manifest confirms target `x86_64-unknown-linux-gnu`.
-- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases pass, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs. Exit codes match expected Fibonacci values or fallback to 10.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget passes with 25 instructions, 1 backward conditional branch (loop backedge), 2 direct calls (`atoi@plt`, `getenv@plt`), 0 indirect calls, and 1 padding instruction, all within configured limits.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM IR is compact with no identity operations or memory traffic. The final native code has no overhead beyond the necessary loop and ABI requirements. The optimization record shows successful inlining of `fib` and no spills or reloads in the final code.
+- Source semantics and expected result: PASS. The Weave source defines a `fib` function that returns `n` if `n <= 1`, otherwise iteratively computes Fibonacci up to `n`. `main` reads `WEAVE_AUDIT_N`, falls back to 10 if missing/out-of-range, and returns `fib(n)`. Runtime cases confirm expected exit codes (e.g., `WEAVE_AUDIT_N=10` yields exit code 55).
+- Weave-to-WIR semantic preservation: PASS. The WIR projection preserves all source logic: `getenv`/`atoi` externs, `fib` control flow, `main` input validation, and the `while` loop structure.
+- WIR-to-raw-LLVM semantic preservation: PASS. Raw LLVM implements the WIR exactly, using `alloca` for locals, `icmp sle` for `le_i32`, and `call` instructions for `getenv`/`atoi`/`fib`.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM is valid, uses proper SSA form, correct types (`i32`, `ptr`), and well-formed control flow branches.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM inlines `fib` into `main`, promotes all variables to SSA registers, and preserves the input validation logic. The `freeze` instruction on `atoi`'s return prevents undefined behavior from propagating poison.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The analysis JSON confirms the optimized LLVM budget passes: 20 instructions (max 20), 2 calls (max 2), 0 stores/loads (max 0), 5 phi nodes (max 5), and required calls to `atoi` and `getenv` are present.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The source limits input to 0..46, preventing 32-bit overflow in Fibonacci. The optimized LLVM uses `icmp ult` for the `< 2` check and `icmp ugt` for the `> 46` check, which is safe because the value is already frozen and known non-negative after the `slt 0` check.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The native code follows the System V x86_64 ABI: `getenv` and `atoi` are called via PLT with arguments in `%rdi`, return values are in `%rax`, and `%rbx` is preserved across calls. Stack alignment is maintained.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The optimized LLVM has 0 memory traffic instructions. The `freeze` instruction prevents poison propagation from `atoi`. No memory leaks or undefined behavior are present.
+- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions and standard ELF structure.
+- Native runtime cases and expected observable behavior: PASS. All 9 runtime cases in the analysis JSON pass, including missing input, zero, one, two, ten, twelve, negative, too-large, and non-numeric inputs.
+- Configured native limits, required call targets, and loop backedges: PASS. The native budget passes: `main` has 25 instructions (max 32), 2 direct calls (max 2), 1 backward conditional branch (min 1, max 1), and required calls to `atoi@plt` and `getenv@plt` are present.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM is compact with no identity operations or redundant memory traffic. The native code uses a tight loop with minimal register copies. No avoidable compiler-generated overhead remains.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-- The optimization record notes that the loop-vectorize and slp-vectorizer passes could not vectorize the Fibonacci loop due to non-reduction value used outside the loop and unknown iteration count. This is expected for a recurrence relation like Fibonacci and not a compiler-generated overhead defect.
-- The raw LLVM IR uses stack allocations (`alloca`) for local variables, but these are optimized away in the optimized LLVM IR and final native code. This is not a defect.
+- The native loop body uses `movl %eax, %esi; movl %edx, %eax; addl %esi, %eax; movl %esi, %edx` to update the Fibonacci state. This is a standard pattern for two-variable recurrence, but a more aggressive optimizer could potentially explore alternative register allocations or instruction sequences to reduce the number of moves. This is a micro-optimization and does not represent a defect.
+- The `nopw` padding instruction in the native code is for loop alignment and is standard practice for performance optimization on x86_64, but it does count as a padding instruction in the native budget.
 
 ## Suggested verification
-- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the upper bound of the Fibonacci calculation and ensure no integer overflow occurs at the boundary.
-- Add a runtime case for `WEAVE_AUDIT_N=3` to verify a small Fibonacci value (e.g., 2) and increase coverage of the loop entry path.
-- Consider adding a runtime case with a very large numeric string (e.g., `WEAVE_AUDIT_N=999999999999`) to verify `atoi` behavior and the fallback logic for values exceeding `i32` range.
+- Add a runtime case for `WEAVE_AUDIT_N=46` to verify the upper boundary of the Fibonacci computation directly.
+- Add a runtime case for `WEAVE_AUDIT_N=45` to verify the largest Fibonacci number (1134903170) that fits in a signed 32-bit integer without overflow.
+- Add a runtime case for `WEAVE_AUDIT_N=` (empty string) to verify the behavior of `atoi` on empty input.
 ```
 </details>
