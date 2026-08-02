@@ -6,10 +6,6 @@ on:
   pull_request:
 
 jobs:
-  # This repository is public. A pull_request from a fork must never reach
-  # the self-hosted LUMI runner below -- the job needs this one and fails
-  # outright (not a silent skip) if the PR's head repository isn't this
-  # same repository, i.e. isn't from someone with write access.
   guard-self-hosted:
     name: Verify trusted source for self-hosted jobs
     runs-on: ubuntu-latest
@@ -17,7 +13,7 @@ jobs:
       - name: Reject pull requests from forks
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
         run: |
-          echo "::error::Self-hosted LUMI runner jobs do not run for pull requests from forks (head repository: ${{ github.event.pull_request.head.repo.full_name }})."
+          echo "::error::Self-hosted jobs do not run for pull requests from forks (head repository: ${{ github.event.pull_request.head.repo.full_name }})."
           exit 1
 
   quality:
@@ -26,15 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify runtime sandbox is preinstalled
-        # No sudo on this unprivileged Apptainer runner; bubblewrap is
-        # baked into the image instead of installed at job time.
-        run: command -v bwrap
-
+      # Runtime unit fixtures explicitly select their local direct test mode.
+      # The namespace-isolation integration test skips when its backend is absent.
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          enable-cache: true
+          enable-cache: false
 
       - name: Set up Python
         run: uv python install 3.12

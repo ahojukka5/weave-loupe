@@ -17,7 +17,6 @@ from weave_loupe.bounded_process import (
     configured_process_limits,
     run_bounded_process,
 )
-from weave_loupe.process_budget import with_user_process_baseline
 
 
 def _limits(
@@ -180,8 +179,9 @@ while True:
 
     result = run_bounded_process(
         [sys.executable, str(script)],
-        limits=with_user_process_baseline(_limits(timeout=0.5)),
+        limits=_limits(timeout=0.5),
         environment={"CHILD_PID_FILE": str(child_pid_file)},
+        apply_process_count_limit=False,
     )
 
     assert result.termination_reason == "timed_out"

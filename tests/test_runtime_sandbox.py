@@ -17,6 +17,33 @@ from weave_loupe.runtime_sandbox import (
 )
 
 
+def _bubblewrap_namespaces_available() -> bool:
+    binary = shutil.which("bwrap")
+    limiter = shutil.which("prlimit")
+    true_binary = shutil.which("true")
+    if binary is None or limiter is None or true_binary is None:
+        return False
+    try:
+        completed = subprocess.run(
+            [
+                binary,
+                "--die-with-parent",
+                "--unshare-all",
+                "--ro-bind",
+                "/",
+                "/",
+                "--",
+                true_binary,
+            ],
+            capture_output=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return completed.returncode == 0
+
+
 def test_sandbox_is_required_without_local_override(monkeypatch) -> None:
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     monkeypatch.delenv("WEAVE_LOUPE_BWRAP", raising=False)
@@ -149,8 +176,8 @@ def test_bubblewrap_requires_positive_process_limit(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(
-    shutil.which("bwrap") is None or shutil.which("prlimit") is None,
-    reason="bubblewrap or prlimit is unavailable",
+    not _bubblewrap_namespaces_available(),
+    reason="bubblewrap namespace isolation is unavailable",
 )
 def test_bubblewrap_hides_host_files_and_network(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.delenv("WEAVE_LOUPE_UNSAFE_NO_SANDBOX", raising=False)
