@@ -8,7 +8,8 @@ from pathlib import Path
 
 from weave_loupe.analysis import analyze_bundle
 from weave_loupe.bundle import BundleError, load_bundle
-from weave_loupe.reporting import render_bundle_report, write_report
+from weave_loupe.complete_reporting import render_bundle_report
+from weave_loupe.reporting import write_report
 
 
 def run_report(*, bundle_path: Path, output: Path, analysis_json: Path | None) -> int:

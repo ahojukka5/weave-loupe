@@ -23,10 +23,13 @@ uv run loupe report build/fibonacci.loupe \
   --analysis-json build/fibonacci-analysis.json
 ```
 
-The bundle retains ordered source copies, WIR, provenance-rich LLVM,
+The bundle retains ordered source copies, exact WIR, provenance-rich LLVM,
 diagnostics, compilation trace, build manifest, stdout, stderr, hashes, and the
-compiler exit code. A failed compiler run is still captured with every artifact
-that reached publication.
+compiler exit code. Derived analysis treats WIR core version 2 as a first-class
+stage: declarations, typed operations, structured control flow, source spans,
+suspicious findings, and WIR-to-LLVM correspondence are normalized without
+rewriting the stored artifact. A failed compiler run is still captured with every
+artifact that reached publication.
 
 Compiler builds and configured native runtime cases execute through one bounded
 process supervisor. It applies wall-clock and POSIX resource limits, stores only
@@ -53,13 +56,14 @@ uv run loupe diff before.loupe after.loupe \
 ```
 
 The default `weave-loupe-diff-v2` output compares the complete stable evidence
-chain: raw and optimized LLVM, native functions and reachability, diagnostics,
-trace membership and order, source and artifact identities, manifests, and
-optimization records. Every changed fact is classified as semantic, quality,
-provenance, or evidence. Standalone bundle comparisons mark post-capture runtime
-and contract results unavailable; compiler audits supply those already-computed
-results. Legacy consumers can request the original compact shape with
-`--format-version v1`.
+chain: WIR structure and lowering correspondence, raw and optimized LLVM, native
+functions and reachability, diagnostics, trace membership and order, source and
+artifact identities, manifests, and optimization records. Added, removed, and
+modified WIR functions are explicit, and every changed fact is classified as
+semantic, quality, provenance, or evidence. Standalone bundle comparisons mark
+post-capture runtime and contract results unavailable; compiler audits supply
+those already-computed results. Legacy consumers can request the original compact
+shape with `--format-version v1`.
 
 Gate a candidate compiler against a baseline by compiling the same ordered inputs
 with both binaries:
@@ -72,12 +76,14 @@ uv run loupe compiler-audit docs/audit/fibonacci.weave \
   --report-out build/compiler-audit.md
 ```
 
-The differential audit compares compilation, deterministic analyses, runtime
-observations, diagnostics, evidence availability, optimized LLVM contracts, native
-budgets, and policy-bounded metric deltas. It returns `0` for a pass, `2` for a
-candidate regression, and `1` for infrastructure or configuration failure. An
-optional `--review-model` runs only after deterministic evidence is assembled and
-cannot waive a failed gate.
+The differential audit compares compilation, WIR validity and structure, lowering
+correspondence, runtime observations, diagnostics, evidence availability,
+optimized LLVM contracts, native budgets, and policy-bounded metric deltas. By
+default it rejects increases in unresolved or anonymous WIR names, unreachable
+blocks, malformed provenance, and missing, unexpected, or duplicate LLVM
+correspondence. It returns `0` for a pass, `2` for a candidate regression, and `1`
+for infrastructure or configuration failure. An optional `--review-model` runs
+only after deterministic evidence is assembled and cannot waive a failed gate.
 
 Ask an OpenAI-compatible model to review the complete evidence:
 
@@ -132,8 +138,9 @@ intentional requirement.
 The first model line must be `OK` or
 `FAILED: <lowercase-kebab-code>: <reason>`. Loupe returns non-zero for failed or
 malformed audits and writes the report only after an `OK` verdict. Verbose reports
-include the complete source, readable WIR, raw LLVM, optimized LLVM, the optimized
-LLVM contract, assembly, linked native disassembly, optimization remarks, native
+include the complete source, readable WIR, normalized WIR declarations and control
+flow, WIR-to-LLVM correspondence, raw LLVM, optimized LLVM, the optimized LLVM
+contract, assembly, linked native disassembly, optimization remarks, native
 optimization contract, direct runtime observations, diagnostics, deterministic
 analysis, build manifest, and compiler trace, together with timestamps, Git SHAs,
 hashes, and machine specifications.
@@ -189,6 +196,7 @@ when the reviewing model returns `OK`.
 
 See the [LLM endpoint transport guide](docs/llm-endpoints.md), the
 [scalable review guide](docs/scalable-review.md), the
+[WIR structural analysis guide](docs/wir-analysis.md), the
 [complete comparison format guide](docs/diff-format.md), the
 [process limit guide](docs/process-limits.md), the
 [compiler regression audit guide](docs/compiler-audits.md), the

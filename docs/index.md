@@ -29,6 +29,9 @@ presentation format.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
+- [Deterministic WIR structural analysis](wir-analysis.md) — core-v2 declarations,
+  functions, structured control flow, provenance, suspicious findings,
+  WIR-to-LLVM correspondence, diffs, HTML, and compiler policy.
 - [Complete compiler evidence comparisons](diff-format.md) — versioned v2 bundle
   diffs, classifications, deterministic ordering, HTML navigation, supplemental
   compiler-audit context, and v1 compatibility.
@@ -57,14 +60,15 @@ presentation format.
 
 - `loupe capture` builds one portable evidence bundle.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
-  JSON.
+  JSON with focused WIR, LLVM, and native sections.
 - `loupe diff` compares the complete stable compiler evidence chain with
-  `weave-loupe-diff-v2`, emits classified changes and navigable HTML, and offers
-  `--format-version v1` for the original compact projection.
+  `weave-loupe-diff-v2`, including WIR structure and lowering correspondence,
+  emits classified changes and navigable HTML, and offers `--format-version v1`
+  for the original compact projection.
 - `loupe compiler-audit` compiles the same ordered inputs with baseline and
   candidate compilers, supplies runtime and contract results to the complete v2
-  diff, applies deterministic differential policy, and publishes sealed JSON and
-  Markdown evidence.
+  diff, applies deterministic WIR, LLVM, native, and runtime policy, and publishes
+  sealed JSON and Markdown evidence.
 - `loupe audit` reviews complete evidence in one request when it fits or through
   deterministic artifact ranges plus final synthesis when it does not. It records
   full coverage and request provenance, applies runtime, optimized-LLVM, and native
