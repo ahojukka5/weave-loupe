@@ -8,6 +8,7 @@ from typing import Any
 
 from weave_loupe.bundle import Bundle
 from weave_loupe.native_disassembly import analyze_native_disassembly
+from weave_loupe.wir_analysis import analyze_wir
 
 _FUNCTION = re.compile(r"^\s*define\b")
 _LABEL = re.compile(r"^\s*[-A-Za-z$._][-A-Za-z$._0-9]*:\s*(?:;.*)?$")
@@ -18,13 +19,16 @@ _IDENTITY_ADD = re.compile(r"\badd\b[^;]*,\s*0\b")
 
 def analyze_bundle(bundle: Bundle) -> dict[str, Any]:
     """Return a stable machine-readable summary for reports and audits."""
+    wir = bundle.artifact_text("wir") or ""
+    llvm = bundle.artifact_text("llvm") or ""
     optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
     disassembly = bundle.artifact_text("disassembly") or ""
     build_manifest = bundle.artifact_json("build_manifest")
     return {
         "format": "weave-loupe-analysis-v1",
         "compiler_exit_code": _compiler_exit_code(bundle),
-        "llvm": analyze_llvm(bundle.artifact_text("llvm") or ""),
+        "wir": analyze_wir(wir, llvm),
+        "llvm": analyze_llvm(llvm),
         "optimized_llvm": analyze_llvm(optimized_llvm),
         "native": analyze_native(
             disassembly,
