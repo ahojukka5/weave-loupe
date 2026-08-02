@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `cbe1ef2b19b34d4a3eacf5067d4e702e364369494523e8d9d1d36dcf421c1471`
-- **Audit timestamp (UTC):** `2026-08-02T15:46:05+00:00`
-- **Re-audit no later than (UTC):** `2026-09-01T15:46:05+00:00`
+- **Report content SHA-256:** `f363d8fe71cc5a9f969385c69471cfbbf1c8f3089e5b08b12a1dc8d3c031da3d`
+- **Audit timestamp (UTC):** `2026-08-02T23:02:17+00:00`
+- **Re-audit no later than (UTC):** `2026-09-01T23:02:17+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,13 +19,13 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
+- **Audited source Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
+- **Weave Loupe Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
 - **Auditor content SHA-256:** `f14fe2e8261f65fc26968d7d7a9418732863631a205d54d3602313bd24a8912d`
-- **weavec Git SHA:** `ccf2ac6a3b22cf88461793ea6c4f64287cfc743c`
-- **weavec binary SHA-256:** `950e57c792ac4a98da89ca5049719ef964a39870ef384cb20a4e8027aaf3c870`
-- **weavec version:** `weavec v0.3.0+git.ccf2ac6a3b22`
+- **weavec Git SHA:** `1ba3dc73a459e0f4d9449225060d580953d74e7d`
+- **weavec binary SHA-256:** `afdf6f523342bb5484e43a2d9a0006863b7629217da3d97af4aad0c1417563c4`
+- **weavec version:** `weavec v0.3.0+git.1ba3dc73a459`
 - **weavec build kind:** `development`
 - **weavec version source:** `command`
 - **Native analysis supported:** `True`
@@ -39,27 +39,27 @@
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `98b65a68c26d6a6098d54701bc8d6d7830bbe5ac7ed87348227737c2833705f7`
-- **LLM request SHA-256:** `f003aac123891f4e3a343736f6a52e28a6697376e4332c40371fbf789a99f741`
+- **LLM prompt SHA-256:** `4cddc196855fa777d7b0848f2fd5d5a607129864663746aab5646fb611a21143`
+- **LLM request SHA-256:** `49c552619a829642243260a38f9c0ec2bd5d96da1296fbb471ecec7501ab1c31`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-5d288e38-4852-445e-b64b-c779afc44411`
+- **Provider response ID:** `chatcmpl-16870f37-8c56-4a4f-ba29-7cd77647e4c7`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785685724`
-- **Provider prompt tokens:** `11200`
-- **Provider completion tokens:** `1394`
-- **Provider total tokens:** `12594`
-- **GitHub run ID:** `30754646619`
-- **GitHub workflow SHA:** `63392d7157d473e9da82df6ddc07e2f3448e8d86`
+- **Provider created (Unix):** `1785711880`
+- **Provider prompt tokens:** `11278`
+- **Provider completion tokens:** `1206`
+- **Provider total tokens:** `12484`
+- **GitHub run ID:** `30771351635`
+- **GitHub workflow SHA:** `da1a9c551bdf5bf4afe28a8cc46fe7725a1abf00`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `AMD EPYC 7763 64-Core Processor`
+- **CPU:** `INTEL(R) XEON(R) PLATINUM 8573C`
 - **Logical CPUs:** `4`
-- **Memory:** `16770756608` bytes
+- **Memory:** `16765386752` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
@@ -70,12 +70,12 @@
 
 ## Captured evidence
 
-- `assembly` — SHA-256 `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
-- `build_manifest` — SHA-256 `5d94dd2985534cfc5477bcb395a73c8eb189df41637db7bf4f6e95eaed98c4e1`
+- `assembly` — SHA-256 `f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
+- `build_manifest` — SHA-256 `e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
-- `disassembly` — SHA-256 `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
-- `executable` — SHA-256 `8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d`
-- `llvm` — SHA-256 `7d5f93fc6f34eef9c40b3f0e2d14250039f9ca9b2659d70eb67dcc46e4b3851d`
+- `disassembly` — SHA-256 `4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
+- `executable` — SHA-256 `2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd`
+- `llvm` — SHA-256 `c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
 - `optimization_record` — SHA-256 `c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
 - `optimized_llvm` — SHA-256 `7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
 - `trace` — SHA-256 `c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
@@ -86,7 +86,7 @@
 - **Review format:** `weave-loupe-review-plan-v1`
 - **Review mode:** `staged`
 - **Token estimator:** `utf8-byte-upper-bound-v1`
-- **Estimated complete review tokens:** `313702`
+- **Estimated complete review tokens:** `314013`
 - **Request count:** `14`
 - **Maximum total tokens:** `524288`
 - **Maximum request tokens:** `98304`
@@ -100,9 +100,9 @@
 - Language: `json`
 - UTF-8 bytes: `10295`
 - Estimated tokens: `10311`
-- SHA-256: `46a8deebcb1b93d5605e8cabf686ba73934614290ba76f8ea2ee7416b48ebaad`
+- SHA-256: `e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
 - Complete coverage: `True`
-- Covered ranges: `metadata:[0, 10295)@46a8deebcb1b93d5605e8cabf686ba73934614290ba76f8ea2ee7416b48ebaad`
+- Covered ranges: `metadata:[0, 10295)@e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
 
 #### `source` — Weave source
 
@@ -127,9 +127,9 @@
 - Language: `llvm`
 - UTF-8 bytes: `5767`
 - Estimated tokens: `5783`
-- SHA-256: `7d5f93fc6f34eef9c40b3f0e2d14250039f9ca9b2659d70eb67dcc46e4b3851d`
+- SHA-256: `c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
 - Complete coverage: `True`
-- Covered ranges: `raw_llvm:[0, 5767)@7d5f93fc6f34eef9c40b3f0e2d14250039f9ca9b2659d70eb67dcc46e4b3851d`
+- Covered ranges: `raw_llvm:[0, 5767)@c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
 
 #### `optimized_llvm` — Optimized LLVM IR
 
@@ -145,18 +145,18 @@
 - Language: `asm`
 - UTF-8 bytes: `1262`
 - Estimated tokens: `1278`
-- SHA-256: `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
+- SHA-256: `f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
 - Complete coverage: `True`
-- Covered ranges: `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
+- Covered ranges: `assembly:[0, 1262)@f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
 
 #### `disassembly` — Linked executable disassembly
 
 - Language: `asm`
 - UTF-8 bytes: `7537`
 - Estimated tokens: `7553`
-- SHA-256: `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
+- SHA-256: `4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
 - Complete coverage: `True`
-- Covered ranges: `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
+- Covered ranges: `disassembly:[0, 7537)@4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
 
 #### `optimization_record` — LLVM optimization record
 
@@ -181,18 +181,18 @@
 - Language: `json`
 - UTF-8 bytes: `93622`
 - Estimated tokens: `93638`
-- SHA-256: `0658b6d3ee570ce39d938cb12d770e94209d57d7b9e09a12fc208f2459a73e0c`
+- SHA-256: `d49de67dc248df01e819bed0cc8038f05137a0827a9a4898e058fc512c044fa9`
 - Complete coverage: `True`
-- Covered ranges: `analysis:[0, 86755)@fe4425d7ffeb0f79f73655d63239705d230ad68efd4d3bb9e886e20f64e0755d`, `analysis:[86755, 93622)@28b45c1fdea4e929c19c6c4f5536fc8a1fb04777f757d1ebd4cdd10ef0c5ab25`
+- Covered ranges: `analysis:[0, 86755)@da1bc0b738b836abe11a495f65f48b4ed079615982091ce56d9da8e249f94857`, `analysis:[86755, 93622)@28b45c1fdea4e929c19c6c4f5536fc8a1fb04777f757d1ebd4cdd10ef0c5ab25`
 
 #### `build_manifest` — Compiler build manifest
 
 - Language: `json`
 - UTF-8 bytes: `696`
 - Estimated tokens: `712`
-- SHA-256: `5d94dd2985534cfc5477bcb395a73c8eb189df41637db7bf4f6e95eaed98c4e1`
+- SHA-256: `e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
 - Complete coverage: `True`
-- Covered ranges: `build_manifest:[0, 696)@5d94dd2985534cfc5477bcb395a73c8eb189df41637db7bf4f6e95eaed98c4e1`
+- Covered ranges: `build_manifest:[0, 696)@e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
 
 #### `trace` — Compiler trace
 
@@ -211,16 +211,16 @@
 - Estimated input tokens: `20286`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `metadata:[0, 10295)@46a8deebcb1b93d5605e8cabf686ba73934614290ba76f8ea2ee7416b48ebaad`
-- Prompt SHA-256: `dbcba39a225b017f923481c39edf5ffcc7f6a72003e956f094f1146b6418b6b5`
-- Request SHA-256: `06d893982b19cd3fbfe163d92946086e811ba23cb641b7c1021287ce9ed1d00c`
+- Covered ranges: `metadata:[0, 10295)@e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
+- Prompt SHA-256: `ba292a65e9fc142ec0ab91dbe5077e0ad780718946f9e40881a14b15e7be1cfb`
+- Request SHA-256: `51f02bb205809fcd680c37c5d3c7aef9a47bf95a062367252379a7ae73cd3bab`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-70098a8f-5628-4e4a-b27f-42bd9890dac5`
+- Provider response ID: `chatcmpl-06513a99-42c6-450b-9425-b34d4fe089fb`
 - Finish reason: `stop`
-- Provider prompt tokens: `9209`
-- Provider completion tokens: `502`
-- Provider total tokens: `9711`
+- Provider prompt tokens: `9220`
+- Provider completion tokens: `402`
+- Provider total tokens: `9622`
 
 #### `artifact-0002` — artifact
 
@@ -228,15 +228,15 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `source:[0, 1822)@344883c033044766e2bfbac4a1bf838b9e07900faffb15f9fe919da6fe69b759`
-- Prompt SHA-256: `f134aed7bef32270ae4d9c92dfae34581fe5cb1a10deb1b554dcd8477e5e8248`
-- Request SHA-256: `c78c63147f109c3f8feb19e7896fede23cca1f65a6b58a9f81bbd3b879d6b643`
+- Prompt SHA-256: `c3cb0f0de312a268cf7777fb5bcd64d9afb5a9bfc5fdf7c6462b99bacd1d7697`
+- Request SHA-256: `d51660c5ae132c8eed0f329e158b2d7b677f61083206acd408be197b55b8158b`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-5427be6c-441e-415d-aafe-83e6d5700006`
+- Provider response ID: `chatcmpl-289c0807-cec5-4c8d-93e2-1d4e90373d0a`
 - Finish reason: `stop`
-- Provider prompt tokens: `5008`
-- Provider completion tokens: `241`
-- Provider total tokens: `5249`
+- Provider prompt tokens: `5012`
+- Provider completion tokens: `242`
+- Provider total tokens: `5254`
 
 #### `artifact-0003` — artifact
 
@@ -244,31 +244,31 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `wir:[0, 1269)@66955504c5683801f61dc176cc98d0c0c27909698197099712ef53956b70d471`
-- Prompt SHA-256: `19edc2dafb38e7bc5c99bee1044a8da455b46e5a7ceaf66ab1bbaee2b9ebdca2`
-- Request SHA-256: `e59444a8f0d5336ec49ca0f593b59162820624640e72f990a715919668952557`
+- Prompt SHA-256: `4ce9b5aee33d1ccad623b663318d43705522ae741b3a2bbf52b759ab5fa18e78`
+- Request SHA-256: `6981d398a640623bddec49daceceecd8f6303052c180ae71194ac42a9e456067`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-dbfb5a70-9a3f-4266-96f3-5c5ac8675edf`
+- Provider response ID: `chatcmpl-849bb43e-dcbd-4ffc-821a-dc372f64ae07`
 - Finish reason: `stop`
-- Provider prompt tokens: `4873`
-- Provider completion tokens: `234`
-- Provider total tokens: `5107`
+- Provider prompt tokens: `4877`
+- Provider completion tokens: `110`
+- Provider total tokens: `4987`
 
 #### `artifact-0004` — artifact
 
 - Estimated input tokens: `15744`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `raw_llvm:[0, 5767)@7d5f93fc6f34eef9c40b3f0e2d14250039f9ca9b2659d70eb67dcc46e4b3851d`
-- Prompt SHA-256: `9b548cc3f754ab830e49a45faff187fbd923376d0359d56be433be27dd4ba77e`
-- Request SHA-256: `89bda11979e78c9eb31643f5d07218185f711bd9deeba56a2a013f16860c1a6e`
+- Covered ranges: `raw_llvm:[0, 5767)@c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
+- Prompt SHA-256: `86c45d5026e64dd38b1847f1d8b8c7827da2cb5243e32d17a443e466b149e7dd`
+- Request SHA-256: `13118369a842df3a87e5f3784377c248c3ecb4085aa5daa86e819da23d917a62`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-ca50bab3-400a-4297-9ebe-81edeaf68732`
+- Provider response ID: `chatcmpl-1f1b465d-6b10-4894-a6bc-1d05e79e3ea7`
 - Finish reason: `stop`
-- Provider prompt tokens: `6561`
-- Provider completion tokens: `241`
-- Provider total tokens: `6802`
+- Provider prompt tokens: `6558`
+- Provider completion tokens: `537`
+- Provider total tokens: `7095`
 
 #### `artifact-0005` — artifact
 
@@ -276,47 +276,47 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `optimized_llvm:[0, 2227)@7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
-- Prompt SHA-256: `3ab1448b9ab7d2f9824e8c6fdb6ae54039c561f03ab7edb60d321e38b5731f75`
-- Request SHA-256: `8439fb8315722f950dd51b27aa827a1bc01c0a492908c68ae8c085e4a1313601`
+- Prompt SHA-256: `814c42bf64bb40253221009f2323fb125454633512083286bb1426db5bf4a2a1`
+- Request SHA-256: `1afeb0985aae6e25d02f1da97b8be6e70f7511d4b877d222c09fb84b9a78fa3f`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-10ed0ec6-db3c-4473-839b-7ec93a9af2cf`
+- Provider response ID: `chatcmpl-56f75ce5-09f8-46ae-810d-54f037b43087`
 - Finish reason: `stop`
-- Provider prompt tokens: `5238`
-- Provider completion tokens: `217`
-- Provider total tokens: `5455`
+- Provider prompt tokens: `5242`
+- Provider completion tokens: `310`
+- Provider total tokens: `5552`
 
 #### `artifact-0006` — artifact
 
 - Estimated input tokens: `11242`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
-- Prompt SHA-256: `ae0321aee86662890589626525ffc11fe2ced03b7fce8dde2de7c1f715e81d0a`
-- Request SHA-256: `b13b18c7940cffb36919d2c1359621b72c84deeed7d0c97ce0cbce4a4d671fdc`
+- Covered ranges: `assembly:[0, 1262)@f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
+- Prompt SHA-256: `23584d790d3137ae95ab133215aaab3c1df737840d3e4a63d4d47ef7ee5e9596`
+- Request SHA-256: `302366ba213ac52f3afbfc9347194b8ac86734f3e3a2bf55f3a400c89d8ceb7b`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-6fd23709-74e9-49bb-a68b-eebd76f212ee`
+- Provider response ID: `chatcmpl-456d8ac9-58b3-4d37-bc7d-c1509c0585af`
 - Finish reason: `stop`
-- Provider prompt tokens: `4948`
-- Provider completion tokens: `514`
-- Provider total tokens: `5462`
+- Provider prompt tokens: `4953`
+- Provider completion tokens: `239`
+- Provider total tokens: `5192`
 
 #### `artifact-0007` — artifact
 
 - Estimated input tokens: `17534`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
-- Prompt SHA-256: `65ed9f9ef7914fd196c32159fafac7454342e38a3dd43068edd24e2c400045b6`
-- Request SHA-256: `fc45c693f9313a539d2882c8ec5842a10bea07d27eecac40365228c4a2d9ed9a`
+- Covered ranges: `disassembly:[0, 7537)@4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
+- Prompt SHA-256: `83144d17886cee6ec482f91379a63d5c46f0e813d970b26a92268575a5f7a67e`
+- Request SHA-256: `2066f0dc671c4f1facf622e4910259a57aba3b28776b5fea0161367422b5896e`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-91272a0c-4299-4e0e-9cb9-d235756c460a`
+- Provider response ID: `chatcmpl-dc4a6004-7c31-48b5-8eb8-8306f23d5461`
 - Finish reason: `stop`
-- Provider prompt tokens: `7712`
-- Provider completion tokens: `231`
-- Provider total tokens: `7943`
+- Provider prompt tokens: `7725`
+- Provider completion tokens: `335`
+- Provider total tokens: `8060`
 
 #### `artifact-0008` — artifact
 
@@ -324,15 +324,15 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `optimization_record:[0, 11024)@c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
-- Prompt SHA-256: `f21a711c9bbc9b9c6aac2ced53875b0a2df86d6a4f398646823e27b91f89f83f`
-- Request SHA-256: `f421d2fd8c1f47248795ec780c62894a23b7e42289cc9eedfe653c05b56f50fd`
+- Prompt SHA-256: `390e8b557bedc37ff4ecafd4af53d8a55e828d5ac0c05b2b5556a26cf97b2565`
+- Request SHA-256: `4bf1365ed39ca6f1ae8f5a03bc848a9e3edc4cada73add4428dca92c37d2f8e3`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-471047d8-b13a-499e-82aa-852082559c6d`
+- Provider response ID: `chatcmpl-2f185fd1-ea67-4c8f-ac0c-c7c9de60bece`
 - Finish reason: `stop`
-- Provider prompt tokens: `7403`
-- Provider completion tokens: `197`
-- Provider total tokens: `7600`
+- Provider prompt tokens: `7407`
+- Provider completion tokens: `123`
+- Provider total tokens: `7530`
 
 #### `artifact-0009` — artifact
 
@@ -340,31 +340,31 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`
-- Prompt SHA-256: `d87d09d55d176315887fea10c303baae911d4bdf43451ae647915d0994fb3447`
-- Request SHA-256: `196807074d62aaf9177b0a43f234e7ba4df92372465f584c62c4b9cbdd8a4133`
+- Prompt SHA-256: `bc7048b623dc7ffe2260818fd78d8c6c2092bd1ba82692c4242a30f4e4641482`
+- Request SHA-256: `ac54b82bf622df04f42978bef7b48609e40eeef0b5d17fadb2ee5337456a652e`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-1cc53caf-a7d6-41f3-8e84-704eb4b6f469`
+- Provider response ID: `chatcmpl-a70d1e43-cbee-4399-a5d3-83a00d4be114`
 - Finish reason: `stop`
-- Provider prompt tokens: `4544`
-- Provider completion tokens: `115`
-- Provider total tokens: `4659`
+- Provider prompt tokens: `4548`
+- Provider completion tokens: `114`
+- Provider total tokens: `4662`
 
 #### `artifact-0010` — artifact
 
 - Estimated input tokens: `96753`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `analysis:[0, 86755)@fe4425d7ffeb0f79f73655d63239705d230ad68efd4d3bb9e886e20f64e0755d`
-- Prompt SHA-256: `b44ec6c72487f568794ca865e2ebaf77e5e323f928ffd5c1f54c6d07b4df34ff`
-- Request SHA-256: `cd53bdf88029e1d791d7c9d7c890732c7ea142421b4ec415fe0b88612a53e636`
+- Covered ranges: `analysis:[0, 86755)@da1bc0b738b836abe11a495f65f48b4ed079615982091ce56d9da8e249f94857`
+- Prompt SHA-256: `58ab993275ae031815e690d012301052e424704d189d1036ff3be4859f743d3c`
+- Request SHA-256: `a6144dbfb36c6c536298b72bce09ce58b50a9cd4ec0a33f7bd1a59c547b8157e`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-926f6d42-83a6-4994-afb4-53b5f49b6df4`
+- Provider response ID: `chatcmpl-78202bd2-8b42-4031-860e-64f4c42439ba`
 - Finish reason: `stop`
-- Provider prompt tokens: `28889`
-- Provider completion tokens: `369`
-- Provider total tokens: `29258`
+- Provider prompt tokens: `28890`
+- Provider completion tokens: `496`
+- Provider total tokens: `29386`
 
 #### `artifact-0011` — artifact
 
@@ -372,31 +372,31 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `analysis:[86755, 93622)@28b45c1fdea4e929c19c6c4f5536fc8a1fb04777f757d1ebd4cdd10ef0c5ab25`
-- Prompt SHA-256: `3080413d316293121ade64c6e549c56fd6ae5c130bf19b92cfe699da3a7190b7`
-- Request SHA-256: `036094836ddbacbd557085a52ea5c9774972becc1b03904da405fbb530aae8aa`
+- Prompt SHA-256: `8dacbb4b9c1ce7d0d7e891eaaf9598f58090c136f186fbf83557794f66a3d27e`
+- Request SHA-256: `abbcfc2aa9d59e728fc6d77569f2e925ea162e8f039f76cb41b5408a4ffa37ad`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-dba7804c-9875-4b46-9500-b1840e0b94da`
+- Provider response ID: `chatcmpl-b4757b41-061b-4d5d-855e-9049b0b29357`
 - Finish reason: `stop`
-- Provider prompt tokens: `6451`
-- Provider completion tokens: `168`
-- Provider total tokens: `6619`
+- Provider prompt tokens: `6455`
+- Provider completion tokens: `136`
+- Provider total tokens: `6591`
 
 #### `artifact-0012` — artifact
 
 - Estimated input tokens: `10690`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `build_manifest:[0, 696)@5d94dd2985534cfc5477bcb395a73c8eb189df41637db7bf4f6e95eaed98c4e1`
-- Prompt SHA-256: `db7419b5a6f9f978aa5a989d6326bfd45d4fe0dd622d47c9195c5e8f8f3c1971`
-- Request SHA-256: `2b7f50bb2f789f675813724e297681363dce6f3322a74fc9eeac24931384a986`
+- Covered ranges: `build_manifest:[0, 696)@e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
+- Prompt SHA-256: `b1bd5eb7a967db23865971b06feb77e60cbfc1b10f1cd069e19f2150e6a2f117`
+- Request SHA-256: `d2513a71c1d86b7d789d20acf72838b707c11feeeb9996e9bb543a5558b700a4`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-373a3060-8aa1-4135-b30c-e6449bcd7eda`
+- Provider response ID: `chatcmpl-a17c6638-94f2-4532-9be9-fd940f6b51f5`
 - Finish reason: `stop`
-- Provider prompt tokens: `4734`
-- Provider completion tokens: `117`
-- Provider total tokens: `4851`
+- Provider prompt tokens: `4737`
+- Provider completion tokens: `179`
+- Provider total tokens: `4916`
 
 #### `artifact-0013` — artifact
 
@@ -404,31 +404,31 @@
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `trace:[0, 213)@c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
-- Prompt SHA-256: `bfe68acdf3ecee8c98167682668396fc2562545900372d3229f9ea15cfa49f60`
-- Request SHA-256: `69ced0cbab83c70e39b0e993659a9c9f4b9b5640669a1927b9fc527eaa44f06c`
+- Prompt SHA-256: `cc880b4d146421ea1e50e01190407b75a2fb151fdca5b34b8116ff5946b9eb6c`
+- Request SHA-256: `55c1eb45e8f1dc218edde1b6abe43f2069c8786441093bec4876ad3610ca39fd`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-79bc7f34-e0ba-4227-b268-544281e69563`
+- Provider response ID: `chatcmpl-e42eed21-47b7-47a0-adce-e60f60d69cac`
 - Finish reason: `stop`
-- Provider prompt tokens: `4557`
-- Provider completion tokens: `156`
-- Provider total tokens: `4713`
+- Provider prompt tokens: `4561`
+- Provider completion tokens: `134`
+- Provider total tokens: `4695`
 
 #### `synthesis-0001` — synthesis
 
-- Estimated input tokens: `30569`
+- Estimated input tokens: `30880`
 - Reserved output tokens: `4096`
 - Depends on: `artifact-0001`, `artifact-0002`, `artifact-0003`, `artifact-0004`, `artifact-0005`, `artifact-0006`, `artifact-0007`, `artifact-0008`, `artifact-0009`, `artifact-0010`, `artifact-0011`, `artifact-0012`, `artifact-0013`
 - Covered ranges: none
-- Prompt SHA-256: `98b65a68c26d6a6098d54701bc8d6d7830bbe5ac7ed87348227737c2833705f7`
-- Request SHA-256: `f003aac123891f4e3a343736f6a52e28a6697376e4332c40371fbf789a99f741`
+- Prompt SHA-256: `4cddc196855fa777d7b0848f2fd5d5a607129864663746aab5646fb611a21143`
+- Request SHA-256: `49c552619a829642243260a38f9c0ec2bd5d96da1296fbb471ecec7501ab1c31`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-5d288e38-4852-445e-b64b-c779afc44411`
+- Provider response ID: `chatcmpl-16870f37-8c56-4a4f-ba29-7cd77647e4c7`
 - Finish reason: `stop`
-- Provider prompt tokens: `11200`
-- Provider completion tokens: `1394`
-- Provider total tokens: `12594`
+- Provider prompt tokens: `11278`
+- Provider completion tokens: `1206`
+- Provider total tokens: `12484`
 
 ## Complete compiler evidence
 
@@ -569,7 +569,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-ANIEGt/program.wir
+; source: /tmp/weavec-build-FydZLk/program.wir
 ; core-version: 2
 
 ; declarations
@@ -782,9 +782,9 @@ main:                                   # @main
 	cmpl	$2, %eax
 	jb	.LBB0_5
 .LBB0_3:                                # %while.body1.i.preheader
+	xorl	%edx, %edx
 	movl	$1, %eax
 	movl	$2, %ecx
-	xorl	%edx, %edx
 	.p2align	4, 0x90
 .LBB0_4:                                # %while.body1.i
                                         # =>This Inner Loop Header: Depth=1
@@ -937,9 +937,9 @@ Disassembly of section .text:
     1174: 89 c3                        	movl	%eax, %ebx
     1176: 83 f8 02                     	cmpl	$0x2, %eax
     1179: 72 23                        	jb	0x119e <main+0x4e>
-    117b: b8 01 00 00 00               	movl	$0x1, %eax
-    1180: b9 02 00 00 00               	movl	$0x2, %ecx
-    1185: 31 d2                        	xorl	%edx, %edx
+    117b: 31 d2                        	xorl	%edx, %edx
+    117d: b8 01 00 00 00               	movl	$0x1, %eax
+    1182: b9 02 00 00 00               	movl	$0x2, %ecx
     1187: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
     1190: 89 c6                        	movl	%eax, %esi
     1192: 89 d0                        	movl	%edx, %eax
@@ -1521,7 +1521,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.010824,
+        "elapsed_seconds": 0.007661,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1557,7 +1557,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009855,
+        "elapsed_seconds": 0.007136,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1595,7 +1595,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009546,
+        "elapsed_seconds": 0.006593,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1633,7 +1633,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009587,
+        "elapsed_seconds": 0.006574,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1671,7 +1671,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009445,
+        "elapsed_seconds": 0.006609,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1709,7 +1709,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009828,
+        "elapsed_seconds": 0.006661,
         "exit_code": 144,
         "process_count_enforcement": "delegated",
         "returncode": 144,
@@ -1747,7 +1747,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009396,
+        "elapsed_seconds": 0.006507,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1785,7 +1785,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009675,
+        "elapsed_seconds": 0.006618,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1823,7 +1823,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.009544,
+        "elapsed_seconds": 0.006729,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1861,7 +1861,7 @@ Args:
     }
   ],
   "configured": true,
-  "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
+  "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
   "format": "weave-loupe-runtime-matrix-v1",
   "inherit_environment": false,
   "limits": {
@@ -2310,7 +2310,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.010824,
+          "elapsed_seconds": 0.007661,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2346,7 +2346,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009855,
+          "elapsed_seconds": 0.007136,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2384,7 +2384,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009546,
+          "elapsed_seconds": 0.006593,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2422,7 +2422,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009587,
+          "elapsed_seconds": 0.006574,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2460,7 +2460,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009445,
+          "elapsed_seconds": 0.006609,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2498,7 +2498,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009828,
+          "elapsed_seconds": 0.006661,
           "exit_code": 144,
           "process_count_enforcement": "delegated",
           "returncode": 144,
@@ -2536,7 +2536,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009396,
+          "elapsed_seconds": 0.006507,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2574,7 +2574,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009675,
+          "elapsed_seconds": 0.006618,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2612,7 +2612,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.009544,
+          "elapsed_seconds": 0.006729,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2650,7 +2650,7 @@ Args:
       }
     ],
     "configured": true,
-    "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
+    "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
     "format": "weave-loupe-runtime-matrix-v1",
     "inherit_environment": false,
     "limits": {
@@ -4892,7 +4892,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-tkzxh2o4/.audit.loupe.tg9f3eqn/artifacts/program",
+  "output": "/tmp/loupe-audit-jkb0495r/.audit.loupe.igfq60y2/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ]
@@ -4918,42 +4918,38 @@ Args:
 # Weave Compiler Final Adversarial Release-Gate Audit Review
 
 ## 1. Executive Summary
-
-This final adversarial release-gate review synthesizes the deterministic evidence and exact byte-range artifact reviews for the Weave compiler audit of `docs/audit/fibonacci_runtime.weave`. The compilation pipeline executed successfully with an exit code of 0. All deterministic gates (native budget, optimized LLVM budget, and runtime matrix) passed with zero failures. Cross-stage projection from source to WIR, raw LLVM, optimized LLVM, assembly, and native disassembly is consistent and semantically verified. No blocking findings were identified. The release gate is cleared.
+The Weave compiler release gate for `weavec v0.3.0+git.1ba3dc73a459` successfully passes all deterministic and adversarial review checks. The compilation of `docs/audit/fibonacci_runtime.weave` completed with an exit code of 0. All required textual artifacts were reviewed through exact, hash-addressed UTF-8 byte ranges. The native, optimized LLVM, and runtime budget gates passed without failures. Cross-stage consistency is maintained across the source, WIR, raw LLVM, optimized LLVM, and native disassembly. No blocking findings were identified.
 
 ## 2. Verification Matrix
 
-| Artifact | Byte Range | SHA-256 | Status | Cross-Stage Verification |
+| Artifact / Stage | Byte Range | SHA-256 | Status | Cross-Stage Consistency |
 | :--- | :--- | :--- | :--- | :--- |
-| **Metadata** | `[0, 10295)` | `46a8deeb...` | REVIEWED | Auditor identity, bundle hashes, and deterministic gate summary verified. `disassembler_version` is null but `supported: true` with no `failure_reason`. |
-| **Source** | `[0, 1822)` | `344883c0...` | REVIEWED | `fib` and `main` defined. Runtime-dependent `while` loop and external `getenv`/`atoi` calls resist constant folding. Input clamped to `[0, 46]`. |
-| **WIR** | `[0, 1269)` | `66955504...` | REVIEWED | Externs match source. `fib` early return and iterative loop match source. `main` env parsing and clamping logic intact. |
-| **Raw LLVM** | `[0, 5767)` | `7d5f93fc...` | REVIEWED | Well-formed IR. `@main` and `@fib` functions match WIR. Control flow blocks properly branched with no unreachable instructions. |
-| **Optimized LLVM** | `[0, 2227)` | `7bda6a3a...` | REVIEWED | `@fib` inlined into `@main`. `getenv`/`atoi` retained. Bounds check (`u > 46`) and base-case (`u < 2`) logic preserved. |
-| **Assembly** | `[0, 1262)` | `355551c6...` | REVIEWED | 6 basic blocks. `getenv@PLT`/`atoi@PLT` called. Input defaults to 10, clamps to 46, skips loop if `< 2`. Iterative Fibonacci loop intact. |
-| **Disassembly** | `[0, 7537)` | `fc79aff6...` | REVIEWED | Standard ELF64 startup/runtime support verified. User `main` at `0x1150` matches assembly. 0 indirect calls, 0 unreachable instructions. |
-| **Optimization Record**| `[0, 11024)` | `c1eed531...` | REVIEWED | `fib` inlining succeeded. External calls not inlined (expected). Vectorization missed (expected for recursive logic). 25 final instructions. |
-| **Diagnostics** | `[0, 148)` | `9683b322...` | REVIEWED | Phase "complete", status "succeeded". Empty diagnostics array. Consistent with exit code 0. |
-| **Analysis** | `[0, 86755)` | `fe4425d7...` | REVIEWED | WIR to LLVM block deltas verified. `fib` inlined in optimized LLVM. 99 malformed spans reported (likely unmapped source comments). |
-| **Analysis** | `[86755, 93622)` | `28b45c1f...` | REVIEWED | Source mapping terminates cleanly. `unresolved_symbols: []`, `valid: true`. |
-| **Build Manifest** | `[0, 696)` | `5d94dd29...` | REVIEWED | Target `x86_64-unknown-linux-gnu`. Tools: `weavec`, `clang`, `llc`, `llvm-objdump`. Optimization `O3`. |
-| **Trace** | `[0, 213)` | `c93c225d...` | REVIEWED | `weavec-compilation-trace-v1`. Empty events array. Consistent with successful compilation. |
+| **Metadata** | [0, 10295) | `e5377574...` | REVIEWED | Auditor identity and bundle hashes verified. 9 runtime cases configured. |
+| **Source** | [0, 1822) | `344883c0...` | REVIEWED | Defines `fib` and `main` with `getenv`/`atoi` externs. Clamps input to `[0, 46]`. |
+| **WIR** | [0, 1269) | `66955504...` | REVIEWED | Matches source logic. Iterative loop and input clamping preserved. |
+| **Raw LLVM** | [0, 5767) | `c48f52bd...` | REVIEWED | Unoptimized IR retains source mapping and control flow. |
+| **Optimized LLVM** | [0, 2227) | `7bda6a3a...` | REVIEWED | `fib` inlined. `freeze` instruction safely handles `atoi` undef. Bounds check intact. |
+| **Assembly** | [0, 1262) | `f0fe3ce1...` | REVIEWED | x86_64 instructions match optimized IR. `cmpl $46` bounds check present. |
+| **Disassembly** | [0, 7537) | `4db3a657...` | REVIEWED | 0 indirect calls, 0 unreachable instructions. Standard ELF/CRT setup. |
+| **Opt. Record** | [0, 11024) | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). Benign vectorization misses. |
+| **Diagnostics** | [0, 148) | `9683b322...` | REVIEWED | Empty error list. Aligns with `compiler_exit_code: 0`. |
+| **Analysis** | [0, 86755) | `da1bc0b7...` | REVIEWED | Native budget (25/32 instrs), LLVM budget (20/20 instrs), Runtime (9/9 passed). |
+| **Analysis** | [86755, 93622) | `28b45c1f...` | REVIEWED | Source mapping array valid. `valid: true`. No unresolved symbols. |
+| **Build Manifest** | [0, 696) | `e076c75b...` | REVIEWED | Target `x86_64-unknown-linux-gnu`, `O3` optimization. Matches metadata. |
+| **Trace** | [0, 213) | `c93c225d...` | REVIEWED | Status `succeeded`, phase `complete`. |
 
 ## 3. Blocking Findings
-
-None. All artifact reviews returned `REVIEWED` with no blocking reasons. All essential correctness, safety, ABI, target, runtime, and final-code claims are supported by the supplied deterministic evidence.
+None. All artifact reviews returned `REVIEWED` with no unsupported findings. All deterministic gates (`native_budget`, `optimized_llvm_budget`, `runtime`) passed with 0 failures.
 
 ## 4. Non-Blocking Opportunities
-
-*   **Disassembler Version Omission**: The metadata artifact reports `disassembler_version: null` while using `llvm-objdump`. While this does not invalidate the native disassembly evidence (as `supported: true` and `failure_reason: null`), capturing the exact disassembler version in future audits would strictly improve reproducibility guarantees.
-*   **Malformed Source Spans**: The analysis artifact reported 99 malformed spans (bytes 965-1778) with "no following WIR form". This is almost certainly due to unmapped source comments or trailing documentation in the `.weave` file. While harmless, enhancing the provenance mapper to explicitly classify non-code spans would reduce noise in the analysis report.
-*   **Missed Vectorization Logging**: The optimization record notes missed loop and SLP vectorization for `main`. This is expected behavior for recursive/iterative Fibonacci logic that cannot be easily vectorized, but documenting this as an expected optimization constraint in the audit policy could prevent false positives in automated regression checks.
+- **Disassembler Version Omission**: The native metadata reports `disassembler_version: null` despite using `llvm-objdump`. While `supported: true` and `failure_reason: null` mitigate ABI/target risks, capturing the exact toolchain version in future releases would improve strict reproducibility.
+- **WIR Provenance Spans**: The analysis recorded 99 malformed provenance spans (bytes 965-1778) marked "no following WIR form". This appears to be a benign artifact of nested/overlapping token-to-source mappings and did not result in missing or duplicate definitions, but warrants investigation for cleaner WIR projection metadata.
+- **Trace Artifact Sparsity**: The compilation trace artifact contains an empty events array. While the status is `succeeded`, adding per-function or per-block trace events would enhance future debuggability.
 
 ## 5. Suggested Verification
-
-*   **Runtime Matrix Integrity**: Confirm that the 9 cases in `docs/audit/fibonacci_runtime.audit.json` (SHA `dc8e5b6d...`) explicitly cover the default path (`WEAVE_AUDIT_N` unset), the null path, the parsing path, and the lower/upper bound clamping logic (`[0, 46]`).
-*   **ABI Compliance**: Verify that the `x86_64` System V ABI is strictly adhered to in the assembly/disassembly, specifically regarding the preservation of callee-saved registers (e.g., `%rbx`) across the `getenv@PLT` and `atoi@PLT` calls.
-*   **Deterministic Native Budget**: Ensure the `native_budget` gate configuration explicitly enforces the observed 25-instruction count and 0 indirect calls for this specific audit case to prevent future regressions.
+- **Runtime Behavior**: The runtime gate successfully executed 9 cases under a bubblewrap sandbox (disabled network, explicit env, read-only FS with restricted `/tmp` and `/work` writes). Cases cover missing input, boundary values (`0`, `46`, `47`), negative values (`-1`), and non-integer (`abc`). All passed with expected exit codes.
+- **ABI and Target Safety**: The build manifest confirms the target as `x86_64-unknown-linux-gnu` with `clang/llc` toolchains. The disassembly confirms standard x86_64 ELF conventions, standard PLT/GOT setup, and no unexpected indirect calls in user code.
+- **Optimization Safety**: The optimized LLVM IR correctly introduces a `freeze` instruction on the result of `@atoi` (`%t3.fr`) to prevent undef propagation during optimization. The `fib` function was successfully inlined into `main` without violating budget constraints.
 
 <details>
 <summary>Raw model response</summary>
@@ -4964,41 +4960,37 @@ OK
 # Weave Compiler Final Adversarial Release-Gate Audit Review
 
 ## 1. Executive Summary
-
-This final adversarial release-gate review synthesizes the deterministic evidence and exact byte-range artifact reviews for the Weave compiler audit of `docs/audit/fibonacci_runtime.weave`. The compilation pipeline executed successfully with an exit code of 0. All deterministic gates (native budget, optimized LLVM budget, and runtime matrix) passed with zero failures. Cross-stage projection from source to WIR, raw LLVM, optimized LLVM, assembly, and native disassembly is consistent and semantically verified. No blocking findings were identified. The release gate is cleared.
+The Weave compiler release gate for `weavec v0.3.0+git.1ba3dc73a459` successfully passes all deterministic and adversarial review checks. The compilation of `docs/audit/fibonacci_runtime.weave` completed with an exit code of 0. All required textual artifacts were reviewed through exact, hash-addressed UTF-8 byte ranges. The native, optimized LLVM, and runtime budget gates passed without failures. Cross-stage consistency is maintained across the source, WIR, raw LLVM, optimized LLVM, and native disassembly. No blocking findings were identified.
 
 ## 2. Verification Matrix
 
-| Artifact | Byte Range | SHA-256 | Status | Cross-Stage Verification |
+| Artifact / Stage | Byte Range | SHA-256 | Status | Cross-Stage Consistency |
 | :--- | :--- | :--- | :--- | :--- |
-| **Metadata** | `[0, 10295)` | `46a8deeb...` | REVIEWED | Auditor identity, bundle hashes, and deterministic gate summary verified. `disassembler_version` is null but `supported: true` with no `failure_reason`. |
-| **Source** | `[0, 1822)` | `344883c0...` | REVIEWED | `fib` and `main` defined. Runtime-dependent `while` loop and external `getenv`/`atoi` calls resist constant folding. Input clamped to `[0, 46]`. |
-| **WIR** | `[0, 1269)` | `66955504...` | REVIEWED | Externs match source. `fib` early return and iterative loop match source. `main` env parsing and clamping logic intact. |
-| **Raw LLVM** | `[0, 5767)` | `7d5f93fc...` | REVIEWED | Well-formed IR. `@main` and `@fib` functions match WIR. Control flow blocks properly branched with no unreachable instructions. |
-| **Optimized LLVM** | `[0, 2227)` | `7bda6a3a...` | REVIEWED | `@fib` inlined into `@main`. `getenv`/`atoi` retained. Bounds check (`u > 46`) and base-case (`u < 2`) logic preserved. |
-| **Assembly** | `[0, 1262)` | `355551c6...` | REVIEWED | 6 basic blocks. `getenv@PLT`/`atoi@PLT` called. Input defaults to 10, clamps to 46, skips loop if `< 2`. Iterative Fibonacci loop intact. |
-| **Disassembly** | `[0, 7537)` | `fc79aff6...` | REVIEWED | Standard ELF64 startup/runtime support verified. User `main` at `0x1150` matches assembly. 0 indirect calls, 0 unreachable instructions. |
-| **Optimization Record**| `[0, 11024)` | `c1eed531...` | REVIEWED | `fib` inlining succeeded. External calls not inlined (expected). Vectorization missed (expected for recursive logic). 25 final instructions. |
-| **Diagnostics** | `[0, 148)` | `9683b322...` | REVIEWED | Phase "complete", status "succeeded". Empty diagnostics array. Consistent with exit code 0. |
-| **Analysis** | `[0, 86755)` | `fe4425d7...` | REVIEWED | WIR to LLVM block deltas verified. `fib` inlined in optimized LLVM. 99 malformed spans reported (likely unmapped source comments). |
-| **Analysis** | `[86755, 93622)` | `28b45c1f...` | REVIEWED | Source mapping terminates cleanly. `unresolved_symbols: []`, `valid: true`. |
-| **Build Manifest** | `[0, 696)` | `5d94dd29...` | REVIEWED | Target `x86_64-unknown-linux-gnu`. Tools: `weavec`, `clang`, `llc`, `llvm-objdump`. Optimization `O3`. |
-| **Trace** | `[0, 213)` | `c93c225d...` | REVIEWED | `weavec-compilation-trace-v1`. Empty events array. Consistent with successful compilation. |
+| **Metadata** | [0, 10295) | `e5377574...` | REVIEWED | Auditor identity and bundle hashes verified. 9 runtime cases configured. |
+| **Source** | [0, 1822) | `344883c0...` | REVIEWED | Defines `fib` and `main` with `getenv`/`atoi` externs. Clamps input to `[0, 46]`. |
+| **WIR** | [0, 1269) | `66955504...` | REVIEWED | Matches source logic. Iterative loop and input clamping preserved. |
+| **Raw LLVM** | [0, 5767) | `c48f52bd...` | REVIEWED | Unoptimized IR retains source mapping and control flow. |
+| **Optimized LLVM** | [0, 2227) | `7bda6a3a...` | REVIEWED | `fib` inlined. `freeze` instruction safely handles `atoi` undef. Bounds check intact. |
+| **Assembly** | [0, 1262) | `f0fe3ce1...` | REVIEWED | x86_64 instructions match optimized IR. `cmpl $46` bounds check present. |
+| **Disassembly** | [0, 7537) | `4db3a657...` | REVIEWED | 0 indirect calls, 0 unreachable instructions. Standard ELF/CRT setup. |
+| **Opt. Record** | [0, 11024) | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). Benign vectorization misses. |
+| **Diagnostics** | [0, 148) | `9683b322...` | REVIEWED | Empty error list. Aligns with `compiler_exit_code: 0`. |
+| **Analysis** | [0, 86755) | `da1bc0b7...` | REVIEWED | Native budget (25/32 instrs), LLVM budget (20/20 instrs), Runtime (9/9 passed). |
+| **Analysis** | [86755, 93622) | `28b45c1f...` | REVIEWED | Source mapping array valid. `valid: true`. No unresolved symbols. |
+| **Build Manifest** | [0, 696) | `e076c75b...` | REVIEWED | Target `x86_64-unknown-linux-gnu`, `O3` optimization. Matches metadata. |
+| **Trace** | [0, 213) | `c93c225d...` | REVIEWED | Status `succeeded`, phase `complete`. |
 
 ## 3. Blocking Findings
-
-None. All artifact reviews returned `REVIEWED` with no blocking reasons. All essential correctness, safety, ABI, target, runtime, and final-code claims are supported by the supplied deterministic evidence.
+None. All artifact reviews returned `REVIEWED` with no unsupported findings. All deterministic gates (`native_budget`, `optimized_llvm_budget`, `runtime`) passed with 0 failures.
 
 ## 4. Non-Blocking Opportunities
-
-*   **Disassembler Version Omission**: The metadata artifact reports `disassembler_version: null` while using `llvm-objdump`. While this does not invalidate the native disassembly evidence (as `supported: true` and `failure_reason: null`), capturing the exact disassembler version in future audits would strictly improve reproducibility guarantees.
-*   **Malformed Source Spans**: The analysis artifact reported 99 malformed spans (bytes 965-1778) with "no following WIR form". This is almost certainly due to unmapped source comments or trailing documentation in the `.weave` file. While harmless, enhancing the provenance mapper to explicitly classify non-code spans would reduce noise in the analysis report.
-*   **Missed Vectorization Logging**: The optimization record notes missed loop and SLP vectorization for `main`. This is expected behavior for recursive/iterative Fibonacci logic that cannot be easily vectorized, but documenting this as an expected optimization constraint in the audit policy could prevent false positives in automated regression checks.
+- **Disassembler Version Omission**: The native metadata reports `disassembler_version: null` despite using `llvm-objdump`. While `supported: true` and `failure_reason: null` mitigate ABI/target risks, capturing the exact toolchain version in future releases would improve strict reproducibility.
+- **WIR Provenance Spans**: The analysis recorded 99 malformed provenance spans (bytes 965-1778) marked "no following WIR form". This appears to be a benign artifact of nested/overlapping token-to-source mappings and did not result in missing or duplicate definitions, but warrants investigation for cleaner WIR projection metadata.
+- **Trace Artifact Sparsity**: The compilation trace artifact contains an empty events array. While the status is `succeeded`, adding per-function or per-block trace events would enhance future debuggability.
 
 ## 5. Suggested Verification
-
-*   **Runtime Matrix Integrity**: Confirm that the 9 cases in `docs/audit/fibonacci_runtime.audit.json` (SHA `dc8e5b6d...`) explicitly cover the default path (`WEAVE_AUDIT_N` unset), the null path, the parsing path, and the lower/upper bound clamping logic (`[0, 46]`).
-*   **ABI Compliance**: Verify that the `x86_64` System V ABI is strictly adhered to in the assembly/disassembly, specifically regarding the preservation of callee-saved registers (e.g., `%rbx`) across the `getenv@PLT` and `atoi@PLT` calls.
-*   **Deterministic Native Budget**: Ensure the `native_budget` gate configuration explicitly enforces the observed 25-instruction count and 0 indirect calls for this specific audit case to prevent future regressions.
+- **Runtime Behavior**: The runtime gate successfully executed 9 cases under a bubblewrap sandbox (disabled network, explicit env, read-only FS with restricted `/tmp` and `/work` writes). Cases cover missing input, boundary values (`0`, `46`, `47`), negative values (`-1`), and non-integer (`abc`). All passed with expected exit codes.
+- **ABI and Target Safety**: The build manifest confirms the target as `x86_64-unknown-linux-gnu` with `clang/llc` toolchains. The disassembly confirms standard x86_64 ELF conventions, standard PLT/GOT setup, and no unexpected indirect calls in user code.
+- **Optimization Safety**: The optimized LLVM IR correctly introduces a `freeze` instruction on the result of `@atoi` (`%t3.fr`) to prevent undef propagation during optimization. The `fib` function was successfully inlined into `main` without violating budget constraints.
 ```
 </details>
