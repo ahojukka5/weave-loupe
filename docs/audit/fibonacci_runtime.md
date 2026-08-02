@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `f363d8fe71cc5a9f969385c69471cfbbf1c8f3089e5b08b12a1dc8d3c031da3d`
-- **Audit timestamp (UTC):** `2026-08-02T23:02:17+00:00`
-- **Re-audit no later than (UTC):** `2026-09-01T23:02:17+00:00`
+- **Report content SHA-256:** `1060600247c38f16dfd5c28b15e29c5b92c28541cd1283bbf17d46f1b376dcc9`
+- **Audit timestamp (UTC):** `2026-08-02T23:55:59+00:00`
+- **Re-audit no later than (UTC):** `2026-09-01T23:55:59+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,10 +19,10 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
+- **Audited source Git SHA:** `6ee1ebaceb48ce6fd4fdb3d1c861984effeff9ab`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `e8642053ec5914aee76ced601fb1571caed13d99`
-- **Auditor content SHA-256:** `f14fe2e8261f65fc26968d7d7a9418732863631a205d54d3602313bd24a8912d`
+- **Weave Loupe Git SHA:** `6ee1ebaceb48ce6fd4fdb3d1c861984effeff9ab`
+- **Auditor content SHA-256:** `4940836c0bf0207782f0ae03414812a330392722719ac9dca136f9702a0dafb7`
 - **weavec Git SHA:** `1ba3dc73a459e0f4d9449225060d580953d74e7d`
 - **weavec binary SHA-256:** `afdf6f523342bb5484e43a2d9a0006863b7629217da3d97af4aad0c1417563c4`
 - **weavec version:** `weavec v0.3.0+git.1ba3dc73a459`
@@ -39,27 +39,27 @@
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `4cddc196855fa777d7b0848f2fd5d5a607129864663746aab5646fb611a21143`
-- **LLM request SHA-256:** `49c552619a829642243260a38f9c0ec2bd5d96da1296fbb471ecec7501ab1c31`
+- **LLM prompt SHA-256:** `a633561fe2b48efccfa4889d9ffae42e79d1312347f9edea77c2c61ee5d26a19`
+- **LLM request SHA-256:** `d7e344d87da3b32f63260932fb340981789023d7c25506eadc68f79fb2abb9a7`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-16870f37-8c56-4a4f-ba29-7cd77647e4c7`
+- **Provider response ID:** `chatcmpl-a938672c-7090-4abc-afbf-ca7df77283a9`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785711880`
-- **Provider prompt tokens:** `11278`
-- **Provider completion tokens:** `1206`
-- **Provider total tokens:** `12484`
-- **GitHub run ID:** `30771351635`
-- **GitHub workflow SHA:** `da1a9c551bdf5bf4afe28a8cc46fe7725a1abf00`
+- **Provider created (Unix):** `1785715083`
+- **Provider prompt tokens:** `11845`
+- **Provider completion tokens:** `1515`
+- **Provider total tokens:** `13360`
+- **GitHub run ID:** `30773238493`
+- **GitHub workflow SHA:** `e8cf263960854b3f903e8cf8ba0ab5bcf2bfae79`
 
 ## Machine and running conditions
 
 - **Operating system:** `Ubuntu 24.04.4 LTS`
 - **Kernel:** `Linux 6.17.0-1020-azure`
 - **Architecture:** `x86_64`
-- **CPU:** `INTEL(R) XEON(R) PLATINUM 8573C`
+- **CPU:** `AMD EPYC 9V74 80-Core Processor`
 - **Logical CPUs:** `4`
-- **Memory:** `16765386752` bytes
+- **Memory:** `16766414848` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
@@ -70,12 +70,12 @@
 
 ## Captured evidence
 
-- `assembly` — SHA-256 `f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
-- `build_manifest` — SHA-256 `e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
+- `assembly` — SHA-256 `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
+- `build_manifest` — SHA-256 `99f69f032cd59b169e6e713372d6f2d52f09bd865351b1699594ea5984f450f1`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
-- `disassembly` — SHA-256 `4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
-- `executable` — SHA-256 `2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd`
-- `llvm` — SHA-256 `c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
+- `disassembly` — SHA-256 `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
+- `executable` — SHA-256 `8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d`
+- `llvm` — SHA-256 `d5435d2d17b6fd4c0e5131f2a74ab57684b5accefefca51b349d651c0cb2b006`
 - `optimization_record` — SHA-256 `c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
 - `optimized_llvm` — SHA-256 `7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
 - `trace` — SHA-256 `c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
@@ -86,7 +86,7 @@
 - **Review format:** `weave-loupe-review-plan-v1`
 - **Review mode:** `staged`
 - **Token estimator:** `utf8-byte-upper-bound-v1`
-- **Estimated complete review tokens:** `314013`
+- **Estimated complete review tokens:** `352756`
 - **Request count:** `14`
 - **Maximum total tokens:** `524288`
 - **Maximum request tokens:** `98304`
@@ -98,11 +98,11 @@
 #### `metadata` — Reproducibility metadata
 
 - Language: `json`
-- UTF-8 bytes: `10295`
-- Estimated tokens: `10311`
-- SHA-256: `e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
+- UTF-8 bytes: `10623`
+- Estimated tokens: `10639`
+- SHA-256: `cf0c0073d052678d50154c75c438540e03e36164ac73cc1a44f04857e49e98dc`
 - Complete coverage: `True`
-- Covered ranges: `metadata:[0, 10295)@e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
+- Covered ranges: `metadata:[0, 10623)@cf0c0073d052678d50154c75c438540e03e36164ac73cc1a44f04857e49e98dc`
 
 #### `source` — Weave source
 
@@ -127,9 +127,9 @@
 - Language: `llvm`
 - UTF-8 bytes: `5767`
 - Estimated tokens: `5783`
-- SHA-256: `c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
+- SHA-256: `d5435d2d17b6fd4c0e5131f2a74ab57684b5accefefca51b349d651c0cb2b006`
 - Complete coverage: `True`
-- Covered ranges: `raw_llvm:[0, 5767)@c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
+- Covered ranges: `raw_llvm:[0, 5767)@d5435d2d17b6fd4c0e5131f2a74ab57684b5accefefca51b349d651c0cb2b006`
 
 #### `optimized_llvm` — Optimized LLVM IR
 
@@ -145,18 +145,18 @@
 - Language: `asm`
 - UTF-8 bytes: `1262`
 - Estimated tokens: `1278`
-- SHA-256: `f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
+- SHA-256: `355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
 - Complete coverage: `True`
-- Covered ranges: `assembly:[0, 1262)@f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
+- Covered ranges: `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
 
 #### `disassembly` — Linked executable disassembly
 
 - Language: `asm`
 - UTF-8 bytes: `7537`
 - Estimated tokens: `7553`
-- SHA-256: `4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
+- SHA-256: `fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
 - Complete coverage: `True`
-- Covered ranges: `disassembly:[0, 7537)@4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
+- Covered ranges: `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
 
 #### `optimization_record` — LLVM optimization record
 
@@ -179,20 +179,20 @@
 #### `analysis` — Complete deterministic analysis
 
 - Language: `json`
-- UTF-8 bytes: `93622`
-- Estimated tokens: `93638`
-- SHA-256: `d49de67dc248df01e819bed0cc8038f05137a0827a9a4898e058fc512c044fa9`
+- UTF-8 bytes: `127084`
+- Estimated tokens: `127100`
+- SHA-256: `b0233e05ec1145b5459ddbbc006463cbb92b99ed17e40b82208dbabb0f348fe3`
 - Complete coverage: `True`
-- Covered ranges: `analysis:[0, 86755)@da1bc0b738b836abe11a495f65f48b4ed079615982091ce56d9da8e249f94857`, `analysis:[86755, 93622)@28b45c1fdea4e929c19c6c4f5536fc8a1fb04777f757d1ebd4cdd10ef0c5ab25`
+- Covered ranges: `analysis:[0, 86496)@013954af457047cbfaae025c8e2b0e68f1cf0d4dd64a015f266c411cc03192ec`, `analysis:[86496, 127084)@839a4bbc7a7e3f8f8ed7e00ecc5e99ebef96ed992fd2bfb72a386593fdbd3c0e`
 
 #### `build_manifest` — Compiler build manifest
 
 - Language: `json`
 - UTF-8 bytes: `696`
 - Estimated tokens: `712`
-- SHA-256: `e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
+- SHA-256: `99f69f032cd59b169e6e713372d6f2d52f09bd865351b1699594ea5984f450f1`
 - Complete coverage: `True`
-- Covered ranges: `build_manifest:[0, 696)@e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
+- Covered ranges: `build_manifest:[0, 696)@99f69f032cd59b169e6e713372d6f2d52f09bd865351b1699594ea5984f450f1`
 
 #### `trace` — Compiler trace
 
@@ -208,227 +208,227 @@
 
 #### `artifact-0001` — artifact
 
-- Estimated input tokens: `20286`
+- Estimated input tokens: `20874`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `metadata:[0, 10295)@e537757449957edc7a2c3ac048b77fedee04d61b1a689906be7f34c55fae37a3`
-- Prompt SHA-256: `ba292a65e9fc142ec0ab91dbe5077e0ad780718946f9e40881a14b15e7be1cfb`
-- Request SHA-256: `51f02bb205809fcd680c37c5d3c7aef9a47bf95a062367252379a7ae73cd3bab`
+- Covered ranges: `metadata:[0, 10623)@cf0c0073d052678d50154c75c438540e03e36164ac73cc1a44f04857e49e98dc`
+- Prompt SHA-256: `4ffe46a9f64f9d5780b36c641221d7688f93ecf6ceb72e359bb2f26d3a188b19`
+- Request SHA-256: `c7f8ec805e28436f44e4b6ae0cd76a38156681d9b9249871fc94ed67c8f61be0`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-06513a99-42c6-450b-9425-b34d4fe089fb`
+- Provider response ID: `chatcmpl-112c2cf1-cd36-401a-974a-030bb3cb94c3`
 - Finish reason: `stop`
-- Provider prompt tokens: `9220`
-- Provider completion tokens: `402`
-- Provider total tokens: `9622`
+- Provider prompt tokens: `9476`
+- Provider completion tokens: `298`
+- Provider total tokens: `9774`
 
 #### `artifact-0002` — artifact
 
-- Estimated input tokens: `11798`
+- Estimated input tokens: `12058`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `source:[0, 1822)@344883c033044766e2bfbac4a1bf838b9e07900faffb15f9fe919da6fe69b759`
-- Prompt SHA-256: `c3cb0f0de312a268cf7777fb5bcd64d9afb5a9bfc5fdf7c6462b99bacd1d7697`
-- Request SHA-256: `d51660c5ae132c8eed0f329e158b2d7b677f61083206acd408be197b55b8158b`
+- Prompt SHA-256: `9cb9fb094f1f95d9301716d50a5bd8e64df30f90728df4111aed35ac2a3d22ba`
+- Request SHA-256: `1d909e1d1c237987a13de99523426a1b510ba98699a9a15e7f56945a4d7a0e40`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-289c0807-cec5-4c8d-93e2-1d4e90373d0a`
+- Provider response ID: `chatcmpl-f0c69f53-04b1-4c5a-a3de-96962458e295`
 - Finish reason: `stop`
-- Provider prompt tokens: `5012`
-- Provider completion tokens: `242`
-- Provider total tokens: `5254`
+- Provider prompt tokens: `5131`
+- Provider completion tokens: `141`
+- Provider total tokens: `5272`
 
 #### `artifact-0003` — artifact
 
-- Estimated input tokens: `11251`
+- Estimated input tokens: `11511`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `wir:[0, 1269)@66955504c5683801f61dc176cc98d0c0c27909698197099712ef53956b70d471`
-- Prompt SHA-256: `4ce9b5aee33d1ccad623b663318d43705522ae741b3a2bbf52b759ab5fa18e78`
-- Request SHA-256: `6981d398a640623bddec49daceceecd8f6303052c180ae71194ac42a9e456067`
+- Prompt SHA-256: `fed7415d2f1d6d5ce654cc95476a60fec8f9a6c95a9298eec28da32b2c079a21`
+- Request SHA-256: `69c0a9f03cb6d32992f80777be429c15dd355ffc79ddb014ea91cf71f615b500`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-849bb43e-dcbd-4ffc-821a-dc372f64ae07`
+- Provider response ID: `chatcmpl-6c8589f0-805e-41da-ad32-093726252d19`
 - Finish reason: `stop`
-- Provider prompt tokens: `4877`
-- Provider completion tokens: `110`
-- Provider total tokens: `4987`
+- Provider prompt tokens: `4996`
+- Provider completion tokens: `171`
+- Provider total tokens: `5167`
 
 #### `artifact-0004` — artifact
 
-- Estimated input tokens: `15744`
+- Estimated input tokens: `16004`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `raw_llvm:[0, 5767)@c48f52bdb7f2f318ad1252560b51acecef00a9888915327159114ccf5dbde544`
-- Prompt SHA-256: `86c45d5026e64dd38b1847f1d8b8c7827da2cb5243e32d17a443e466b149e7dd`
-- Request SHA-256: `13118369a842df3a87e5f3784377c248c3ecb4085aa5daa86e819da23d917a62`
+- Covered ranges: `raw_llvm:[0, 5767)@d5435d2d17b6fd4c0e5131f2a74ab57684b5accefefca51b349d651c0cb2b006`
+- Prompt SHA-256: `775805600aa28a8bdb32a51f7fc1e2016c05d133b3c1744131f031f7138ad61f`
+- Request SHA-256: `7aa8388c1c53c0be326772f1f9414ce89a32a7afc9cfdaf36d6f8834ca8aff24`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-1f1b465d-6b10-4894-a6bc-1d05e79e3ea7`
+- Provider response ID: `chatcmpl-6925469b-ffa2-42a9-b042-208ecfd7cb28`
 - Finish reason: `stop`
-- Provider prompt tokens: `6558`
-- Provider completion tokens: `537`
-- Provider total tokens: `7095`
+- Provider prompt tokens: `6685`
+- Provider completion tokens: `441`
+- Provider total tokens: `7126`
 
 #### `artifact-0005` — artifact
 
-- Estimated input tokens: `12216`
+- Estimated input tokens: `12476`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `optimized_llvm:[0, 2227)@7bda6a3ae32ec72bf1ac4f39971bba88d5f34fff09f56798c9cdbbf76414598e`
-- Prompt SHA-256: `814c42bf64bb40253221009f2323fb125454633512083286bb1426db5bf4a2a1`
-- Request SHA-256: `1afeb0985aae6e25d02f1da97b8be6e70f7511d4b877d222c09fb84b9a78fa3f`
+- Prompt SHA-256: `bbb99db53f3dd9b457ccf1fcb1f0afbed64e674eddc97fefd32bd264b43ab34a`
+- Request SHA-256: `75ea478ec6712ffad77b4d2a36b7de3d92334d2a9b730666fd2ca7ba99b6c131`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-56f75ce5-09f8-46ae-810d-54f037b43087`
+- Provider response ID: `chatcmpl-7c0729cb-80a2-44e9-b241-11254a664f04`
 - Finish reason: `stop`
-- Provider prompt tokens: `5242`
-- Provider completion tokens: `310`
-- Provider total tokens: `5552`
+- Provider prompt tokens: `5361`
+- Provider completion tokens: `413`
+- Provider total tokens: `5774`
 
 #### `artifact-0006` — artifact
 
-- Estimated input tokens: `11242`
+- Estimated input tokens: `11502`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `assembly:[0, 1262)@f0fe3ce15d6d8dc0868d2e0a0569c7821379b45f70bbcd846656a147bc76d146`
-- Prompt SHA-256: `23584d790d3137ae95ab133215aaab3c1df737840d3e4a63d4d47ef7ee5e9596`
-- Request SHA-256: `302366ba213ac52f3afbfc9347194b8ac86734f3e3a2bf55f3a400c89d8ceb7b`
+- Covered ranges: `assembly:[0, 1262)@355551c6d11759a2137d794f6154bee9f187aff00d09f7f13887d82a052f3bf1`
+- Prompt SHA-256: `309fa9946b0beba71efd8789b5c7c755fba59aa912ad865ad2069587465a7f84`
+- Request SHA-256: `c96eecccadf6feb48963f4835b1cf4351386ff2bafdca1712110cea3b220c7ef`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-456d8ac9-58b3-4d37-bc7d-c1509c0585af`
+- Provider response ID: `chatcmpl-2b6fd2f3-9046-47c0-98a7-74ee139a2595`
 - Finish reason: `stop`
-- Provider prompt tokens: `4953`
-- Provider completion tokens: `239`
-- Provider total tokens: `5192`
+- Provider prompt tokens: `5071`
+- Provider completion tokens: `231`
+- Provider total tokens: `5302`
 
 #### `artifact-0007` — artifact
 
-- Estimated input tokens: `17534`
+- Estimated input tokens: `17794`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `disassembly:[0, 7537)@4db3a6575b2c7ab6721c43e7342e6de175716f4e4d7a07c77a4535006a5b15e3`
-- Prompt SHA-256: `83144d17886cee6ec482f91379a63d5c46f0e813d970b26a92268575a5f7a67e`
-- Request SHA-256: `2066f0dc671c4f1facf622e4910259a57aba3b28776b5fea0161367422b5896e`
+- Covered ranges: `disassembly:[0, 7537)@fc79aff611b518050aabf8fba9f4e4d9206bbb333c222fa01363938355cb582a`
+- Prompt SHA-256: `979355787dfb2a49400c229fcdb891bf41b9da8f907d2513d3b16eb0a87ada86`
+- Request SHA-256: `cc3507efd600aeee368bb6e3bba143f641bf646356ce5fab1b460692e6e8f519`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-dc4a6004-7c31-48b5-8eb8-8306f23d5461`
+- Provider response ID: `chatcmpl-6c974e6c-5d09-4a60-b761-27bea459d16c`
 - Finish reason: `stop`
-- Provider prompt tokens: `7725`
-- Provider completion tokens: `335`
-- Provider total tokens: `8060`
+- Provider prompt tokens: `7835`
+- Provider completion tokens: `503`
+- Provider total tokens: `8338`
 
 #### `artifact-0008` — artifact
 
-- Estimated input tokens: `21026`
+- Estimated input tokens: `21286`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `optimization_record:[0, 11024)@c1eed531ffbbd0e9d7c3558ecea6e951283dcb7e51ce4ebf7c1144aa66d37c6d`
-- Prompt SHA-256: `390e8b557bedc37ff4ecafd4af53d8a55e828d5ac0c05b2b5556a26cf97b2565`
-- Request SHA-256: `4bf1365ed39ca6f1ae8f5a03bc848a9e3edc4cada73add4428dca92c37d2f8e3`
+- Prompt SHA-256: `8cf3fa1520539185c11096d11a38fee6c9ddd23197d2eefa94b2dea85600f97c`
+- Request SHA-256: `2f95206cad4b1a0768c56b938c38826cd2aaf297183bb9fddb2a89ab9fab0945`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-2f185fd1-ea67-4c8f-ac0c-c7c9de60bece`
+- Provider response ID: `chatcmpl-6adef0e7-1a9d-4d9a-a252-bbadcfdb3c90`
 - Finish reason: `stop`
-- Provider prompt tokens: `7407`
-- Provider completion tokens: `123`
-- Provider total tokens: `7530`
+- Provider prompt tokens: `7526`
+- Provider completion tokens: `487`
+- Provider total tokens: `8013`
 
 #### `artifact-0009` — artifact
 
-- Estimated input tokens: `10127`
+- Estimated input tokens: `10387`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`
-- Prompt SHA-256: `bc7048b623dc7ffe2260818fd78d8c6c2092bd1ba82692c4242a30f4e4641482`
-- Request SHA-256: `ac54b82bf622df04f42978bef7b48609e40eeef0b5d17fadb2ee5337456a652e`
+- Prompt SHA-256: `973dbbb1cbad12eeee1abc74e0904f750530831bbc865fdabf4c73f05301874c`
+- Request SHA-256: `911de9515e5ea7e1446b05a7eb6edd2228f498b678701d2959edf12c5a362910`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-a70d1e43-cbee-4399-a5d3-83a00d4be114`
+- Provider response ID: `chatcmpl-437f9ef4-3148-417f-b308-567302cfdd7f`
 - Finish reason: `stop`
-- Provider prompt tokens: `4548`
-- Provider completion tokens: `114`
-- Provider total tokens: `4662`
+- Provider prompt tokens: `4667`
+- Provider completion tokens: `119`
+- Provider total tokens: `4786`
 
 #### `artifact-0010` — artifact
 
-- Estimated input tokens: `96753`
+- Estimated input tokens: `96754`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `analysis:[0, 86755)@da1bc0b738b836abe11a495f65f48b4ed079615982091ce56d9da8e249f94857`
-- Prompt SHA-256: `58ab993275ae031815e690d012301052e424704d189d1036ff3be4859f743d3c`
-- Request SHA-256: `a6144dbfb36c6c536298b72bce09ce58b50a9cd4ec0a33f7bd1a59c547b8157e`
+- Covered ranges: `analysis:[0, 86496)@013954af457047cbfaae025c8e2b0e68f1cf0d4dd64a015f266c411cc03192ec`
+- Prompt SHA-256: `24a50192c52a2fd03d03c56fa90e5f4d45241553d2d3d3ab7811351659da7251`
+- Request SHA-256: `c349a70c35ff9042e6fe4cfe40bcc0a4ae0de73e9de168e9f6c8d29e0b4d083a`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-78202bd2-8b42-4031-860e-64f4c42439ba`
+- Provider response ID: `chatcmpl-d6979518-5292-4bcc-8582-c2c279a3b92f`
 - Finish reason: `stop`
-- Provider prompt tokens: `28890`
-- Provider completion tokens: `496`
-- Provider total tokens: `29386`
+- Provider prompt tokens: `28196`
+- Provider completion tokens: `415`
+- Provider total tokens: `28611`
 
 #### `artifact-0011` — artifact
 
-- Estimated input tokens: `16869`
+- Estimated input tokens: `50851`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `analysis:[86755, 93622)@28b45c1fdea4e929c19c6c4f5536fc8a1fb04777f757d1ebd4cdd10ef0c5ab25`
-- Prompt SHA-256: `8dacbb4b9c1ce7d0d7e891eaaf9598f58090c136f186fbf83557794f66a3d27e`
-- Request SHA-256: `abbcfc2aa9d59e728fc6d77569f2e925ea162e8f039f76cb41b5408a4ffa37ad`
+- Covered ranges: `analysis:[86496, 127084)@839a4bbc7a7e3f8f8ed7e00ecc5e99ebef96ed992fd2bfb72a386593fdbd3c0e`
+- Prompt SHA-256: `c8011a928f57dea8b7012897d25eaf6628734c40bfd114137cf9a13ad4407042`
+- Request SHA-256: `141be3846e50f831e16e63abce5c72c1af118290a76b643c38b7364dc48fb2e7`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-b4757b41-061b-4d5d-855e-9049b0b29357`
+- Provider response ID: `chatcmpl-0e6753ba-8cda-49b2-a4f5-68b28951e878`
 - Finish reason: `stop`
-- Provider prompt tokens: `6455`
-- Provider completion tokens: `136`
-- Provider total tokens: `6591`
+- Provider prompt tokens: `16249`
+- Provider completion tokens: `176`
+- Provider total tokens: `16425`
 
 #### `artifact-0012` — artifact
 
-- Estimated input tokens: `10690`
+- Estimated input tokens: `10950`
 - Reserved output tokens: `1024`
 - Depends on: none
-- Covered ranges: `build_manifest:[0, 696)@e076c75b4f351cef2dc84fe2cab6264f7d5a21428203d2b283d5c3db0247d933`
-- Prompt SHA-256: `b1bd5eb7a967db23865971b06feb77e60cbfc1b10f1cd069e19f2150e6a2f117`
-- Request SHA-256: `d2513a71c1d86b7d789d20acf72838b707c11feeeb9996e9bb543a5558b700a4`
+- Covered ranges: `build_manifest:[0, 696)@99f69f032cd59b169e6e713372d6f2d52f09bd865351b1699594ea5984f450f1`
+- Prompt SHA-256: `2bb63ec063d3c1b2ed987a44691c61b6b26572ee8d6a97492815f9fb0e7016e9`
+- Request SHA-256: `e9ad9f7d3e04159fb96d96f3b5a32f5eeef08d29dfd3c2a76c9a2d69e6a7a03d`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-a17c6638-94f2-4532-9be9-fd940f6b51f5`
+- Provider response ID: `chatcmpl-6f36ff50-54c9-467c-a50b-b29d76c7923b`
 - Finish reason: `stop`
-- Provider prompt tokens: `4737`
-- Provider completion tokens: `179`
-- Provider total tokens: `4916`
+- Provider prompt tokens: `4856`
+- Provider completion tokens: `171`
+- Provider total tokens: `5027`
 
 #### `artifact-0013` — artifact
 
-- Estimated input tokens: `10189`
+- Estimated input tokens: `10449`
 - Reserved output tokens: `1024`
 - Depends on: none
 - Covered ranges: `trace:[0, 213)@c93c225da4447178c911c30bbeb170036679a5508fff214878cd7aef5013a3b8`
-- Prompt SHA-256: `cc880b4d146421ea1e50e01190407b75a2fb151fdca5b34b8116ff5946b9eb6c`
-- Request SHA-256: `55c1eb45e8f1dc218edde1b6abe43f2069c8786441093bec4876ad3610ca39fd`
+- Prompt SHA-256: `860760b0edd8cf6943876114021eb0fd3aefdd9f19e4e7810c9920fcb9f31e82`
+- Request SHA-256: `a200ea093320dba5aeff035a59faddb03a798b500c567512d3cdf8e45737bd6a`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-e42eed21-47b7-47a0-adce-e60f60d69cac`
+- Provider response ID: `chatcmpl-b4ceccd0-d418-461f-87e0-7fb6d148ad13`
 - Finish reason: `stop`
-- Provider prompt tokens: `4561`
-- Provider completion tokens: `134`
-- Provider total tokens: `4695`
+- Provider prompt tokens: `4680`
+- Provider completion tokens: `200`
+- Provider total tokens: `4880`
 
 #### `synthesis-0001` — synthesis
 
-- Estimated input tokens: `30880`
+- Estimated input tokens: `32452`
 - Reserved output tokens: `4096`
 - Depends on: `artifact-0001`, `artifact-0002`, `artifact-0003`, `artifact-0004`, `artifact-0005`, `artifact-0006`, `artifact-0007`, `artifact-0008`, `artifact-0009`, `artifact-0010`, `artifact-0011`, `artifact-0012`, `artifact-0013`
 - Covered ranges: none
-- Prompt SHA-256: `4cddc196855fa777d7b0848f2fd5d5a607129864663746aab5646fb611a21143`
-- Request SHA-256: `49c552619a829642243260a38f9c0ec2bd5d96da1296fbb471ecec7501ab1c31`
+- Prompt SHA-256: `a633561fe2b48efccfa4889d9ffae42e79d1312347f9edea77c2c61ee5d26a19`
+- Request SHA-256: `d7e344d87da3b32f63260932fb340981789023d7c25506eadc68f79fb2abb9a7`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-16870f37-8c56-4a4f-ba29-7cd77647e4c7`
+- Provider response ID: `chatcmpl-a938672c-7090-4abc-afbf-ca7df77283a9`
 - Finish reason: `stop`
-- Provider prompt tokens: `11278`
-- Provider completion tokens: `1206`
-- Provider total tokens: `12484`
+- Provider prompt tokens: `11845`
+- Provider completion tokens: `1515`
+- Provider total tokens: `13360`
 
 ## Complete compiler evidence
 
@@ -569,7 +569,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-FydZLk/program.wir
+; source: /tmp/weavec-build-v3dS8w/program.wir
 ; core-version: 2
 
 ; declarations
@@ -782,9 +782,9 @@ main:                                   # @main
 	cmpl	$2, %eax
 	jb	.LBB0_5
 .LBB0_3:                                # %while.body1.i.preheader
-	xorl	%edx, %edx
 	movl	$1, %eax
 	movl	$2, %ecx
+	xorl	%edx, %edx
 	.p2align	4, 0x90
 .LBB0_4:                                # %while.body1.i
                                         # =>This Inner Loop Header: Depth=1
@@ -937,9 +937,9 @@ Disassembly of section .text:
     1174: 89 c3                        	movl	%eax, %ebx
     1176: 83 f8 02                     	cmpl	$0x2, %eax
     1179: 72 23                        	jb	0x119e <main+0x4e>
-    117b: 31 d2                        	xorl	%edx, %edx
-    117d: b8 01 00 00 00               	movl	$0x1, %eax
-    1182: b9 02 00 00 00               	movl	$0x2, %ecx
+    117b: b8 01 00 00 00               	movl	$0x1, %eax
+    1180: b9 02 00 00 00               	movl	$0x2, %ecx
+    1185: 31 d2                        	xorl	%edx, %edx
     1187: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
     1190: 89 c6                        	movl	%eax, %esi
     1192: 89 d0                        	movl	%edx, %eax
@@ -1521,7 +1521,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.007661,
+        "elapsed_seconds": 0.009223,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1557,7 +1557,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.007136,
+        "elapsed_seconds": 0.008768,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1595,7 +1595,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006593,
+        "elapsed_seconds": 0.008881,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1633,7 +1633,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006574,
+        "elapsed_seconds": 0.008988,
         "exit_code": 1,
         "process_count_enforcement": "delegated",
         "returncode": 1,
@@ -1671,7 +1671,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006609,
+        "elapsed_seconds": 0.009041,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1709,7 +1709,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006661,
+        "elapsed_seconds": 0.009156,
         "exit_code": 144,
         "process_count_enforcement": "delegated",
         "returncode": 144,
@@ -1747,7 +1747,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006507,
+        "elapsed_seconds": 0.008692,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1785,7 +1785,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006618,
+        "elapsed_seconds": 0.008934,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -1823,7 +1823,7 @@ Args:
     },
     {
       "actual": {
-        "elapsed_seconds": 0.006729,
+        "elapsed_seconds": 0.008981,
         "exit_code": 0,
         "process_count_enforcement": "delegated",
         "returncode": 0,
@@ -1861,7 +1861,7 @@ Args:
     }
   ],
   "configured": true,
-  "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
+  "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
   "format": "weave-loupe-runtime-matrix-v1",
   "inherit_environment": false,
   "limits": {
@@ -2202,6 +2202,1258 @@ Args:
     "sidecar": "docs/audit/fibonacci_runtime.audit.json",
     "sidecar_sha256": "dc8e5b6d2d6234628a045cdf49a535825fd337815af4d3fa5f53adfc59c0d7d2"
   },
+  "optimization_remarks": {
+    "available": true,
+    "documents": 33,
+    "errors": [],
+    "failure_reason": null,
+    "format": "weave-loupe-optimization-remarks-v1",
+    "records": [
+      {
+        "arguments": [
+          {
+            "Pass": "Canonicalize natural loops"
+          },
+          {
+            "String": ": IR instruction count changed from "
+          },
+          {
+            "IRInstrsBefore": "20"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "IRInstrsAfter": "21"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "DeltaInstrCount": "1"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 10,
+        "function": "main",
+        "hotness": null,
+        "identity": "0be4223f057a02632f1f25fd649cea5501329d4b232ccfae5f70d1af0e797d0e",
+        "location": null,
+        "message": "Canonicalize natural loops: IR instruction count changed from 20 to 21; Delta: 1",
+        "name": "IRSizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "X86 DAG->DAG Instruction Selection"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "0"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "39"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "39"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 14,
+        "function": "main",
+        "hotness": null,
+        "identity": "0cfa5d8105c9c57829b51d6b55bf234e7a17d8fe4f0c633e3365edc1a8196c76",
+        "location": null,
+        "message": "X86 DAG->DAG Instruction Selection: Function: main: MI Instruction count changed from 0 to 39; Delta: 39",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": "while.body1.i"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "7"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 30,
+        "function": "main",
+        "hotness": null,
+        "identity": "17e6b356ab399aa0d22de341e36bec14dfe9628f4f3c26d78a0e956a0add234c",
+        "location": null,
+        "message": "BasicBlock: while.body1.i\n: 7",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "NumInstructions": "25"
+          },
+          {
+            "String": " instructions in function"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 32,
+        "function": "main",
+        "hotness": null,
+        "identity": "20e3a1869401264d6333dc74a444687b8d05453f2e80d630db72221b76b460d6",
+        "location": null,
+        "message": "25 instructions in function",
+        "name": "InstructionCount",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "loop not vectorized: "
+          },
+          {
+            "String": "could not determine number of loop iterations"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 4,
+        "function": "main",
+        "hotness": null,
+        "identity": "2b2628ea740dd2389a2a9b36b6dda1e3171220aec9a8010fbcba5c1077114ce8",
+        "location": null,
+        "message": "loop not vectorized: could not determine number of loop iterations",
+        "name": "CantComputeNumberOfIterations",
+        "pass": "loop-vectorize",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Eliminate PHI nodes for register allocation"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "38"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "49"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "11"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 16,
+        "function": "main",
+        "hotness": null,
+        "identity": "2f39e44ff4fe568620ed78173c316510c1dce6f0bc2f55198c5c61d816810320",
+        "location": null,
+        "message": "Eliminate PHI nodes for register allocation: Function: main: MI Instruction count changed from 38 to 49; Delta: 11",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": ".thread"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "3"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 28,
+        "function": "main",
+        "hotness": null,
+        "identity": "31cbe3d8d523723d50f738f8a22275c37321fb10290c92a64c31c720dffd8843",
+        "location": null,
+        "message": "BasicBlock: .thread\n: 3",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "NumVRCopies": "5"
+          },
+          {
+            "String": " virtual registers copies "
+          },
+          {
+            "TotalCopiesCost": "8.193750e+01"
+          },
+          {
+            "String": " total copies cost "
+          },
+          {
+            "String": "generated in function"
+          }
+        ],
+        "category": "missed",
+        "document_index": 20,
+        "function": "main",
+        "hotness": null,
+        "identity": "472566c050e6e68c733ab8792d7daee5a4a11a63ce6839481f66f99ba7b43618",
+        "location": null,
+        "message": "5 virtual registers copies 8.193750e+01 total copies cost generated in function",
+        "name": "SpillReloadCopies",
+        "pass": "regalloc",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "'"
+          },
+          {
+            "Callee": "fib"
+          },
+          {
+            "String": "' inlined into '"
+          },
+          {
+            "Caller": "main"
+          },
+          {
+            "String": "'"
+          },
+          {
+            "String": " with "
+          },
+          {
+            "String": "(cost="
+          },
+          {
+            "Cost": "-15005"
+          },
+          {
+            "String": ", threshold="
+          },
+          {
+            "Threshold": "250"
+          },
+          {
+            "String": ")"
+          }
+        ],
+        "category": "passed",
+        "document_index": 2,
+        "function": "main",
+        "hotness": null,
+        "identity": "48daa16f5c60a088105aed9dd1f6e9a997ca353fdcfdb7b6a2db27d8830cfb65",
+        "location": null,
+        "message": "'fib' inlined into 'main' with (cost=-15005, threshold=250)",
+        "name": "Inlined",
+        "pass": "inline",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "CodeGen Prepare"
+          },
+          {
+            "String": ": IR instruction count changed from "
+          },
+          {
+            "IRInstrsBefore": "21"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "IRInstrsAfter": "20"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "DeltaInstrCount": "-1"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 12,
+        "function": "main",
+        "hotness": null,
+        "identity": "495cfef50b17fd51d27ebea7c27b01d180f993e5d101b45fab386a3a9b2dd2a3",
+        "location": null,
+        "message": "CodeGen Prepare: IR instruction count changed from 21 to 20; Delta: -1",
+        "name": "IRSizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": "entry"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "6"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 26,
+        "function": "main",
+        "hotness": null,
+        "identity": "4e4189e04f1f53ed5b02a293eddd9cab6e9ec6cc95d2335daba1f05aa6de6622",
+        "location": null,
+        "message": "BasicBlock: entry\n: 6",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Prologue/Epilogue Insertion & Frame Finalization"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "31"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "29"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "-2"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 23,
+        "function": "main",
+        "hotness": null,
+        "identity": "4ecf9fd04a2737ab2eb340f7dbde8b265e122b9393a1a0d576ac3d779cf974ae",
+        "location": null,
+        "message": "Prologue/Epilogue Insertion & Frame Finalization: Function: main: MI Instruction count changed from 31 to 29; Delta: -2",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "List vectorization was possible but not beneficial with cost "
+          },
+          {
+            "Cost": "0"
+          },
+          {
+            "String": " >= "
+          },
+          {
+            "Treshold": "0"
+          }
+        ],
+        "category": "missed",
+        "document_index": 9,
+        "function": "main",
+        "hotness": null,
+        "identity": "52a0e3e4ffc2ef877bde9cb097e088e336369219f2c1a63dc1f1bf76fd159492",
+        "location": null,
+        "message": "List vectorization was possible but not beneficial with cost 0 >= 0",
+        "name": "NotBeneficial",
+        "pass": "slp-vectorizer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": "endif"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "4"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 27,
+        "function": "main",
+        "hotness": null,
+        "identity": "5a41f8aa83cbf57efd746ec40f40f877b43c54e6c85cfd70ac3d65e9a8c66f4b",
+        "location": null,
+        "message": "BasicBlock: endif\n: 4",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Register Coalescer"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "51"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "35"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "-16"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 18,
+        "function": "main",
+        "hotness": null,
+        "identity": "5f5f2e04337d418a7799f338778947fc6c7dd89193430010cb8d589aa3e03bb4",
+        "location": null,
+        "message": "Register Coalescer: Function: main: MI Instruction count changed from 51 to 35; Delta: -16",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "loop not vectorized: "
+          },
+          {
+            "String": "value that could not be identified as reduction is used outside the loop"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 3,
+        "function": "main",
+        "hotness": null,
+        "identity": "630a0d765af5491b1083e1202751d1dc5c04c4091cbc2d8fb6e92c9848df7c9e",
+        "location": null,
+        "message": "loop not vectorized: value that could not be identified as reduction is used outside the loop",
+        "name": "NonReductionValueUsedOutsideLoop",
+        "pass": "loop-vectorize",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "Cannot SLP vectorize list: vectorization was impossible"
+          },
+          {
+            "String": " with available vectorization factors"
+          }
+        ],
+        "category": "missed",
+        "document_index": 6,
+        "function": "main",
+        "hotness": null,
+        "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+        "location": null,
+        "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+        "name": "NotPossible",
+        "pass": "slp-vectorizer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "Cannot SLP vectorize list: vectorization was impossible"
+          },
+          {
+            "String": " with available vectorization factors"
+          }
+        ],
+        "category": "missed",
+        "document_index": 7,
+        "function": "main",
+        "hotness": null,
+        "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+        "location": null,
+        "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+        "name": "NotPossible",
+        "pass": "slp-vectorizer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "Cannot SLP vectorize list: vectorization was impossible"
+          },
+          {
+            "String": " with available vectorization factors"
+          }
+        ],
+        "category": "missed",
+        "document_index": 8,
+        "function": "main",
+        "hotness": null,
+        "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+        "location": null,
+        "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+        "name": "NotPossible",
+        "pass": "slp-vectorizer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Callee": "atoi"
+          },
+          {
+            "String": " will not be inlined into "
+          },
+          {
+            "Caller": "main"
+          },
+          {
+            "String": " because its definition is unavailable"
+          }
+        ],
+        "category": "missed",
+        "document_index": 1,
+        "function": "main",
+        "hotness": null,
+        "identity": "876052067ad8a3de1fab3aebae547c878e5b078a8c3580c4b9fe6431ef1d7407",
+        "location": null,
+        "message": "atoi will not be inlined into main because its definition is unavailable",
+        "name": "NoDefinition",
+        "pass": "inline",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Machine Common Subexpression Elimination"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "39"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "38"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "-1"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 15,
+        "function": "main",
+        "hotness": null,
+        "identity": "9a1c7bfdffa1b839230aeb8f2891b704a7e7094f9d6d16077e000470a3a473e0",
+        "location": null,
+        "message": "Machine Common Subexpression Elimination: Function: main: MI Instruction count changed from 39 to 38; Delta: -1",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": "fib.exit"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "2"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 31,
+        "function": "main",
+        "hotness": null,
+        "identity": "9b5de3ecb2857dc2072add0010341a2fe7acde5b4adbfaa71f73183eba06b908",
+        "location": null,
+        "message": "BasicBlock: fib.exit\n: 2",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "BasicBlock: "
+          },
+          {
+            "BasicBlock": "while.body1.i.preheader"
+          },
+          {
+            "String": "\n"
+          },
+          {
+            "String": ""
+          },
+          {
+            "String": ": "
+          },
+          {
+            "INST_": "3"
+          },
+          {
+            "String": "\n"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 29,
+        "function": "main",
+        "hotness": null,
+        "identity": "a164b8cb963b16afea88471679e4f55e96759e81e55be48c629ce1ef4aca75de",
+        "location": null,
+        "message": "BasicBlock: while.body1.i.preheader\n: 3",
+        "name": "InstructionMix",
+        "pass": "asm-printer",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "NumVRCopies": "3"
+          },
+          {
+            "String": " virtual registers copies "
+          },
+          {
+            "TotalCopiesCost": "8.100000e+01"
+          },
+          {
+            "String": " total copies cost "
+          },
+          {
+            "String": "generated in loop"
+          }
+        ],
+        "category": "missed",
+        "document_index": 19,
+        "function": "main",
+        "hotness": null,
+        "identity": "a7f08b2b9ef36618a10c78630c7263f99e2e373a5ce912a21e1f16770cd46ee5",
+        "location": null,
+        "message": "3 virtual registers copies 8.100000e+01 total copies cost generated in loop",
+        "name": "LoopSpillReloadCopies",
+        "pass": "regalloc",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Control Flow Optimizer"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "29"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "25"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "-4"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 24,
+        "function": "main",
+        "hotness": null,
+        "identity": "a925c8f4782148e59669c731749f58367a31db1ee85c430d34e52c2dec38de04",
+        "location": null,
+        "message": "Control Flow Optimizer: Function: main: MI Instruction count changed from 29 to 25; Delta: -4",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Two-Address instruction pass"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "49"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "51"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "2"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 17,
+        "function": "main",
+        "hotness": null,
+        "identity": "abbce5352103831304c4de1cd72afff1d80a74e656365ad801614c3ed17771c6",
+        "location": null,
+        "message": "Two-Address instruction pass: Function: main: MI Instruction count changed from 49 to 51; Delta: 2",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "NumStackBytes": "8"
+          },
+          {
+            "String": " stack bytes in function '"
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": "'"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 22,
+        "function": "main",
+        "hotness": null,
+        "identity": "c8f62064d2ffcbc9053000e0f09bae284be5503daf6c6bf7a6d39d9fd3993e4d",
+        "location": null,
+        "message": "8 stack bytes in function 'main'",
+        "name": "StackSize",
+        "pass": "prologepilog",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Virtual Register Rewriter"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": "
+          },
+          {
+            "String": "MI Instruction count changed from "
+          },
+          {
+            "MIInstrsBefore": "35"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "MIInstrsAfter": "31"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "Delta": "-4"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 21,
+        "function": "main",
+        "hotness": null,
+        "identity": "ca74dc93be26e4e61b063eeeff19b9ba746a60fd928abb83683fc4858772724f",
+        "location": null,
+        "message": "Virtual Register Rewriter: Function: main: MI Instruction count changed from 35 to 31; Delta: -4",
+        "name": "FunctionMISizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "loop not vectorized"
+          }
+        ],
+        "category": "missed",
+        "document_index": 5,
+        "function": "main",
+        "hotness": null,
+        "identity": "cb8581095f8fd0bc35a5fe4067b46f89898fefbaad4922371b405936a6fb1a11",
+        "location": null,
+        "message": "loop not vectorized",
+        "name": "MissedDetails",
+        "pass": "loop-vectorize",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "Canonicalize natural loops"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": IR instruction count changed from "
+          },
+          {
+            "IRInstrsBefore": "20"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "IRInstrsAfter": "21"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "DeltaInstrCount": "1"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 11,
+        "function": "main",
+        "hotness": null,
+        "identity": "d5cab28c4e646a02dc517581d0304338c6b965d95d72f8780db206b8cb2a60c6",
+        "location": null,
+        "message": "Canonicalize natural loops: Function: main: IR instruction count changed from 20 to 21; Delta: 1",
+        "name": "FunctionIRSizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Pass": "CodeGen Prepare"
+          },
+          {
+            "String": ": Function: "
+          },
+          {
+            "Function": "main"
+          },
+          {
+            "String": ": IR instruction count changed from "
+          },
+          {
+            "IRInstrsBefore": "21"
+          },
+          {
+            "String": " to "
+          },
+          {
+            "IRInstrsAfter": "20"
+          },
+          {
+            "String": "; Delta: "
+          },
+          {
+            "DeltaInstrCount": "-1"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 13,
+        "function": "main",
+        "hotness": null,
+        "identity": "e00077a814ef12bde5a2587faa015928de40c0d16d69c6f084dd07e0e0909cb7",
+        "location": null,
+        "message": "CodeGen Prepare: Function: main: IR instruction count changed from 21 to 20; Delta: -1",
+        "name": "FunctionIRSizeChange",
+        "pass": "size-info",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "String": "\nFunction: main"
+          },
+          {
+            "String": "\nOffset: [SP"
+          },
+          {
+            "Offset": "-8"
+          },
+          {
+            "String": "], Type: "
+          },
+          {
+            "Type": "Spill"
+          },
+          {
+            "String": ", Align: "
+          },
+          {
+            "Align": "16"
+          },
+          {
+            "String": ", Size: "
+          },
+          {
+            "Size": "8"
+          }
+        ],
+        "category": "analysis",
+        "document_index": 25,
+        "function": "main",
+        "hotness": null,
+        "identity": "e023a58868afcbd1c9687fff59ec7d2986d5be4f4f3b0fcfb9f48943a195e272",
+        "location": null,
+        "message": "Function: main\nOffset: [SP-8], Type: Spill, Align: 16, Size: 8",
+        "name": "StackLayout",
+        "pass": "stack-frame-layout",
+        "unknown_fields": {}
+      },
+      {
+        "arguments": [
+          {
+            "Callee": "getenv"
+          },
+          {
+            "String": " will not be inlined into "
+          },
+          {
+            "Caller": "main"
+          },
+          {
+            "String": " because its definition is unavailable"
+          }
+        ],
+        "category": "missed",
+        "document_index": 0,
+        "function": "main",
+        "hotness": null,
+        "identity": "f5daa68dc75949c6e89074f4f0128dc4a9fbe80137fc36775e82e26727b3e8f9",
+        "location": null,
+        "message": "getenv will not be inlined into main because its definition is unavailable",
+        "name": "NoDefinition",
+        "pass": "inline",
+        "unknown_fields": {}
+      }
+    ],
+    "summary": {
+      "by_category": {
+        "analysis": 23,
+        "missed": 9,
+        "passed": 1
+      },
+      "by_function": {
+        "main": 33
+      },
+      "by_pass": {
+        "asm-printer": 7,
+        "inline": 3,
+        "loop-vectorize": 3,
+        "prologepilog": 1,
+        "regalloc": 2,
+        "size-info": 12,
+        "slp-vectorizer": 4,
+        "stack-frame-layout": 1
+      },
+      "by_pass_and_category": {
+        "asm-printer": {
+          "analysis": 7
+        },
+        "inline": {
+          "missed": 2,
+          "passed": 1
+        },
+        "loop-vectorize": {
+          "analysis": 2,
+          "missed": 1
+        },
+        "prologepilog": {
+          "analysis": 1
+        },
+        "regalloc": {
+          "missed": 2
+        },
+        "size-info": {
+          "analysis": 12
+        },
+        "slp-vectorizer": {
+          "missed": 4
+        },
+        "stack-frame-layout": {
+          "analysis": 1
+        }
+      },
+      "highest_value_missed": [
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "876052067ad8a3de1fab3aebae547c878e5b078a8c3580c4b9fe6431ef1d7407",
+          "location": null,
+          "message": "atoi will not be inlined into main because its definition is unavailable",
+          "name": "NoDefinition",
+          "pass": "inline"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "f5daa68dc75949c6e89074f4f0128dc4a9fbe80137fc36775e82e26727b3e8f9",
+          "location": null,
+          "message": "getenv will not be inlined into main because its definition is unavailable",
+          "name": "NoDefinition",
+          "pass": "inline"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "cb8581095f8fd0bc35a5fe4067b46f89898fefbaad4922371b405936a6fb1a11",
+          "location": null,
+          "message": "loop not vectorized",
+          "name": "MissedDetails",
+          "pass": "loop-vectorize"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "a7f08b2b9ef36618a10c78630c7263f99e2e373a5ce912a21e1f16770cd46ee5",
+          "location": null,
+          "message": "3 virtual registers copies 8.100000e+01 total copies cost generated in loop",
+          "name": "LoopSpillReloadCopies",
+          "pass": "regalloc"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "472566c050e6e68c733ab8792d7daee5a4a11a63ce6839481f66f99ba7b43618",
+          "location": null,
+          "message": "5 virtual registers copies 8.193750e+01 total copies cost generated in function",
+          "name": "SpillReloadCopies",
+          "pass": "regalloc"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "52a0e3e4ffc2ef877bde9cb097e088e336369219f2c1a63dc1f1bf76fd159492",
+          "location": null,
+          "message": "List vectorization was possible but not beneficial with cost 0 >= 0",
+          "name": "NotBeneficial",
+          "pass": "slp-vectorizer"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+          "location": null,
+          "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+          "name": "NotPossible",
+          "pass": "slp-vectorizer"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+          "location": null,
+          "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+          "name": "NotPossible",
+          "pass": "slp-vectorizer"
+        },
+        {
+          "category": "missed",
+          "function": "main",
+          "hotness": null,
+          "identity": "7ed021da2118269c35e6839ca7ffe2b6f41ead22540d2f2d9da735000ac1cf85",
+          "location": null,
+          "message": "Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+          "name": "NotPossible",
+          "pass": "slp-vectorizer"
+        }
+      ],
+      "total": 33
+    },
+    "valid": true
+  },
   "optimized_llvm": {
     "add": 2,
     "alloca": 0,
@@ -2310,7 +3562,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.007661,
+          "elapsed_seconds": 0.009223,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2346,7 +3598,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.007136,
+          "elapsed_seconds": 0.008768,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2384,7 +3636,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006593,
+          "elapsed_seconds": 0.008881,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2422,7 +3674,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006574,
+          "elapsed_seconds": 0.008988,
           "exit_code": 1,
           "process_count_enforcement": "delegated",
           "returncode": 1,
@@ -2460,7 +3712,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006609,
+          "elapsed_seconds": 0.009041,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2498,7 +3750,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006661,
+          "elapsed_seconds": 0.009156,
           "exit_code": 144,
           "process_count_enforcement": "delegated",
           "returncode": 144,
@@ -2536,7 +3788,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006507,
+          "elapsed_seconds": 0.008692,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2574,7 +3826,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006618,
+          "elapsed_seconds": 0.008934,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -2612,7 +3864,7 @@ Args:
       },
       {
         "actual": {
-          "elapsed_seconds": 0.006729,
+          "elapsed_seconds": 0.008981,
           "exit_code": 0,
           "process_count_enforcement": "delegated",
           "returncode": 0,
@@ -2650,7 +3902,7 @@ Args:
       }
     ],
     "configured": true,
-    "executable_sha256": "2989483385510b2b430e0582c2fcb66357528053c333b27e6e973d1f71a52efd",
+    "executable_sha256": "8096a9e86313b02d5038903d99f134a5e00416c11de2752492f204fc927fec8d",
     "format": "weave-loupe-runtime-matrix-v1",
     "inherit_environment": false,
     "limits": {
@@ -4892,7 +6144,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-jkb0495r/.audit.loupe.igfq60y2/artifacts/program",
+  "output": "/tmp/loupe-audit-bmu9fd9l/.audit.loupe.9xf2xwua/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci_runtime.weave"
   ]
@@ -4918,38 +6170,42 @@ Args:
 # Weave Compiler Final Adversarial Release-Gate Audit Review
 
 ## 1. Executive Summary
-The Weave compiler release gate for `weavec v0.3.0+git.1ba3dc73a459` successfully passes all deterministic and adversarial review checks. The compilation of `docs/audit/fibonacci_runtime.weave` completed with an exit code of 0. All required textual artifacts were reviewed through exact, hash-addressed UTF-8 byte ranges. The native, optimized LLVM, and runtime budget gates passed without failures. Cross-stage consistency is maintained across the source, WIR, raw LLVM, optimized LLVM, and native disassembly. No blocking findings were identified.
+
+The deterministic audit summary and all associated artifact reviews have been synthesized. The Weave compiler pipeline successfully compiled the `fibonacci-runtime` test case targeting `x86_64-unknown-linux-gnu` with an exit code of 0 and no diagnostics. All configured deterministic gates (native budget, optimized LLVM budget, and runtime matrix) passed. The complete evidence chain is present, hash-addressed, and cross-stage consistent. No blocking findings were identified across the WIR, raw LLVM, optimized LLVM, assembly, disassembly, optimization records, or runtime trace artifacts. The release gate is cleared.
 
 ## 2. Verification Matrix
 
-| Artifact / Stage | Byte Range | SHA-256 | Status | Cross-Stage Consistency |
+| Artifact | Byte Range | SHA-256 | Status | Cross-Stage Verification |
 | :--- | :--- | :--- | :--- | :--- |
-| **Metadata** | [0, 10295) | `e5377574...` | REVIEWED | Auditor identity and bundle hashes verified. 9 runtime cases configured. |
-| **Source** | [0, 1822) | `344883c0...` | REVIEWED | Defines `fib` and `main` with `getenv`/`atoi` externs. Clamps input to `[0, 46]`. |
-| **WIR** | [0, 1269) | `66955504...` | REVIEWED | Matches source logic. Iterative loop and input clamping preserved. |
-| **Raw LLVM** | [0, 5767) | `c48f52bd...` | REVIEWED | Unoptimized IR retains source mapping and control flow. |
-| **Optimized LLVM** | [0, 2227) | `7bda6a3a...` | REVIEWED | `fib` inlined. `freeze` instruction safely handles `atoi` undef. Bounds check intact. |
-| **Assembly** | [0, 1262) | `f0fe3ce1...` | REVIEWED | x86_64 instructions match optimized IR. `cmpl $46` bounds check present. |
-| **Disassembly** | [0, 7537) | `4db3a657...` | REVIEWED | 0 indirect calls, 0 unreachable instructions. Standard ELF/CRT setup. |
-| **Opt. Record** | [0, 11024) | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). Benign vectorization misses. |
-| **Diagnostics** | [0, 148) | `9683b322...` | REVIEWED | Empty error list. Aligns with `compiler_exit_code: 0`. |
-| **Analysis** | [0, 86755) | `da1bc0b7...` | REVIEWED | Native budget (25/32 instrs), LLVM budget (20/20 instrs), Runtime (9/9 passed). |
-| **Analysis** | [86755, 93622) | `28b45c1f...` | REVIEWED | Source mapping array valid. `valid: true`. No unresolved symbols. |
-| **Build Manifest** | [0, 696) | `e076c75b...` | REVIEWED | Target `x86_64-unknown-linux-gnu`, `O3` optimization. Matches metadata. |
-| **Trace** | [0, 213) | `c93c225d...` | REVIEWED | Status `succeeded`, phase `complete`. |
+| **metadata** | `[0, 10623)` | `cf0c0073...` | REVIEWED | Auditor identity, bundle format, and all 49 auditor files verified. Source/loupe repository SHAs match (`6ee1ebaceb...`). WeaveC pinned at `v0.3.0+git.1ba3dc73a459`. |
+| **source** | `[0, 1822)` | `344883c0...` | REVIEWED | Defines `fib` and `main`. Uses `getenv`/`atoi` to prevent constant folding. Clamps `n` to `[0, 46]` with default 10. Matches WIR/LLVM behavior. |
+| **wir** | `[0, 1269)` | `66955504...` | REVIEWED | Defines externs `getenv`/`atoi`. Iterative `fib` loop matches source. `main` clamps values as expected. |
+| **raw_llvm** | `[0, 5767)` | `d5435d2d...` | REVIEWED | Unoptimized IR retains `fib` and `main` signatures. `@.str0` = `WEAVE_AUDIT_N`. Control flow accurately reflects source clamping. |
+| **optimized_llvm**| `[0, 2227)` | `7bda6a3a...` | REVIEWED | `fib` successfully inlined into `main`. Target triple `x86_64-pc-linux-gnu`. Loop logic and bounds checks preserved. |
+| **assembly** | `[0, 1262)` | `355551c6...` | REVIEWED | x86_64 instructions reflect optimized IR. `getenv@PLT` and `atoi@PLT` called. Loop uses `%eax`/`%edx`/`%ecx`. |
+| **disassembly** | `[0, 7537)` | `fc79aff6...` | REVIEWED | Confirms assembly layout. `main` at `0x1150`-`0x119f`. 0 indirect calls. Reachability complete. |
+| **optimization_record** | `[0, 11024)` | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). `getenv`/`atoi` missed due to `NoDefinition` (expected). Regalloc spills documented. |
+| **diagnostics** | `[0, 148)` | `9683b322...` | REVIEWED | `exit_code: 0`, `status: "succeeded"`, empty diagnostics array. |
+| **analysis** | `[0, 86496)` | `013954af...` | REVIEWED | 9/9 runtime cases passed. 0 missing/unexpected externs. WIR-to-LLVM block deltas explained by inlining. |
+| **analysis** | `[86496, 127084)`| `839a4bbc...` | REVIEWED | WIR provenance reports 99 malformed spans in trailing source region, but all 42 WIR instructions mapped. |
+| **build_manifest**| `[0, 696)` | `99f69f03...` | REVIEWED | `status: "succeeded"`, `phase: "complete"`. Toolchain: `weavec`, `clang`, `llc`, `llvm-objdump`. `O3` optimization. |
+| **trace** | `[0, 213)` | `c93c225d...` | REVIEWED | `weavec-compilation-trace-v1` reports success. Empty events array consistent with clean compile. |
 
 ## 3. Blocking Findings
-None. All artifact reviews returned `REVIEWED` with no unsupported findings. All deterministic gates (`native_budget`, `optimized_llvm_budget`, `runtime`) passed with 0 failures.
+
+**None.** All artifact reviews returned `REVIEWED` with no blocking codes. The supplied summaries sufficiently support all essential correctness, safety, ABI, target, runtime, and final-code claims.
 
 ## 4. Non-Blocking Opportunities
-- **Disassembler Version Omission**: The native metadata reports `disassembler_version: null` despite using `llvm-objdump`. While `supported: true` and `failure_reason: null` mitigate ABI/target risks, capturing the exact toolchain version in future releases would improve strict reproducibility.
-- **WIR Provenance Spans**: The analysis recorded 99 malformed provenance spans (bytes 965-1778) marked "no following WIR form". This appears to be a benign artifact of nested/overlapping token-to-source mappings and did not result in missing or duplicate definitions, but warrants investigation for cleaner WIR projection metadata.
-- **Trace Artifact Sparsity**: The compilation trace artifact contains an empty events array. While the status is `succeeded`, adding per-function or per-block trace events would enhance future debuggability.
+
+1. **WIR Span Mapping Diagnostics**: The `analysis` artifact reports 99 malformed spans (e.g., "span 1011..1015: no following WIR form") in the trailing source region of `docs/audit/fibonacci_runtime.weave`. While all 42 WIR instructions are correctly mapped and this does not block the release, the Weave compiler front-end could improve source-to-WIR span tracking fidelity to reduce noise in audit analyses.
+2. **Vectorization Misses**: The `optimization_record` indicates that `loop-vectorize` and `slp-vectorizer` missed opportunities in `main` due to `NonReductionValueUsedOutsideLoop` and `CantComputeNumberOfIterations`. As the Fibonacci calculation is inherently sequential and dependent on previous iterations, this is expected behavior, but future compiler passes could explore loop transformations if performance benchmarks justify it.
+3. **Register Allocation Spills**: The `optimization_record` notes `LoopSpillReloadCopies` and `SpillReloadCopies` in `main` under `O3` optimization. Given the small register footprint of this specific test case, this is non-critical, but it may be worth reviewing the register allocator heuristics for more complex loops.
 
 ## 5. Suggested Verification
-- **Runtime Behavior**: The runtime gate successfully executed 9 cases under a bubblewrap sandbox (disabled network, explicit env, read-only FS with restricted `/tmp` and `/work` writes). Cases cover missing input, boundary values (`0`, `46`, `47`), negative values (`-1`), and non-integer (`abc`). All passed with expected exit codes.
-- **ABI and Target Safety**: The build manifest confirms the target as `x86_64-unknown-linux-gnu` with `clang/llc` toolchains. The disassembly confirms standard x86_64 ELF conventions, standard PLT/GOT setup, and no unexpected indirect calls in user code.
-- **Optimization Safety**: The optimized LLVM IR correctly introduces a `freeze` instruction on the result of `@atoi` (`%t3.fr`) to prevent undef propagation during optimization. The `fib` function was successfully inlined into `main` without violating budget constraints.
+
+1. **Runtime Matrix Integrity**: Future audits should continue to execute the 9-case runtime matrix in a bubblewrap sandbox (network disabled, read-only filesystem) as performed here. The cases covering missing input, `0`, `1`, `2`, `10`, `12`, `-1`, `47`, and non-numeric `abc` provide excellent boundary and fallback coverage for the clamping logic.
+2. **Cross-Stage Hash Chaining**: Maintain the strict hash-addressed UTF-8 byte range verification used in this audit. The ability to trace `source` -> `wir` -> `raw_llvm` -> `optimized_llvm` -> `assembly` -> `disassembly` via cryptographic hashes is critical for deterministic release gates.
+3. **Inlining Threshold Validation**: The `fib` function was inlined with a cost of -15005 against a threshold of 250. While correct, it is recommended to periodically audit the Weave compiler's inlining cost model against larger workloads to ensure aggressive inlining does not lead to excessive code bloat in production binaries.
 
 <details>
 <summary>Raw model response</summary>
@@ -4960,37 +6216,41 @@ OK
 # Weave Compiler Final Adversarial Release-Gate Audit Review
 
 ## 1. Executive Summary
-The Weave compiler release gate for `weavec v0.3.0+git.1ba3dc73a459` successfully passes all deterministic and adversarial review checks. The compilation of `docs/audit/fibonacci_runtime.weave` completed with an exit code of 0. All required textual artifacts were reviewed through exact, hash-addressed UTF-8 byte ranges. The native, optimized LLVM, and runtime budget gates passed without failures. Cross-stage consistency is maintained across the source, WIR, raw LLVM, optimized LLVM, and native disassembly. No blocking findings were identified.
+
+The deterministic audit summary and all associated artifact reviews have been synthesized. The Weave compiler pipeline successfully compiled the `fibonacci-runtime` test case targeting `x86_64-unknown-linux-gnu` with an exit code of 0 and no diagnostics. All configured deterministic gates (native budget, optimized LLVM budget, and runtime matrix) passed. The complete evidence chain is present, hash-addressed, and cross-stage consistent. No blocking findings were identified across the WIR, raw LLVM, optimized LLVM, assembly, disassembly, optimization records, or runtime trace artifacts. The release gate is cleared.
 
 ## 2. Verification Matrix
 
-| Artifact / Stage | Byte Range | SHA-256 | Status | Cross-Stage Consistency |
+| Artifact | Byte Range | SHA-256 | Status | Cross-Stage Verification |
 | :--- | :--- | :--- | :--- | :--- |
-| **Metadata** | [0, 10295) | `e5377574...` | REVIEWED | Auditor identity and bundle hashes verified. 9 runtime cases configured. |
-| **Source** | [0, 1822) | `344883c0...` | REVIEWED | Defines `fib` and `main` with `getenv`/`atoi` externs. Clamps input to `[0, 46]`. |
-| **WIR** | [0, 1269) | `66955504...` | REVIEWED | Matches source logic. Iterative loop and input clamping preserved. |
-| **Raw LLVM** | [0, 5767) | `c48f52bd...` | REVIEWED | Unoptimized IR retains source mapping and control flow. |
-| **Optimized LLVM** | [0, 2227) | `7bda6a3a...` | REVIEWED | `fib` inlined. `freeze` instruction safely handles `atoi` undef. Bounds check intact. |
-| **Assembly** | [0, 1262) | `f0fe3ce1...` | REVIEWED | x86_64 instructions match optimized IR. `cmpl $46` bounds check present. |
-| **Disassembly** | [0, 7537) | `4db3a657...` | REVIEWED | 0 indirect calls, 0 unreachable instructions. Standard ELF/CRT setup. |
-| **Opt. Record** | [0, 11024) | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). Benign vectorization misses. |
-| **Diagnostics** | [0, 148) | `9683b322...` | REVIEWED | Empty error list. Aligns with `compiler_exit_code: 0`. |
-| **Analysis** | [0, 86755) | `da1bc0b7...` | REVIEWED | Native budget (25/32 instrs), LLVM budget (20/20 instrs), Runtime (9/9 passed). |
-| **Analysis** | [86755, 93622) | `28b45c1f...` | REVIEWED | Source mapping array valid. `valid: true`. No unresolved symbols. |
-| **Build Manifest** | [0, 696) | `e076c75b...` | REVIEWED | Target `x86_64-unknown-linux-gnu`, `O3` optimization. Matches metadata. |
-| **Trace** | [0, 213) | `c93c225d...` | REVIEWED | Status `succeeded`, phase `complete`. |
+| **metadata** | `[0, 10623)` | `cf0c0073...` | REVIEWED | Auditor identity, bundle format, and all 49 auditor files verified. Source/loupe repository SHAs match (`6ee1ebaceb...`). WeaveC pinned at `v0.3.0+git.1ba3dc73a459`. |
+| **source** | `[0, 1822)` | `344883c0...` | REVIEWED | Defines `fib` and `main`. Uses `getenv`/`atoi` to prevent constant folding. Clamps `n` to `[0, 46]` with default 10. Matches WIR/LLVM behavior. |
+| **wir** | `[0, 1269)` | `66955504...` | REVIEWED | Defines externs `getenv`/`atoi`. Iterative `fib` loop matches source. `main` clamps values as expected. |
+| **raw_llvm** | `[0, 5767)` | `d5435d2d...` | REVIEWED | Unoptimized IR retains `fib` and `main` signatures. `@.str0` = `WEAVE_AUDIT_N`. Control flow accurately reflects source clamping. |
+| **optimized_llvm**| `[0, 2227)` | `7bda6a3a...` | REVIEWED | `fib` successfully inlined into `main`. Target triple `x86_64-pc-linux-gnu`. Loop logic and bounds checks preserved. |
+| **assembly** | `[0, 1262)` | `355551c6...` | REVIEWED | x86_64 instructions reflect optimized IR. `getenv@PLT` and `atoi@PLT` called. Loop uses `%eax`/`%edx`/`%ecx`. |
+| **disassembly** | `[0, 7537)` | `fc79aff6...` | REVIEWED | Confirms assembly layout. `main` at `0x1150`-`0x119f`. 0 indirect calls. Reachability complete. |
+| **optimization_record** | `[0, 11024)` | `c1eed531...` | REVIEWED | `fib` inlined (cost=-15005). `getenv`/`atoi` missed due to `NoDefinition` (expected). Regalloc spills documented. |
+| **diagnostics** | `[0, 148)` | `9683b322...` | REVIEWED | `exit_code: 0`, `status: "succeeded"`, empty diagnostics array. |
+| **analysis** | `[0, 86496)` | `013954af...` | REVIEWED | 9/9 runtime cases passed. 0 missing/unexpected externs. WIR-to-LLVM block deltas explained by inlining. |
+| **analysis** | `[86496, 127084)`| `839a4bbc...` | REVIEWED | WIR provenance reports 99 malformed spans in trailing source region, but all 42 WIR instructions mapped. |
+| **build_manifest**| `[0, 696)` | `99f69f03...` | REVIEWED | `status: "succeeded"`, `phase: "complete"`. Toolchain: `weavec`, `clang`, `llc`, `llvm-objdump`. `O3` optimization. |
+| **trace** | `[0, 213)` | `c93c225d...` | REVIEWED | `weavec-compilation-trace-v1` reports success. Empty events array consistent with clean compile. |
 
 ## 3. Blocking Findings
-None. All artifact reviews returned `REVIEWED` with no unsupported findings. All deterministic gates (`native_budget`, `optimized_llvm_budget`, `runtime`) passed with 0 failures.
+
+**None.** All artifact reviews returned `REVIEWED` with no blocking codes. The supplied summaries sufficiently support all essential correctness, safety, ABI, target, runtime, and final-code claims.
 
 ## 4. Non-Blocking Opportunities
-- **Disassembler Version Omission**: The native metadata reports `disassembler_version: null` despite using `llvm-objdump`. While `supported: true` and `failure_reason: null` mitigate ABI/target risks, capturing the exact toolchain version in future releases would improve strict reproducibility.
-- **WIR Provenance Spans**: The analysis recorded 99 malformed provenance spans (bytes 965-1778) marked "no following WIR form". This appears to be a benign artifact of nested/overlapping token-to-source mappings and did not result in missing or duplicate definitions, but warrants investigation for cleaner WIR projection metadata.
-- **Trace Artifact Sparsity**: The compilation trace artifact contains an empty events array. While the status is `succeeded`, adding per-function or per-block trace events would enhance future debuggability.
+
+1. **WIR Span Mapping Diagnostics**: The `analysis` artifact reports 99 malformed spans (e.g., "span 1011..1015: no following WIR form") in the trailing source region of `docs/audit/fibonacci_runtime.weave`. While all 42 WIR instructions are correctly mapped and this does not block the release, the Weave compiler front-end could improve source-to-WIR span tracking fidelity to reduce noise in audit analyses.
+2. **Vectorization Misses**: The `optimization_record` indicates that `loop-vectorize` and `slp-vectorizer` missed opportunities in `main` due to `NonReductionValueUsedOutsideLoop` and `CantComputeNumberOfIterations`. As the Fibonacci calculation is inherently sequential and dependent on previous iterations, this is expected behavior, but future compiler passes could explore loop transformations if performance benchmarks justify it.
+3. **Register Allocation Spills**: The `optimization_record` notes `LoopSpillReloadCopies` and `SpillReloadCopies` in `main` under `O3` optimization. Given the small register footprint of this specific test case, this is non-critical, but it may be worth reviewing the register allocator heuristics for more complex loops.
 
 ## 5. Suggested Verification
-- **Runtime Behavior**: The runtime gate successfully executed 9 cases under a bubblewrap sandbox (disabled network, explicit env, read-only FS with restricted `/tmp` and `/work` writes). Cases cover missing input, boundary values (`0`, `46`, `47`), negative values (`-1`), and non-integer (`abc`). All passed with expected exit codes.
-- **ABI and Target Safety**: The build manifest confirms the target as `x86_64-unknown-linux-gnu` with `clang/llc` toolchains. The disassembly confirms standard x86_64 ELF conventions, standard PLT/GOT setup, and no unexpected indirect calls in user code.
-- **Optimization Safety**: The optimized LLVM IR correctly introduces a `freeze` instruction on the result of `@atoi` (`%t3.fr`) to prevent undef propagation during optimization. The `fib` function was successfully inlined into `main` without violating budget constraints.
+
+1. **Runtime Matrix Integrity**: Future audits should continue to execute the 9-case runtime matrix in a bubblewrap sandbox (network disabled, read-only filesystem) as performed here. The cases covering missing input, `0`, `1`, `2`, `10`, `12`, `-1`, `47`, and non-numeric `abc` provide excellent boundary and fallback coverage for the clamping logic.
+2. **Cross-Stage Hash Chaining**: Maintain the strict hash-addressed UTF-8 byte range verification used in this audit. The ability to trace `source` -> `wir` -> `raw_llvm` -> `optimized_llvm` -> `assembly` -> `disassembly` via cryptographic hashes is critical for deterministic release gates.
+3. **Inlining Threshold Validation**: The `fib` function was inlined with a cost of -15005 against a threshold of 250. While correct, it is recommended to periodically audit the Weave compiler's inlining cost model against larger workloads to ensure aggressive inlining does not lead to excessive code bloat in production binaries.
 ```
 </details>
