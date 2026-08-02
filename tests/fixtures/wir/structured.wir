@@ -1,0 +1,56 @@
+; weavec-source-file-v1 0 "demo.weave"
+(core-module
+  (core-version 2)
+  (decls
+    ; weavec-source-span-v1 0 0 20
+    (extern puts
+      (params (text ptr))
+      (returns i32))
+    ; weavec-source-span-v1 0 21 100
+    (fn helper
+      (params (x i32))
+      (returns i32)
+      (do
+        (if
+          (condition
+            (lt_i32
+              (param_get x)
+              (const_i32 0)))
+          (then
+            (do
+              ; weavec-source-span-v1 0 60 70
+              (return
+                (param_get x))))
+          (else
+            (do
+              (return
+                (const_i32 0)))))
+        (let dead i32
+          (const_i32 7))))
+    ; weavec-source-span-v1 0 101 240
+    (fn main
+      (params)
+      (returns i32)
+      (do
+        (let total i32
+          (const_i32 0))
+        (let i i32
+          (const_i32 0))
+        (while
+          (condition
+            (lt_i32
+              (local_get i)
+              (const_i32 4)))
+          (do
+            (set total
+              (add_i32
+                (local_get total)
+                ; weavec-source-span-v1 0 170 190
+                (call_i32 helper
+                  (local_get i))))
+            (set i
+              (add_i32
+                (local_get i)
+                (const_i32 1)))))
+        (return
+          (local_get total))))))
