@@ -1,0 +1,29 @@
+--- !Passed
+Pass: inline
+Name: Inlined
+Function: main
+DebugLoc: { File: "src/μ.weave", Line: 12, Column: 4 }
+Hotness: 150
+Args:
+  - Callee: helper
+  - String: " inlined into "
+  - Caller: main
+Extra:
+  Nested: true
+...
+--- !Missed
+Pass: loop-vectorize
+Name: CantVectorize
+Function: "main"
+Hotness: 80
+Args:
+  - String: 'loop not vectorized: '
+  - Reason: "unsafe dependence"
+...
+--- !AnalysisFPCommute
+Pass: loop-vectorize
+Name: "UnsafeAlgebra"
+Function: main
+Args:
+  - String: "reordering is unsafe"
+...
