@@ -39,7 +39,9 @@ uv run loupe audit program.weave \
 - `--review-artifact-tokens` rejects a single unexpectedly large artifact before
   any model request is sent.
 - `--max-tokens` remains the final review completion limit. Artifact-level reviews
-  use a smaller internal completion allowance.
+  reserve 1024 completion tokens by default so complete structural findings are
+  not truncated as deterministic analysis grows. The internal reserve remains
+  part of the recorded review policy and may be overridden by Python callers.
 
 All limits must be positive. The per-request limit cannot exceed the total limit.
 A review fails before sending requests when complete coverage or final synthesis
