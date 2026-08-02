@@ -19,6 +19,9 @@ changing the machine-readable evidence.
 Version 2 compares:
 
 - compiler exit codes;
+- normalized WIR core-v2 declarations, functions, structured blocks, edges,
+  operations, calls, types, suspicious findings, provenance, and WIR-to-LLVM
+  correspondence;
 - raw LLVM structural metrics;
 - optimized LLVM structural metrics;
 - native target support, architecture, reachability, calls, branches, loops,
@@ -39,6 +42,19 @@ three supplemental sections as unavailable instead of inventing values.
 results and passes them into the v2 comparison, so those reports contain complete
 supplemental differences without running anything twice.
 
+## WIR section
+
+`analysis.wir` appears before raw LLVM and uses the versioned
+`weave-loupe-wir-analysis-v1` model. It reports explicit function additions,
+removals, and modifications; metric, opcode, type, and call-graph changes; source
+provenance; and cross-stage lowering correspondence. Invalid or unavailable WIR
+is evidence-classified instead of being converted into zero-valued metrics.
+
+Structured WIR blocks model `do`, `if`, and `while`; they are not asserted to be
+identical to LLVM basic blocks. Function-level WIR and LLVM block counts and their
+delta are reported as correspondence evidence. See the
+[WIR structural analysis guide](wir-analysis.md).
+
 ## Change model
 
 Every changed fact also appears in one stable, sorted `changes` list. Each record
@@ -55,13 +71,14 @@ contains:
 
 The classifications are:
 
-- `semantic` — compilation, diagnostics, or runtime behavior changed;
-- `quality` — generated-code structure, optimization, reachability, or contract
-  quality changed;
-- `provenance` — source ordering, trace ordering, compiler identity, or manifest
-  evidence changed;
-- `evidence` — an expected artifact, parser result, or evidence section appeared
-  or disappeared.
+- `semantic` — WIR functions/calls/lowering, compilation, diagnostics, or runtime
+  behavior changed;
+- `quality` — WIR structure, generated-code structure, optimization, reachability,
+  or contract quality changed;
+- `provenance` — WIR source mapping, source ordering, trace ordering, compiler
+  identity, or manifest evidence changed;
+- `evidence` — an expected artifact, parser result, validity state, or evidence
+  section appeared or disappeared.
 
 Severities are report cues, not a replacement for compiler-audit policy:
 
@@ -76,10 +93,11 @@ baseline-versus-candidate gate.
 ## Determinism and volatile fields
 
 The comparison sorts section names, paths, function names, diagnostic identities,
-and change records. Diagnostic identities use canonical JSON. Trace identities
-remove timing, process, and workspace fields before hashing. Runtime comparisons
-remove elapsed time, sandbox details, limits, sidecar paths, and executable hashes
-that do not describe observable behavior.
+and change records. WIR blocks use local deterministic identifiers and provenance
+uses source indices and byte spans. Diagnostic identities use canonical JSON.
+Trace identities remove timing, process, and workspace fields before hashing.
+Runtime comparisons remove elapsed time, sandbox details, limits, sidecar paths,
+and executable hashes that do not describe observable behavior.
 
 Identical stable evidence produces an empty change set. Repeating the comparison
 with the same inputs produces byte-equivalent normalized JSON when serialized
@@ -100,6 +118,8 @@ uv run loupe diff before.loupe after.loupe \
 Python callers can use either:
 
 ```python
+from weave_loupe.bundle_diffing import compare_bundles, compare_bundles_v1
+
 compare_bundles(before, after, format_version="v1")
 compare_bundles_v1(before, after)
 ```
