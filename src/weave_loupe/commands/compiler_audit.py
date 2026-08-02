@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from weave_loupe.audit_result import AuditProtocolError, parse_audit_response
-from weave_loupe.compiler_audit import (
+from weave_loupe.complete_compiler_audit import (
     CompilerAuditError,
     ReviewCallback,
     audit_compilers,
