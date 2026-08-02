@@ -32,6 +32,7 @@ jobs:
       WEAVE_LLM_API_KEY: ${{ secrets.WEAVE_LLM_API_KEY || secrets.WEAVE_LLM_API_TOKEN }}
       WEAVE_LLM_MODEL: ${{ vars.WEAVE_LLM_MODEL || 'z-ai/glm-5.2' }}
       WEAVE_LLM_MAX_TOKENS: ${{ vars.WEAVE_LLM_MAX_TOKENS || '4096' }}
+      WEAVE_LLM_MAX_ATTEMPTS: ${{ vars.WEAVE_LLM_MAX_ATTEMPTS || '20' }}
 
     steps:
       - name: Check out pull request branch
