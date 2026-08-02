@@ -32,6 +32,9 @@ presentation format.
 - [Deterministic WIR structural analysis](wir-analysis.md) — core-v2 declarations,
   functions, structured control flow, provenance, suspicious findings,
   WIR-to-LLVM correspondence, diffs, HTML, and compiler policy.
+- [LLVM optimization remark analysis](optimization-remarks.md) — safe YAML
+  normalization, stable summaries, semantic diffs, HTML presentation, and
+  required or forbidden compiler-audit selectors.
 - [Complete compiler evidence comparisons](diff-format.md) — versioned v2 bundle
   diffs, classifications, deterministic ordering, HTML navigation, supplemental
   compiler-audit context, and v1 compatibility.
@@ -60,15 +63,15 @@ presentation format.
 
 - `loupe capture` builds one portable evidence bundle.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
-  JSON with focused WIR, LLVM, and native sections.
+  JSON with focused WIR, LLVM optimization remark, LLVM, and native sections.
 - `loupe diff` compares the complete stable compiler evidence chain with
-  `weave-loupe-diff-v2`, including WIR structure and lowering correspondence,
-  emits classified changes and navigable HTML, and offers `--format-version v1`
-  for the original compact projection.
+  `weave-loupe-diff-v2`, including WIR structure, lowering correspondence, and
+  normalized optimization remark changes, emits classified changes and navigable
+  HTML, and offers `--format-version v1` for the original compact projection.
 - `loupe compiler-audit` compiles the same ordered inputs with baseline and
   candidate compilers, supplies runtime and contract results to the complete v2
-  diff, applies deterministic WIR, LLVM, native, and runtime policy, and publishes
-  sealed JSON and Markdown evidence.
+  diff, applies deterministic WIR, optimization remark, LLVM, native, and runtime
+  policy, and publishes sealed JSON and Markdown evidence.
 - `loupe audit` reviews complete evidence in one request when it fits or through
   deterministic artifact ranges plus final synthesis when it does not. It records
   full coverage and request provenance, applies runtime, optimized-LLVM, and native
