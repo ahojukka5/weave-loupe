@@ -8,6 +8,7 @@ from typing import Any
 
 from weave_loupe.bundle import Bundle
 from weave_loupe.native_disassembly import analyze_native_disassembly
+from weave_loupe.optimization_remarks import analyze_optimization_remarks
 from weave_loupe.wir_analysis import analyze_wir
 
 _FUNCTION = re.compile(r"^\s*define\b")
@@ -30,6 +31,9 @@ def analyze_bundle(bundle: Bundle) -> dict[str, Any]:
         "wir": analyze_wir(wir, llvm),
         "llvm": analyze_llvm(llvm),
         "optimized_llvm": analyze_llvm(optimized_llvm),
+        "optimization_remarks": analyze_optimization_remarks(
+            bundle.artifact_text("optimization_record")
+        ),
         "native": analyze_native(
             disassembly,
             optimized_llvm,

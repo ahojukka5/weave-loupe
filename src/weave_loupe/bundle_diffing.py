@@ -1,4 +1,4 @@
-"""Public bundle comparison including normalized WIR evidence."""
+"""Public bundle comparison including normalized compiler evidence."""
 
 from __future__ import annotations
 
@@ -9,7 +9,8 @@ from typing import Any
 from weave_loupe.analysis import analyze_bundle
 from weave_loupe.bundle import Bundle
 from weave_loupe.diffing import DIFF_FORMAT, LEGACY_DIFF_FORMAT
-from weave_loupe.diffing import compare_bundles as _compare_without_wir
+from weave_loupe.diffing import compare_bundles as _compare_without_extensions
+from weave_loupe.optimization_remarks import compare_optimization_remarks
 from weave_loupe.wir_diffing import compare_wir_analysis
 
 
@@ -21,8 +22,8 @@ def compare_bundles(
     before_context: Mapping[str, Any] | None = None,
     after_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Compare complete stable bundle evidence, including WIR structure."""
-    result = _compare_without_wir(
+    """Compare complete stable bundle evidence, including WIR and remarks."""
+    result = _compare_without_extensions(
         before,
         after,
         format_version=format_version,
@@ -40,12 +41,22 @@ def compare_bundles(
         _mapping(left.get("wir")),
         _mapping(right.get("wir")),
     )
+    remarks, remark_changes = compare_optimization_remarks(
+        _mapping(left.get("optimization_remarks")),
+        _mapping(right.get("optimization_remarks")),
+    )
+    established = [
+        item
+        for item in _change_list(result.get("changes"))
+        if item.get("section") != "optimization_remarks"
+    ]
     changes = sorted(
-        [*_change_list(result.get("changes")), *wir_changes],
+        [*established, *wir_changes, *remark_changes],
         key=_change_key,
     )
     analysis = dict(_mapping(result.get("analysis")))
     result["analysis"] = {"wir": wir, **analysis}
+    result["optimization_remarks"] = remarks
     result["changes"] = changes
     result["summary"] = _summary(changes)
     return result
@@ -80,6 +91,7 @@ def _change_key(item: Mapping[str, Any]) -> tuple[str, ...]:
             "kind",
             "classification",
             "severity",
+            "id",
         )
     )
 

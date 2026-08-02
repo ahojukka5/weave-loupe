@@ -1,4 +1,4 @@
-"""Tests for WIR-aware public bundle comparisons."""
+"""Tests for public bundle comparisons."""
 
 from __future__ import annotations
 
@@ -30,6 +30,57 @@ def test_bundle_comparison_reports_wir_only_change(tmp_path: Path) -> None:
     assert comparison["analysis"]["llvm"]["changed"] is False
 
 
+def test_bundle_comparison_reports_structured_remark_changes(tmp_path: Path) -> None:
+    before = _bundle(
+        tmp_path,
+        "before",
+        helper=False,
+        optimization_record="""\
+--- !Passed
+Pass: inline
+Name: Inlined
+Function: main
+Args:
+  - String: inlined helper
+...
+""",
+    )
+    after = _bundle(
+        tmp_path,
+        "after",
+        helper=False,
+        optimization_record="""\
+--- !Missed
+Pass: inline
+Name: NoDefinition
+Function: main
+Args:
+  - String: helper has no definition
+...
+""",
+    )
+
+    comparison = compare_bundles(before, after)
+
+    remarks = comparison["optimization_remarks"]
+    assert remarks["changed"] is True
+    assert [item["category"] for item in remarks["added"]] == ["missed"]
+    assert [item["category"] for item in remarks["removed"]] == ["passed"]
+    assert remarks["counters"]["by_category"] == {
+        "missed": {"before": 0, "after": 1, "delta": 1, "changed": True},
+        "passed": {"before": 1, "after": 0, "delta": -1, "changed": True},
+    }
+    remark_changes = {
+        item["kind"]: item
+        for item in comparison["changes"]
+        if item["section"] == "optimization_remarks"
+    }
+    assert remark_changes["added"]["after"]["name"] == "NoDefinition"
+    assert remark_changes["added"]["severity"] == "warning"
+    assert remark_changes["removed"]["before"]["name"] == "Inlined"
+    assert remark_changes["removed"]["severity"] == "warning"
+
+
 def test_bundle_comparison_preserves_v1_shape(tmp_path: Path) -> None:
     before = _bundle(tmp_path, "before", helper=False)
     after = _bundle(tmp_path, "after", helper=True)
@@ -46,7 +97,13 @@ def test_bundle_comparison_preserves_v1_shape(tmp_path: Path) -> None:
     }
 
 
-def _bundle(tmp_path: Path, name: str, *, helper: bool) -> Bundle:
+def _bundle(
+    tmp_path: Path,
+    name: str,
+    *,
+    helper: bool,
+    optimization_record: str | None = None,
+) -> Bundle:
     root = tmp_path / name
     source = root / "sources" / "000-demo.weave"
     artifacts = root / "artifacts"
@@ -76,7 +133,8 @@ def _bundle(tmp_path: Path, name: str, *, helper: bool) -> Bundle:
             "0000000000001000 <main>:\n"
             "    1000: c3 retq\n"
         ),
-        "optimization_record": "---\nPass: inline\nName: Passed\nFunction: main\n",
+        "optimization_record": optimization_record
+        or "--- !Passed\nPass: inline\nName: Inlined\nFunction: main\n...\n",
         "diagnostics": json.dumps({"diagnostics": []}) + "\n",
         "trace": json.dumps({"events": []}) + "\n",
         "build_manifest": json.dumps({"target": "x86_64"}) + "\n",
