@@ -8,9 +8,9 @@
 
 ## Reproducibility
 
-- **Report content SHA-256:** `ed9d22d7862f68a9550781bef7583dcdf8313b388046919cb6b6ae802cba49da`
-- **Audit timestamp (UTC):** `2026-08-02T06:17:57+00:00`
-- **Re-audit no later than (UTC):** `2026-09-01T06:17:57+00:00`
+- **Report content SHA-256:** `05e2d86d537d3a4c4188d2f7aa2b7fbee90c51c36e4024660fca2ac15ad23502`
+- **Audit timestamp (UTC):** `2026-08-02T15:45:29+00:00`
+- **Re-audit no later than (UTC):** `2026-09-01T15:45:29+00:00`
 - **Maximum audit age:** `30` days
 - **Audited input invalidation:** `any source or runtime matrix hash change`
 - **Compiler binary invalidation:** `any compiler binary hash change`
@@ -19,10 +19,10 @@
 - **Request limit invalidation:** `any configured LLM max-token change`
 - **Development compiler invalidation:** `any compiler version change`
 - **Identity attestation upgrade:** `required when command identity becomes available`
-- **Audited source Git SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
+- **Audited source Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
 - **Source tree state:** `clean`
-- **Weave Loupe Git SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
-- **Auditor content SHA-256:** `feb6f4b141181eeb0982aa71215cd4a860bd581043365fd1da9ee6d64a54afe6`
+- **Weave Loupe Git SHA:** `7795ab77bdce4ab2cfa0c8fa415caf435def071a`
+- **Auditor content SHA-256:** `f14fe2e8261f65fc26968d7d7a9418732863631a205d54d3602313bd24a8912d`
 - **weavec Git SHA:** `ccf2ac6a3b22cf88461793ea6c4f64287cfc743c`
 - **weavec binary SHA-256:** `950e57c792ac4a98da89ca5049719ef964a39870ef384cb20a4e8027aaf3c870`
 - **weavec version:** `weavec v0.3.0+git.ccf2ac6a3b22`
@@ -39,18 +39,18 @@
 - **LLM model:** `z-ai/glm-5.2`
 - **LLM max tokens:** `4096`
 - **LLM temperature:** `0.0`
-- **LLM prompt SHA-256:** `8eb1066c8c52000e932a36fef83f073796656dc0751d2ab98b3ad336e6fb355b`
-- **LLM request SHA-256:** `d6ee047018d38f9667270956d3b9fa07842682340aeb1cabd38c7c92cb9106c2`
+- **LLM prompt SHA-256:** `c22018a2b3d940055d43895931a1e4243f3072b93247080d72cbdc319bde4a6f`
+- **LLM request SHA-256:** `05203e8d61c6cfb22f39d8addf1a4940578e1de6c1a9e457efcff73185b3d642`
 - **Provider-reported model:** `z-ai/glm-5.2`
-- **Provider response ID:** `chatcmpl-34f7f23c-138f-4b42-bbb9-cbedec72c003`
+- **Provider response ID:** `chatcmpl-f06856b4-002e-4fce-9041-b1a4f37a1be5`
 - **Provider system fingerprint:** `unavailable`
 - **Provider finish reason:** `stop`
-- **Provider created (Unix):** `1785651479`
-- **Provider prompt tokens:** `14587`
-- **Provider completion tokens:** `886`
-- **Provider total tokens:** `15473`
-- **GitHub run ID:** `30735421228`
-- **GitHub workflow SHA:** `58e1ff007e8fd543650858db26400378c1d9877c`
+- **Provider created (Unix):** `1785685530`
+- **Provider prompt tokens:** `25171`
+- **Provider completion tokens:** `1123`
+- **Provider total tokens:** `26294`
+- **GitHub run ID:** `30754646619`
+- **GitHub workflow SHA:** `63392d7157d473e9da82df6ddc07e2f3448e8d86`
 
 ## Machine and running conditions
 
@@ -59,23 +59,23 @@
 - **Architecture:** `x86_64`
 - **CPU:** `AMD EPYC 7763 64-Core Processor`
 - **Logical CPUs:** `4`
-- **Memory:** `16766418944` bytes
+- **Memory:** `16770756608` bytes
 - **Python:** `3.12.13`
 - **libc:** `glibc 2.39`
 
 ## Audited inputs
 
-- Source `/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave` — SHA-256 `6cad78b00aaa67b434c4d7a920a3c9065bf7d7a802f5881ef831602e3e48b3d6` — 935 bytes
-- Runtime matrix `/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json` — SHA-256 `4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6`
+- Source `docs/audit/fibonacci.weave` — SHA-256 `6cad78b00aaa67b434c4d7a920a3c9065bf7d7a802f5881ef831602e3e48b3d6` — 935 bytes
+- Runtime matrix `docs/audit/fibonacci.audit.json` — SHA-256 `4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6`
 
 ## Captured evidence
 
 - `assembly` — SHA-256 `c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`
-- `build_manifest` — SHA-256 `a34af8ef363ea87914bf6b17793ac4228a1c38479a1e8220c1c3b9483c888144`
+- `build_manifest` — SHA-256 `751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
 - `diagnostics` — SHA-256 `a40b573053cda943c381742ad672108b1c8985ecc97e2f21dfa604094e31ff63`
 - `disassembly` — SHA-256 `3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`
 - `executable` — SHA-256 `90a568e286f9d2d5ae1873d965c2364f89a46d071136e1cd18a1914f9e95ef89`
-- `llvm` — SHA-256 `dbd6f8240640856cde856177d4c1228bf16c72c11c2aa2279569227429935ddf`
+- `llvm` — SHA-256 `194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
 - `optimization_record` — SHA-256 `3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`
 - `optimized_llvm` — SHA-256 `057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`
 - `trace` — SHA-256 `973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
@@ -86,32 +86,32 @@
 - **Review format:** `weave-loupe-review-plan-v1`
 - **Review mode:** `single`
 - **Token estimator:** `utf8-byte-upper-bound-v1`
-- **Estimated complete review tokens:** `47368`
+- **Estimated complete review tokens:** `84543`
 - **Request count:** `1`
 - **Maximum total tokens:** `524288`
 - **Maximum request tokens:** `98304`
 - **Maximum artifact tokens:** `262144`
-- **Artifact-review completion tokens:** `512`
+- **Artifact-review completion tokens:** `1024`
 
 ### Artifact coverage
 
 #### `metadata` — Reproducibility metadata
 
 - Language: `json`
-- UTF-8 bytes: `9267`
-- Estimated tokens: `9283`
-- SHA-256: `5b7b2454d41ff246241b02fc6c15d212a0aaad6df884a6982972e2a82223ee25`
+- UTF-8 bytes: `10278`
+- Estimated tokens: `10294`
+- SHA-256: `ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`
 - Complete coverage: `True`
-- Covered ranges: `metadata:[0, 9267)@5b7b2454d41ff246241b02fc6c15d212a0aaad6df884a6982972e2a82223ee25`
+- Covered ranges: `metadata:[0, 10278)@ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`
 
 #### `source` — Weave source
 
 - Language: `lisp`
-- UTF-8 bytes: `1012`
-- Estimated tokens: `1028`
-- SHA-256: `41cd5a472a0b1465554484040ebce72df9dd6abb7323c19d7436d8bd0649b9fa`
+- UTF-8 bytes: `970`
+- Estimated tokens: `986`
+- SHA-256: `08cc4b43b17a3614d68ae9fe381c7f33aac01c5ddd56b11efe6c79a9d9593dae`
 - Complete coverage: `True`
-- Covered ranges: `source:[0, 1012)@41cd5a472a0b1465554484040ebce72df9dd6abb7323c19d7436d8bd0649b9fa`
+- Covered ranges: `source:[0, 970)@08cc4b43b17a3614d68ae9fe381c7f33aac01c5ddd56b11efe6c79a9d9593dae`
 
 #### `wir` — WIR review projection
 
@@ -127,9 +127,9 @@
 - Language: `llvm`
 - UTF-8 bytes: `3418`
 - Estimated tokens: `3434`
-- SHA-256: `dbd6f8240640856cde856177d4c1228bf16c72c11c2aa2279569227429935ddf`
+- SHA-256: `194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
 - Complete coverage: `True`
-- Covered ranges: `raw_llvm:[0, 3418)@dbd6f8240640856cde856177d4c1228bf16c72c11c2aa2279569227429935ddf`
+- Covered ranges: `raw_llvm:[0, 3418)@194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`
 
 #### `optimized_llvm` — Optimized LLVM IR
 
@@ -179,20 +179,20 @@
 #### `analysis` — Complete deterministic analysis
 
 - Language: `json`
-- UTF-8 bytes: `11181`
-- Estimated tokens: `11197`
-- SHA-256: `dbdd9e722af6fceb767852b5f3d76ef2d3dd2c8aef2235994e9904a024170117`
+- UTF-8 bytes: `47429`
+- Estimated tokens: `47445`
+- SHA-256: `3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`
 - Complete coverage: `True`
-- Covered ranges: `analysis:[0, 11181)@dbdd9e722af6fceb767852b5f3d76ef2d3dd2c8aef2235994e9904a024170117`
+- Covered ranges: `analysis:[0, 47429)@3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`
 
 #### `build_manifest` — Compiler build manifest
 
 - Language: `json`
 - UTF-8 bytes: `688`
 - Estimated tokens: `704`
-- SHA-256: `a34af8ef363ea87914bf6b17793ac4228a1c38479a1e8220c1c3b9483c888144`
+- SHA-256: `751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
 - Complete coverage: `True`
-- Covered ranges: `build_manifest:[0, 688)@a34af8ef363ea87914bf6b17793ac4228a1c38479a1e8220c1c3b9483c888144`
+- Covered ranges: `build_manifest:[0, 688)@751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`
 
 #### `trace` — Compiler trace
 
@@ -208,19 +208,19 @@
 
 #### `single-0001` — single
 
-- Estimated input tokens: `43272`
+- Estimated input tokens: `80447`
 - Reserved output tokens: `4096`
 - Depends on: none
-- Covered ranges: `metadata:[0, 9267)@5b7b2454d41ff246241b02fc6c15d212a0aaad6df884a6982972e2a82223ee25`, `source:[0, 1012)@41cd5a472a0b1465554484040ebce72df9dd6abb7323c19d7436d8bd0649b9fa`, `wir:[0, 670)@725de77fa242cc92db08ca66c30d686c2c1264a3e59555bcf0da5c88347dc34c`, `raw_llvm:[0, 3418)@dbd6f8240640856cde856177d4c1228bf16c72c11c2aa2279569227429935ddf`, `optimized_llvm:[0, 444)@057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`, `assembly:[0, 390)@c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`, `disassembly:[0, 5681)@3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`, `optimization_record:[0, 2406)@3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 11181)@dbdd9e722af6fceb767852b5f3d76ef2d3dd2c8aef2235994e9904a024170117`, `build_manifest:[0, 688)@a34af8ef363ea87914bf6b17793ac4228a1c38479a1e8220c1c3b9483c888144`, `trace:[0, 205)@973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
-- Prompt SHA-256: `8eb1066c8c52000e932a36fef83f073796656dc0751d2ab98b3ad336e6fb355b`
-- Request SHA-256: `d6ee047018d38f9667270956d3b9fa07842682340aeb1cabd38c7c92cb9106c2`
+- Covered ranges: `metadata:[0, 10278)@ca2c051f896ec44b18caa5c6b792e7a9a826624d6a6704d5bc8ac10691afd0ee`, `source:[0, 970)@08cc4b43b17a3614d68ae9fe381c7f33aac01c5ddd56b11efe6c79a9d9593dae`, `wir:[0, 670)@725de77fa242cc92db08ca66c30d686c2c1264a3e59555bcf0da5c88347dc34c`, `raw_llvm:[0, 3418)@194f2acbfb9082262c58c69a581e809f12d6ab4331f4507ee077d3312673ecdc`, `optimized_llvm:[0, 444)@057f82c503f63153db2cd05433300ee212c02b0986729d8497760c3595e18a21`, `assembly:[0, 390)@c9ada3f9b21f676366d69be9e0d67e8a8db3786a9e4fd3783f3dbe706b368e97`, `disassembly:[0, 5681)@3cbd74406c2576b10b521535213c7d2d51e0c4ee5a24e490febfdcf8afc0b94b`, `optimization_record:[0, 2406)@3521b76a68875746bebe1b706f3129da67abd93aded7e79ead467f4008c16fa3`, `diagnostics:[0, 148)@9683b322333373cb4d9534fef10e27edba462e771e2b03e02108d5c6a7fc71ca`, `analysis:[0, 47429)@3c861b9d1cbf6a8a183215f7c7886645dfce754038ea17fbe55a27814c7c528d`, `build_manifest:[0, 688)@751c73b725de848e07574cdd52addeba2cbaad26782eeaaecdbda7ff5d033901`, `trace:[0, 205)@973c782fd9436e06f7203fea9af0c26a62e0973bd46db644f14c0bb8e4e4f0c5`
+- Prompt SHA-256: `c22018a2b3d940055d43895931a1e4243f3072b93247080d72cbdc319bde4a6f`
+- Request SHA-256: `05203e8d61c6cfb22f39d8addf1a4940578e1de6c1a9e457efcff73185b3d642`
 - Requested model: `z-ai/glm-5.2`
 - Provider model: `z-ai/glm-5.2`
-- Provider response ID: `chatcmpl-34f7f23c-138f-4b42-bbb9-cbedec72c003`
+- Provider response ID: `chatcmpl-f06856b4-002e-4fce-9041-b1a4f37a1be5`
 - Finish reason: `stop`
-- Provider prompt tokens: `14587`
-- Provider completion tokens: `886`
-- Provider total tokens: `15473`
+- Provider prompt tokens: `25171`
+- Provider completion tokens: `1123`
+- Provider total tokens: `26294`
 
 ## Complete compiler evidence
 
@@ -230,7 +230,7 @@ source-to-native lowering can also be inspected manually.
 ### Weave source
 
 ```lisp
---- /home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave ---
+--- docs/audit/fibonacci.weave ---
 ; Canonical Weave Loupe audit corpus example.
 ; Computes fib(10) iteratively; the expected signed i32 return value is 55.
 ; The standalone executable must not retain fib after main is constant-folded.
@@ -299,7 +299,7 @@ source-to-native lowering can also be inspected manually.
 
 ```llvm
 ; generated by weavec
-; source: /tmp/weavec-build-Vd0nFy/program.wir
+; source: /tmp/weavec-build-8xzFOu/program.wir
 ; core-version: 2
 
 ; weave.source kind=function index=0 bytes=836..933 wir-bytes=3030..3582 path="/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
@@ -692,7 +692,7 @@ Args:
     "undef_uses": 0
   },
   "passed": true,
-  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+  "sidecar": "docs/audit/fibonacci.audit.json",
   "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6"
 }
 ```
@@ -737,7 +737,7 @@ Args:
     "unreachable_program_instructions": 0
   },
   "passed": true,
-  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+  "sidecar": "docs/audit/fibonacci.audit.json",
   "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6"
 }
 ```
@@ -750,7 +750,7 @@ Args:
   "cases": [
     {
       "actual": {
-        "elapsed_seconds": 0.01109,
+        "elapsed_seconds": 0.010827,
         "exit_code": 55,
         "process_count_enforcement": "delegated",
         "returncode": 55,
@@ -796,7 +796,7 @@ Args:
     "file_size_bytes": 67108864,
     "format": "weave-loupe-process-limits-v1",
     "output_bytes_per_stream": 1048576,
-    "process_count": 118,
+    "process_count": 119,
     "resource_limits_supported": true,
     "timeout_seconds": 5.0
   },
@@ -822,7 +822,7 @@ Args:
       "/work"
     ]
   },
-  "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+  "sidecar": "docs/audit/fibonacci.audit.json",
   "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6",
   "timeout_seconds": 5.0
 }
@@ -1087,7 +1087,7 @@ Args:
       "unreachable_program_instructions": 0
     },
     "passed": true,
-    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+    "sidecar": "docs/audit/fibonacci.audit.json",
     "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6"
   },
   "optimized_llvm": {
@@ -1176,7 +1176,7 @@ Args:
       "undef_uses": 0
     },
     "passed": true,
-    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+    "sidecar": "docs/audit/fibonacci.audit.json",
     "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6"
   },
   "runtime": {
@@ -1184,7 +1184,7 @@ Args:
     "cases": [
       {
         "actual": {
-          "elapsed_seconds": 0.01109,
+          "elapsed_seconds": 0.010827,
           "exit_code": 55,
           "process_count_enforcement": "delegated",
           "returncode": 55,
@@ -1230,7 +1230,7 @@ Args:
       "file_size_bytes": 67108864,
       "format": "weave-loupe-process-limits-v1",
       "output_bytes_per_stream": 1048576,
-      "process_count": 118,
+      "process_count": 119,
       "resource_limits_supported": true,
       "timeout_seconds": 5.0
     },
@@ -1256,7 +1256,7 @@ Args:
         "/work"
       ]
     },
-    "sidecar": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.audit.json",
+    "sidecar": "docs/audit/fibonacci.audit.json",
     "sidecar_sha256": "4032e56fd1ee0c869bded117fe11d6a7e3d00d3dd7c57edea7991230d7ef6ee6",
     "timeout_seconds": 5.0
   },
@@ -1265,6 +1265,1162 @@ Args:
     "categories": {},
     "events": 0,
     "passes": {}
+  },
+  "wir": {
+    "anonymous_identifiers": [],
+    "available": true,
+    "call_graph": {
+      "fib": [],
+      "main": [
+        "fib"
+      ]
+    },
+    "core_version": 2,
+    "cross_stage": {
+      "duplicate_llvm_declarations": [],
+      "duplicate_llvm_definitions": [],
+      "functions": {
+        "fib": {
+          "block_delta": -1,
+          "llvm_blocks": 6,
+          "wir_blocks": 7
+        },
+        "main": {
+          "block_delta": 0,
+          "llvm_blocks": 1,
+          "wir_blocks": 1
+        }
+      },
+      "llvm_declarations": [],
+      "llvm_definitions": [
+        "fib",
+        "main"
+      ],
+      "metrics": {
+        "duplicate_llvm_declarations": 0,
+        "duplicate_llvm_definitions": 0,
+        "missing_definitions": 0,
+        "missing_externs": 0,
+        "unexpected_definitions": 0
+      },
+      "missing_definitions": [],
+      "missing_externs": [],
+      "unexpected_definitions": [],
+      "wir_externs": [],
+      "wir_functions": [
+        "fib",
+        "main"
+      ]
+    },
+    "declarations": [
+      {
+        "kind": "fn",
+        "name": "fib",
+        "params": [
+          {
+            "name": "n",
+            "type": "i32"
+          }
+        ],
+        "returns": [
+          "i32"
+        ]
+      },
+      {
+        "kind": "fn",
+        "name": "main",
+        "params": [],
+        "returns": [
+          "i32"
+        ]
+      }
+    ],
+    "duplicate_declarations": [],
+    "failure_reason": null,
+    "format": "weave-loupe-wir-analysis-v1",
+    "functions": {
+      "fib": {
+        "anonymous_identifiers": [],
+        "blocks": [
+          {
+            "id": "b0",
+            "instructions": 3,
+            "opcodes": [
+              "if",
+              "le_i32",
+              "const_i32"
+            ],
+            "reachable": true,
+            "role": "entry"
+          },
+          {
+            "id": "b1",
+            "instructions": 1,
+            "opcodes": [
+              "return"
+            ],
+            "reachable": true,
+            "role": "if-then"
+          },
+          {
+            "id": "b2",
+            "instructions": 0,
+            "opcodes": [],
+            "reachable": true,
+            "role": "if-else"
+          },
+          {
+            "id": "b3",
+            "instructions": 6,
+            "opcodes": [
+              "let",
+              "const_i32",
+              "let",
+              "const_i32",
+              "let",
+              "const_i32"
+            ],
+            "reachable": true,
+            "role": "if-merge"
+          },
+          {
+            "id": "b4",
+            "instructions": 2,
+            "opcodes": [
+              "while",
+              "le_i32"
+            ],
+            "reachable": true,
+            "role": "while-condition"
+          },
+          {
+            "id": "b5",
+            "instructions": 7,
+            "opcodes": [
+              "let",
+              "add_i32",
+              "set",
+              "set",
+              "set",
+              "add_i32",
+              "const_i32"
+            ],
+            "reachable": true,
+            "role": "while-body"
+          },
+          {
+            "id": "b6",
+            "instructions": 1,
+            "opcodes": [
+              "return"
+            ],
+            "reachable": true,
+            "role": "while-exit"
+          }
+        ],
+        "calls": [],
+        "duplicate_locals": [],
+        "edges": [
+          {
+            "kind": "if-true",
+            "source": "b0",
+            "target": "b1"
+          },
+          {
+            "kind": "if-false",
+            "source": "b0",
+            "target": "b2"
+          },
+          {
+            "kind": "fallthrough",
+            "source": "b2",
+            "target": "b3"
+          },
+          {
+            "kind": "fallthrough",
+            "source": "b3",
+            "target": "b4"
+          },
+          {
+            "kind": "while-true",
+            "source": "b4",
+            "target": "b5"
+          },
+          {
+            "kind": "while-false",
+            "source": "b4",
+            "target": "b6"
+          },
+          {
+            "kind": "backedge",
+            "source": "b5",
+            "target": "b4"
+          }
+        ],
+        "locals": [
+          "current",
+          "index",
+          "next",
+          "previous"
+        ],
+        "metrics": {
+          "backedges": 1,
+          "blocks": 7,
+          "branches": 2,
+          "calls": 0,
+          "control_flow_edges": 7,
+          "instructions": 20,
+          "locals": 4,
+          "loops": 1,
+          "operands": 38,
+          "reachable_blocks": 7,
+          "returns": 2,
+          "unreachable_blocks": 0,
+          "unreachable_instructions": 0
+        },
+        "opcodes": {
+          "add_i32": 2,
+          "const_i32": 5,
+          "if": 1,
+          "le_i32": 2,
+          "let": 4,
+          "return": 2,
+          "set": 3,
+          "while": 1
+        },
+        "params": [
+          {
+            "name": "n",
+            "type": "i32"
+          }
+        ],
+        "provenance": {
+          "mapped_instructions": 20,
+          "spans": [
+            {
+              "end_byte": 833,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 252
+            },
+            {
+              "end_byte": 259,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 256
+            },
+            {
+              "end_byte": 280,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 264
+            },
+            {
+              "end_byte": 271,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 265
+            },
+            {
+              "end_byte": 279,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 272
+            },
+            {
+              "end_byte": 274,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 273
+            },
+            {
+              "end_byte": 278,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 275
+            },
+            {
+              "end_byte": 298,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 285
+            },
+            {
+              "end_byte": 293,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 286
+            },
+            {
+              "end_byte": 297,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 294
+            },
+            {
+              "end_byte": 832,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 303
+            },
+            {
+              "end_byte": 455,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 313
+            },
+            {
+              "end_byte": 316,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 314
+            },
+            {
+              "end_byte": 371,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 325
+            },
+            {
+              "end_byte": 335,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 326
+            },
+            {
+              "end_byte": 370,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 346
+            },
+            {
+              "end_byte": 353,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 347
+            },
+            {
+              "end_byte": 355,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 354
+            },
+            {
+              "end_byte": 369,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 356
+            },
+            {
+              "end_byte": 366,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 357
+            },
+            {
+              "end_byte": 368,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 367
+            },
+            {
+              "end_byte": 424,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 380
+            },
+            {
+              "end_byte": 385,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 381
+            },
+            {
+              "end_byte": 423,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 396
+            },
+            {
+              "end_byte": 422,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 412
+            },
+            {
+              "end_byte": 421,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 420
+            },
+            {
+              "end_byte": 454,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 433
+            },
+            {
+              "end_byte": 438,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 434
+            },
+            {
+              "end_byte": 453,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 449
+            },
+            {
+              "end_byte": 494,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 462
+            },
+            {
+              "end_byte": 475,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 467
+            },
+            {
+              "end_byte": 493,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 480
+            }
+          ]
+        },
+        "returns": [
+          "i32"
+        ],
+        "types": {
+          "i32": 15
+        },
+        "unresolved_symbols": []
+      },
+      "main": {
+        "anonymous_identifiers": [],
+        "blocks": [
+          {
+            "id": "b0",
+            "instructions": 3,
+            "opcodes": [
+              "return",
+              "call_i32",
+              "const_i32"
+            ],
+            "reachable": true,
+            "role": "entry"
+          }
+        ],
+        "calls": [
+          "fib"
+        ],
+        "duplicate_locals": [],
+        "edges": [],
+        "locals": [],
+        "metrics": {
+          "backedges": 0,
+          "blocks": 1,
+          "branches": 0,
+          "calls": 1,
+          "control_flow_edges": 0,
+          "instructions": 3,
+          "locals": 0,
+          "loops": 0,
+          "operands": 4,
+          "reachable_blocks": 1,
+          "returns": 1,
+          "unreachable_blocks": 0,
+          "unreachable_instructions": 0
+        },
+        "opcodes": {
+          "call_i32": 1,
+          "const_i32": 1,
+          "return": 1
+        },
+        "params": [],
+        "provenance": {
+          "mapped_instructions": 3,
+          "spans": [
+            {
+              "end_byte": 490,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 481
+            },
+            {
+              "end_byte": 492,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 491
+            },
+            {
+              "end_byte": 532,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 501
+            },
+            {
+              "end_byte": 513,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 506
+            },
+            {
+              "end_byte": 531,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 518
+            },
+            {
+              "end_byte": 528,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 519
+            },
+            {
+              "end_byte": 530,
+              "source_index": 0,
+              "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+              "start_byte": 529
+            }
+          ]
+        },
+        "returns": [
+          "i32"
+        ],
+        "types": {
+          "i32": 3
+        },
+        "unresolved_symbols": []
+      }
+    },
+    "metrics": {
+      "anonymous_identifiers": 0,
+      "backedges": 1,
+      "blocks": 8,
+      "branches": 2,
+      "calls": 1,
+      "control_flow_edges": 7,
+      "declarations": 2,
+      "duplicate_declarations": 0,
+      "externs": 0,
+      "functions": 2,
+      "instructions": 23,
+      "locals": 4,
+      "loops": 1,
+      "malformed_provenance": 48,
+      "mapped_functions": 2,
+      "mapped_instructions": 23,
+      "operands": 42,
+      "provenance_files": 1,
+      "provenance_spans": 87,
+      "reachable_blocks": 8,
+      "returns": 3,
+      "unknown_declarations": 0,
+      "unreachable_blocks": 0,
+      "unresolved_symbols": 0
+    },
+    "opcodes": {
+      "add_i32": 2,
+      "call_i32": 1,
+      "const_i32": 6,
+      "if": 1,
+      "le_i32": 2,
+      "let": 4,
+      "return": 3,
+      "set": 3,
+      "while": 1
+    },
+    "provenance": {
+      "files": [
+        {
+          "index": 0,
+          "path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
+        }
+      ],
+      "malformed": [
+        "span 539..568: no following WIR form",
+        "span 544..549: no following WIR form",
+        "span 554..567: no following WIR form",
+        "span 555..564: no following WIR form",
+        "span 565..566: no following WIR form",
+        "span 575..808: no following WIR form",
+        "span 576..581: no following WIR form",
+        "span 590..628: no following WIR form",
+        "span 591..600: no following WIR form",
+        "span 611..627: no following WIR form",
+        "span 612..618: no following WIR form",
+        "span 619..624: no following WIR form",
+        "span 625..626: no following WIR form",
+        "span 637..807: no following WIR form",
+        "span 651..692: no following WIR form",
+        "span 656..660: no following WIR form",
+        "span 665..691: no following WIR form",
+        "span 666..673: no following WIR form",
+        "span 674..682: no following WIR form",
+        "span 683..690: no following WIR form",
+        "span 703..725: no following WIR form",
+        "span 717..724: no following WIR form",
+        "span 736..754: no following WIR form",
+        "span 749..753: no following WIR form",
+        "span 765..806: no following WIR form",
+        "span 776..805: no following WIR form",
+        "span 777..784: no following WIR form",
+        "span 785..790: no following WIR form",
+        "span 791..804: no following WIR form",
+        "span 792..801: no following WIR form",
+        "span 802..803: no following WIR form",
+        "span 815..831: no following WIR form",
+        "span 823..830: no following WIR form",
+        "span 836..933: no following WIR form",
+        "span 843..847: no following WIR form",
+        "span 852..860: no following WIR form",
+        "span 853..859: no following WIR form",
+        "span 865..878: no following WIR form",
+        "span 866..873: no following WIR form",
+        "span 874..877: no following WIR form",
+        "span 883..932: no following WIR form",
+        "span 893..931: no following WIR form",
+        "span 901..930: no following WIR form",
+        "span 902..910: no following WIR form",
+        "span 911..914: no following WIR form",
+        "span 915..929: no following WIR form",
+        "span 916..925: no following WIR form",
+        "span 926..928: no following WIR form"
+      ],
+      "spans": [
+        {
+          "end_byte": 833,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 252
+        },
+        {
+          "end_byte": 259,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 256
+        },
+        {
+          "end_byte": 280,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 264
+        },
+        {
+          "end_byte": 271,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 265
+        },
+        {
+          "end_byte": 279,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 272
+        },
+        {
+          "end_byte": 274,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 273
+        },
+        {
+          "end_byte": 278,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 275
+        },
+        {
+          "end_byte": 298,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 285
+        },
+        {
+          "end_byte": 293,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 286
+        },
+        {
+          "end_byte": 297,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 294
+        },
+        {
+          "end_byte": 832,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 303
+        },
+        {
+          "end_byte": 455,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 313
+        },
+        {
+          "end_byte": 316,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 314
+        },
+        {
+          "end_byte": 371,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 325
+        },
+        {
+          "end_byte": 335,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 326
+        },
+        {
+          "end_byte": 370,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 346
+        },
+        {
+          "end_byte": 353,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 347
+        },
+        {
+          "end_byte": 355,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 354
+        },
+        {
+          "end_byte": 369,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 356
+        },
+        {
+          "end_byte": 366,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 357
+        },
+        {
+          "end_byte": 368,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 367
+        },
+        {
+          "end_byte": 424,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 380
+        },
+        {
+          "end_byte": 385,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 381
+        },
+        {
+          "end_byte": 423,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 396
+        },
+        {
+          "end_byte": 422,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 412
+        },
+        {
+          "end_byte": 421,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 420
+        },
+        {
+          "end_byte": 454,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 433
+        },
+        {
+          "end_byte": 438,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 434
+        },
+        {
+          "end_byte": 453,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 449
+        },
+        {
+          "end_byte": 494,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 462
+        },
+        {
+          "end_byte": 475,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 467
+        },
+        {
+          "end_byte": 493,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 480
+        },
+        {
+          "end_byte": 490,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 481
+        },
+        {
+          "end_byte": 492,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 491
+        },
+        {
+          "end_byte": 532,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 501
+        },
+        {
+          "end_byte": 513,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 506
+        },
+        {
+          "end_byte": 531,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 518
+        },
+        {
+          "end_byte": 528,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 519
+        },
+        {
+          "end_byte": 530,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 529
+        },
+        {
+          "end_byte": 568,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 539
+        },
+        {
+          "end_byte": 549,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 544
+        },
+        {
+          "end_byte": 567,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 554
+        },
+        {
+          "end_byte": 564,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 555
+        },
+        {
+          "end_byte": 566,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 565
+        },
+        {
+          "end_byte": 808,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 575
+        },
+        {
+          "end_byte": 581,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 576
+        },
+        {
+          "end_byte": 628,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 590
+        },
+        {
+          "end_byte": 600,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 591
+        },
+        {
+          "end_byte": 627,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 611
+        },
+        {
+          "end_byte": 618,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 612
+        },
+        {
+          "end_byte": 624,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 619
+        },
+        {
+          "end_byte": 626,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 625
+        },
+        {
+          "end_byte": 807,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 637
+        },
+        {
+          "end_byte": 692,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 651
+        },
+        {
+          "end_byte": 660,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 656
+        },
+        {
+          "end_byte": 691,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 665
+        },
+        {
+          "end_byte": 673,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 666
+        },
+        {
+          "end_byte": 682,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 674
+        },
+        {
+          "end_byte": 690,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 683
+        },
+        {
+          "end_byte": 725,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 703
+        },
+        {
+          "end_byte": 724,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 717
+        },
+        {
+          "end_byte": 754,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 736
+        },
+        {
+          "end_byte": 753,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 749
+        },
+        {
+          "end_byte": 806,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 765
+        },
+        {
+          "end_byte": 805,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 776
+        },
+        {
+          "end_byte": 784,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 777
+        },
+        {
+          "end_byte": 790,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 785
+        },
+        {
+          "end_byte": 804,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 791
+        },
+        {
+          "end_byte": 801,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 792
+        },
+        {
+          "end_byte": 803,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 802
+        },
+        {
+          "end_byte": 831,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 815
+        },
+        {
+          "end_byte": 830,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 823
+        },
+        {
+          "end_byte": 933,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 836
+        },
+        {
+          "end_byte": 847,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 843
+        },
+        {
+          "end_byte": 860,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 852
+        },
+        {
+          "end_byte": 859,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 853
+        },
+        {
+          "end_byte": 878,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 865
+        },
+        {
+          "end_byte": 873,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 866
+        },
+        {
+          "end_byte": 877,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 874
+        },
+        {
+          "end_byte": 932,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 883
+        },
+        {
+          "end_byte": 931,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 893
+        },
+        {
+          "end_byte": 930,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 901
+        },
+        {
+          "end_byte": 910,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 902
+        },
+        {
+          "end_byte": 914,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 911
+        },
+        {
+          "end_byte": 929,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 915
+        },
+        {
+          "end_byte": 925,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 916
+        },
+        {
+          "end_byte": 928,
+          "source_index": 0,
+          "source_path": "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave",
+          "start_byte": 926
+        }
+      ]
+    },
+    "types": {
+      "i32": 18
+    },
+    "unresolved_symbols": [],
+    "valid": true
   }
 }
 ```
@@ -1288,7 +2444,7 @@ Args:
     "cpu": "native",
     "tune_cpu": "native"
   },
-  "output": "/tmp/loupe-audit-jgd3x7e_/.audit.loupe.w5dbeiwo/artifacts/program",
+  "output": "/tmp/loupe-audit-00njzfr3/.audit.loupe.hgoh4n6s/artifacts/program",
   "sources": [
     "/home/runner/work/weave-loupe/weave-loupe/docs/audit/fibonacci.weave"
   ]
@@ -1312,32 +2468,32 @@ Args:
 ## LLM review
 
 ## Summary
-The Weave compiler toolchain successfully compiles, optimizes, and links the `fibonacci.weave` program. The source computes `fib(10)` iteratively, which is constant-folded by the LLVM optimizer into a direct return of the constant `55`. The final native executable contains a minimal `main` function (`movl $55, %eax; retq`) that correctly implements the source semantics. All configured runtime matrix cases pass, and the optimized LLVM and native code budgets are strictly respected without any remaining compiler-generated overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and expects a signed `i32` return value of `55`. The cleaned WIR preserves this structure. The raw LLVM IR allocates stack space for the iterative loop, but the LLVM optimizer (`loop-delete` and `inline` passes, as shown in the optimization record) evaluates the loop at compile-time and constant-folds the result. The optimized LLVM IR consists of a single `ret i32 55` instruction. The target assembly and linked executable disassembly confirm this is lowered to `movl $55, %eax; retq`, which exactly matches the x86_64 SysV ABI for a function returning an `i32`. The configured runtime matrix successfully executes the exact linked artifact and observes an exit code of `55`, matching the expected sidecar values. Both the optimized LLVM contract and native optimization budget pass without failure, and no avoidable overhead remains in the final code.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines an iterative `fib` function and calls it with `10`. The expected return value is `55` (as noted in the source comments and runtime sidecar).
-- Weave-to-WIR semantic preservation: PASS. The WIR projection accurately reflects the source structure, including the `fib` function, the `le_i32` condition, the iterative `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR correctly translates the WIR. It uses `alloca` for local variables, `icmp sle` for signed comparisons, and `add i32` for arithmetic, matching the `i32` types and control flow of the WIR.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA instructions, and correctly implements the branching and looping logic of the source.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { ret i32 55 }`. This is semantically equivalent to executing `fib(10)` at compile-time.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The analysis JSON shows the optimized LLVM contract passed with 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching `le_i32`, and `add i32` for arithmetic. `fib(10)` does not overflow `i32`.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final assembly uses `movl $55, %eax` to set the return value in the correct ABI register (`%eax` for `i32` return on x86_64) and uses `retq`. Stack alignment is handled by the standard prologue/epilogue.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM has `memory(none)` and `willreturn`, indicating no memory leaks or undefined behavior.
-- Target compatibility and native instruction validity: PASS. The target is `x86_64-pc-linux-gnu`. The instructions `movl` and `retq` are valid x86_64 instructions.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the linked artifact and observed `exit_code: 55`, matching the expected value.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget passed. `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches, all within the configured limits.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. All overhead from the raw LLVM (allocas, loops, branches) was completely eliminated by the optimizer. The final code is optimally minimal.
+- Source semantics and expected result: PASS. The Weave source (`docs/audit/fibonacci.weave`) defines an iterative `fib(10)` returning `55`. The runtime matrix in the analysis JSON confirms the linked executable exits with code `55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR review projection preserves the `fib` function logic, the `le_i32` comparisons, the `while` loop, and the `main` entry point calling `fib` with `10`.
+- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR `if` condition to `icmp sle i32 %n, 1`, the `while` loop to a backedge branching to `while.cond1`, and the `main` call to `call i32 @fib(i32 10)`.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA values, correctly typed `i32` operations, and valid branching. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR computes the constant `55` and returns it, preserving the semantic result of the source `fib(10)` call.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses. All limits are respected and `passed: true`.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the WIR `le_i32`. For `n=10`, the iterative additions do not overflow `i32`.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The final disassembly uses `movl $55, %eax` to return the `i32` result in the correct SysV ABI register (`%eax`), followed by `retq`. The `StackSize` analysis confirms 0 stack bytes used in `main`.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM is marked `nofree norecurse nosync nounwind willreturn memory(none)`, proving no memory unsafety, leaks, or UB remain.
+- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions (`endbr64`, `movl`, `retq`, etc.) and standard ELF64 structure.
+- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the artifact and observed `exit_code: 55`, matching the expected sidecar value. No stderr/stdout output was produced, as expected.
+- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` in the analysis JSON confirms `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches. `passed: true`.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM contains only a single `ret` instruction. The final native code contains only `movl` and `retq`. No overhead remains.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The compiler successfully eliminated all temporary stack traffic and control flow overhead, producing optimal constant-folded native code.
+None found. The raw LLVM IR uses `alloca` and `load`/`store` traffic for the iterative loop variables, but this is standard unoptimized codegen and is completely eliminated by the LLVM optimizer, resulting in zero overhead in the final native code.
 
 ## Suggested verification
-- Add a runtime test case with a non-constant input (if the language supports dynamic input) to verify the iterative loop logic in native code.
-- Add a test case for `fib(0)` and `fib(1)` to verify the `le_i32 n 1` early return path.
+- Add additional runtime matrix cases testing edge conditions for `fib` (e.g., `fib(0)`, `fib(1)`, `fib(2)`) to further validate the `le_i32 n 1` branch of the WIR logic across the compilation pipeline.
+- Consider adding a test case with a non-constant input to `fib` to verify the loop's machine code generation and ABI compliance when the optimizer cannot constant-fold the result.
 
 <details>
 <summary>Raw model response</summary>
@@ -1345,31 +2501,31 @@ None found. The compiler successfully eliminated all temporary stack traffic and
 ```text
 OK
 ## Summary
-The Weave compiler toolchain successfully compiles, optimizes, and links the `fibonacci.weave` program. The source computes `fib(10)` iteratively, which is constant-folded by the LLVM optimizer into a direct return of the constant `55`. The final native executable contains a minimal `main` function (`movl $55, %eax; retq`) that correctly implements the source semantics. All configured runtime matrix cases pass, and the optimized LLVM and native code budgets are strictly respected without any remaining compiler-generated overhead.
+The final native program is correct, safe, ABI-valid, target-compatible, and free from avoidable compiler-generated overhead. The Weave source computes `fib(10)` iteratively and expects a signed `i32` return value of `55`. The cleaned WIR preserves this structure. The raw LLVM IR allocates stack space for the iterative loop, but the LLVM optimizer (`loop-delete` and `inline` passes, as shown in the optimization record) evaluates the loop at compile-time and constant-folds the result. The optimized LLVM IR consists of a single `ret i32 55` instruction. The target assembly and linked executable disassembly confirm this is lowered to `movl $55, %eax; retq`, which exactly matches the x86_64 SysV ABI for a function returning an `i32`. The configured runtime matrix successfully executes the exact linked artifact and observes an exit code of `55`, matching the expected sidecar values. Both the optimized LLVM contract and native optimization budget pass without failure, and no avoidable overhead remains in the final code.
 
 ## Verification matrix
-- Source semantics and expected result: PASS. The Weave source defines an iterative `fib` function and calls it with `10`. The expected return value is `55` (as noted in the source comments and runtime sidecar).
-- Weave-to-WIR semantic preservation: PASS. The WIR projection accurately reflects the source structure, including the `fib` function, the `le_i32` condition, the iterative `while` loop, and the `main` entry point calling `fib` with `10`.
-- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR correctly translates the WIR. It uses `alloca` for local variables, `icmp sle` for signed comparisons, and `add i32` for arithmetic, matching the `i32` types and control flow of the WIR.
-- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA instructions, and correctly implements the branching and looping logic of the source.
-- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR reduces the entire program to `define i32 @main() { ret i32 55 }`. This is semantically equivalent to executing `fib(10)` at compile-time.
-- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The analysis JSON shows the optimized LLVM contract passed with 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses.
-- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching `le_i32`, and `add i32` for arithmetic. `fib(10)` does not overflow `i32`.
-- Calls, return values, ABI, stack alignment, and register use: PASS. The final assembly uses `movl $55, %eax` to set the return value in the correct ABI register (`%eax` for `i32` return on x86_64) and uses `retq`. Stack alignment is handled by the standard prologue/epilogue.
-- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM has `memory(none)` and `willreturn`, indicating no memory leaks or undefined behavior.
-- Target compatibility and native instruction validity: PASS. The target is `x86_64-pc-linux-gnu`. The instructions `movl` and `retq` are valid x86_64 instructions.
-- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the linked artifact and observed `exit_code: 55`, matching the expected value.
-- Configured native limits, required call targets, and loop backedges: PASS. The native budget passed. `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches, all within the configured limits.
-- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. All overhead from the raw LLVM (allocas, loops, branches) was completely eliminated by the optimizer. The final code is optimally minimal.
+- Source semantics and expected result: PASS. The Weave source (`docs/audit/fibonacci.weave`) defines an iterative `fib(10)` returning `55`. The runtime matrix in the analysis JSON confirms the linked executable exits with code `55`.
+- Weave-to-WIR semantic preservation: PASS. The WIR review projection preserves the `fib` function logic, the `le_i32` comparisons, the `while` loop, and the `main` entry point calling `fib` with `10`.
+- WIR-to-raw-LLVM semantic preservation: PASS. The raw LLVM IR explicitly maps the WIR `if` condition to `icmp sle i32 %n, 1`, the `while` loop to a backedge branching to `while.cond1`, and the `main` call to `call i32 @fib(i32 10)`.
+- Raw LLVM validity, SSA, types, and control flow: PASS. The raw LLVM IR is well-formed, uses valid SSA values, correctly typed `i32` operations, and valid branching. The analysis JSON confirms 0 `poison_uses` and 0 `undef_uses`.
+- Optimized LLVM semantic preservation: PASS. The optimized LLVM IR computes the constant `55` and returns it, preserving the semantic result of the source `fib(10)` call.
+- Configured optimized LLVM metrics, functions, calls, and memory traffic: PASS. The `optimized_llvm_budget` in the analysis JSON shows 1 function (`main`), 1 instruction (`ret`), 0 calls, 0 memory traffic, and 0 poison/undef uses. All limits are respected and `passed: true`.
+- Integer signedness, overflow, shifts, and comparisons: PASS. The raw LLVM uses `icmp sle` (signed less-than-or-equal) matching the WIR `le_i32`. For `n=10`, the iterative additions do not overflow `i32`.
+- Calls, return values, ABI, stack alignment, and register use: PASS. The final disassembly uses `movl $55, %eax` to return the `i32` result in the correct SysV ABI register (`%eax`), followed by `retq`. The `StackSize` analysis confirms 0 stack bytes used in `main`.
+- Memory safety, lifetime, leaks, and undefined behavior: PASS. The raw LLVM uses `alloca` safely. The optimized LLVM is marked `nofree norecurse nosync nounwind willreturn memory(none)`, proving no memory unsafety, leaks, or UB remain.
+- Target compatibility and native instruction validity: PASS. The build manifest targets `x86_64-unknown-linux-gnu`. The disassembly shows valid x86_64 instructions (`endbr64`, `movl`, `retq`, etc.) and standard ELF64 structure.
+- Native runtime cases and expected observable behavior: PASS. The runtime matrix executed the artifact and observed `exit_code: 55`, matching the expected sidecar value. No stderr/stdout output was produced, as expected.
+- Configured native limits, required call targets, and loop backedges: PASS. The `native_budget` in the analysis JSON confirms `main` has 2 instructions, 0 direct calls, 0 indirect calls, and 0 backward branches. `passed: true`.
+- Compiler-generated overhead remaining in optimized LLVM and final native code: PASS. The optimized LLVM contains only a single `ret` instruction. The final native code contains only `movl` and `retq`. No overhead remains.
 
 ## Blocking findings
 None found.
 
 ## Non-blocking opportunities
-None found. The compiler successfully eliminated all temporary stack traffic and control flow overhead, producing optimal constant-folded native code.
+None found. The raw LLVM IR uses `alloca` and `load`/`store` traffic for the iterative loop variables, but this is standard unoptimized codegen and is completely eliminated by the LLVM optimizer, resulting in zero overhead in the final native code.
 
 ## Suggested verification
-- Add a runtime test case with a non-constant input (if the language supports dynamic input) to verify the iterative loop logic in native code.
-- Add a test case for `fib(0)` and `fib(1)` to verify the `le_i32 n 1` early return path.
+- Add additional runtime matrix cases testing edge conditions for `fib` (e.g., `fib(0)`, `fib(1)`, `fib(2)`) to further validate the `le_i32 n 1` branch of the WIR logic across the compilation pipeline.
+- Consider adding a test case with a non-constant input to `fib` to verify the loop's machine code generation and ABI compliance when the optimizer cannot constant-fold the result.
 ```
 </details>
