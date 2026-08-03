@@ -17,6 +17,11 @@ from weave_loupe.bounded_process import (
     run_bounded_process,
 )
 from weave_loupe.bundle import Bundle
+from weave_loupe.path_identity import (
+    PathIdentityError,
+    canonical_sidecar_identity,
+    plan_public_paths,
+)
 from weave_loupe.process_budget import with_user_process_baseline
 from weave_loupe.runtime_sandbox import (
     RuntimeSandbox,
@@ -123,8 +128,18 @@ def execute_runtime_cases(
     sources: list[Path],
     runtime_timeout_seconds: float | None = None,
     runtime_output_bytes: int | None = None,
+    audit_root: Path | None = None,
+    source_names: list[str] | None = None,
 ) -> dict[str, Any]:
     """Execute configured cases and return deterministic, report-ready evidence."""
+    try:
+        plan = plan_public_paths(
+            sources,
+            audit_root=audit_root,
+            logical_names=source_names,
+        )
+    except PathIdentityError as exc:
+        raise RuntimeCasesError(str(exc)) from exc
     configuration = discover_runtime_cases(sources)
     if configuration is None:
         return {
@@ -183,7 +198,7 @@ def execute_runtime_cases(
     return {
         "format": _RUNTIME_RESULT_FORMAT,
         "configured": True,
-        "sidecar": str(configuration.path),
+        "sidecar": canonical_sidecar_identity(configuration.path, plan),
         "sidecar_sha256": _sha256(configuration.path.read_bytes()),
         "executable_sha256": (
             _sha256(executable.read_bytes()) if executable is not None else None

@@ -34,14 +34,27 @@ def _problem_codes(bundle: Path, *, closed: bool = True) -> set[str]:
 
 
 def test_capture_bundle_records_sources_and_artifacts(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    result = capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    result = capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     assert result.compiler_exit_code == 0
     bundle = load_bundle(output)
     assert bundle.manifest["format"] == BUNDLE_FORMAT
-    assert bundle.sources[0]["input"] == str(source_file)
+    assert bundle.sources[0]["input"] == source_file.name
+    assert bundle.sources[0]["identity"] == {
+        "format": "weave-loupe-portable-path-v1",
+        "path": source_file.name,
+        "scope": "root",
+        "symlinked": False,
+    }
+    assert str(source_file.parent) not in json.dumps(bundle.manifest)
     compiler = bundle.manifest["compiler"]
     assert compiler["execution"]["termination_reason"] == "exited"
     assert compiler["execution"]["limits"]["timeout_seconds"] == 120.0
@@ -58,7 +71,8 @@ def test_capture_bundle_records_sources_and_artifacts(
 
 
 def test_capture_bundle_records_compiler_timeout(
-    tmp_path: Path, source_file: Path
+    tmp_path: Path,
+    source_file: Path,
 ) -> None:
     compiler = tmp_path / "weavec-timeout"
     compiler.write_text(
@@ -84,7 +98,9 @@ def test_capture_bundle_records_compiler_timeout(
 
 
 def test_capture_bundle_can_keep_executable(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
     capture_bundle(
@@ -97,10 +113,16 @@ def test_capture_bundle_can_keep_executable(
 
 
 def test_capture_bundle_records_hash(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     bundle = load_bundle(output)
     copied = bundle.root / str(bundle.sources[0]["path"])
     expected = hashlib.sha256(copied.read_bytes()).hexdigest()
@@ -108,10 +130,16 @@ def test_capture_bundle_records_hash(
 
 
 def test_capture_bundle_hashes_compiler_logs(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
 
     manifest = _read_manifest(output)
     stderr = manifest["logs"]["stderr"]
@@ -125,22 +153,34 @@ def test_capture_bundle_hashes_compiler_logs(
 
 
 def test_capture_bundle_replaces_existing_directory(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
     output.mkdir()
     (output / "stale").write_text("old")
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     assert not (output / "stale").exists()
     assert (output / "bundle.json").is_file()
 
 
 def test_verify_bundle_accepts_valid_capture_after_move(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
     moved = tmp_path / "nested" / "moved.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     moved.parent.mkdir()
     output.rename(moved)
 
@@ -152,10 +192,16 @@ def test_verify_bundle_accepts_valid_capture_after_move(
 
 
 def test_verify_bundle_reports_all_content_problems(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
 
     source_path = output / manifest["sources"][0]["path"]
@@ -177,10 +223,16 @@ def test_verify_bundle_reports_all_content_problems(
 
 
 def test_verify_bundle_rejects_path_traversal(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
     manifest["sources"][0]["path"] = "../outside.weave"
     _write_manifest(output, manifest)
@@ -189,10 +241,16 @@ def test_verify_bundle_rejects_path_traversal(
 
 
 def test_verify_bundle_rejects_symlinked_artifact(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
     artifact = output / manifest["artifacts"]["llvm"]["path"]
     target = output / manifest["sources"][0]["path"]
@@ -203,10 +261,16 @@ def test_verify_bundle_rejects_symlinked_artifact(
 
 
 def test_verify_bundle_rejects_duplicate_declared_paths(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
     manifest["logs"]["stderr"] = manifest["logs"]["stdout"]
     _write_manifest(output, manifest)
@@ -215,10 +279,16 @@ def test_verify_bundle_rejects_duplicate_declared_paths(
 
 
 def test_verify_bundle_requires_success_artifacts(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
     llvm = manifest["artifacts"].pop("llvm")
     (output / llvm["path"]).unlink()
@@ -228,21 +298,36 @@ def test_verify_bundle_requires_success_artifacts(
 
 
 def test_verify_bundle_can_allow_undeclared_files(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
-    (output / "store-note.txt").write_text("external metadata", encoding="utf-8")
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
+    (output / "store-note.txt").write_text(
+        "external metadata",
+        encoding="utf-8",
+    )
 
     assert "undeclared-file" in _problem_codes(output)
     assert verify_bundle(output, closed=False).valid is True
 
 
 def test_verify_bundle_accepts_legacy_log_paths(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     manifest = _read_manifest(output)
     manifest["logs"] = {name: entry["path"] for name, entry in manifest["logs"].items()}
     _write_manifest(output, manifest)
@@ -263,10 +348,16 @@ def test_load_bundle_rejects_unknown_format(tmp_path: Path) -> None:
 
 
 def test_bundle_rejects_path_escape(
-    tmp_path: Path, source_file: Path, fake_weavec: Path
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
 ) -> None:
     output = tmp_path / "demo.loupe"
-    capture_bundle(sources=[source_file], output=output, weavec=fake_weavec)
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+    )
     bundle = load_bundle(output)
     with pytest.raises(BundleError, match="escapes"):
         bundle.read_text("../outside")
