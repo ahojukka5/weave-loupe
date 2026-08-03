@@ -1,0 +1,70 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "missing-input-finds-default",
+      "expect": {
+        "exit_code": 12,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "first-cell-early-exit",
+      "env": {
+        "WEAVE_GRID_TARGET": "0"
+      },
+      "expect": {
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "last-cell-early-exit",
+      "env": {
+        "WEAVE_GRID_TARGET": "23"
+      },
+      "expect": {
+        "exit_code": 23,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "in-range-missing-column",
+      "env": {
+        "WEAVE_GRID_TARGET": "14"
+      },
+      "expect": {
+        "exit_code": 255,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "negative-rejected-before-search",
+      "env": {
+        "WEAVE_GRID_TARGET": "-1"
+      },
+      "expect": {
+        "exit_code": 255,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "upper-bound-rejected-before-search",
+      "env": {
+        "WEAVE_GRID_TARGET": "30"
+      },
+      "expect": {
+        "exit_code": 255,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

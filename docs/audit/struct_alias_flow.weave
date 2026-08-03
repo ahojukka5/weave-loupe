@@ -1,0 +1,61 @@
+; Canonical nominal-struct aliasing audit case.
+; Constructs a named-field aggregate out of declaration order, mutates it
+; through an alias, and observes the updated fields through the original value.
+
+(program
+  (name "struct-alias-flow")
+  (version "0.1")
+
+  (struct Accumulator
+    (field value i32)
+    (field step i32))
+
+  (extern free
+    (params (value ptr))
+    (returns void))
+
+  (fn bump
+    (params (state Accumulator))
+    (returns i32)
+    (do
+      (field-set state value
+        (add_i32
+          (field-get state value)
+          (field-get state step)))
+      (return (field-get state value))))
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let original Accumulator
+        (new Accumulator
+          (step (const_i32 7))
+          (value (const_i32 5))))
+      (let alias Accumulator original)
+
+      (let first i32 (call_i32 bump alias))
+      (if
+        (condition (ne_i32 first (const_i32 12)))
+        (then
+          (do
+            (call_void free original)
+            (return (const_i32 201))))
+        (else
+          (do)))
+
+      (field-set original step (const_i32 10))
+      (let second i32 (call_i32 bump alias))
+      (let result i32 (field-get original value))
+
+      (call_void free original)
+
+      (if
+        (condition (ne_i32 second result))
+        (then
+          (do
+            (return (const_i32 202))))
+        (else
+          (do)))
+
+      (return result))))
