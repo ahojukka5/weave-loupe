@@ -10,6 +10,7 @@ Each source, audit sidecar, and report are kept together:
 - `function_chain.weave` — multi-function calls and integer arithmetic
 - `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
 - `module_import.weave` plus `module_math.weave` — explicit module linking
+- `process_inputs.weave` — arguments, environment, standard input, and output
 - adjacent `*.audit.json` files — versioned deterministic expectations
 - adjacent `*.audit.sources` files — ordered multi-source compiler inputs
 - adjacent `*.md` files — workflow-generated reports after passing verdicts
@@ -23,6 +24,7 @@ Each source, audit sidecar, and report are kept together:
 | `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
 | `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
 | `module_import` | two source modules, explicit export/import, linking | ordered two-source build exits 42 with empty output |
+| `process_inputs` | argc/argv, declared environment, bounded stdin, stdout and stderr | six runtime cases distinguish input failures and require exact process output |
 
 The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
 contract, a native optimization contract, or any combination. Runtime cases
@@ -94,6 +96,12 @@ The module-import case places the application before its dependency in compiler
 input order. The compiler must collect both module interfaces, resolve the
 explicit import and export, link the call, and produce the exact result without
 depending on filenames or ambient symbol visibility.
+
+The process-input case receives two command-line arguments through the native
+`main` ABI, requires one explicitly declared environment value, consumes one byte
+from standard input, and writes exact bytes to both output streams. Its six cases
+separate argument count, argument content, missing environment, empty input, and
+wrong input from the successful exit-42 path.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider

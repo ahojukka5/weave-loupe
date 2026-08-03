@@ -1,0 +1,135 @@
+; Process-input Weave Loupe audit corpus example.
+; Verifies that the linked native entry receives argc/argv, declared environment,
+; and bounded standard input exactly as configured by the runtime matrix.
+
+(program
+  (name "process-inputs")
+  (version "0.1")
+
+  (extern getenv
+    (params (name ptr))
+    (returns ptr))
+
+  (extern malloc
+    (params (size i64))
+    (returns ptr))
+
+  (extern free
+    (params (value ptr))
+    (returns void))
+
+  (extern read
+    (params (fd i32) (buffer ptr) (count i64))
+    (returns i64))
+
+  (extern write
+    (params (fd i32) (buffer ptr) (count i64))
+    (returns i64))
+
+  (entry main
+    (params (argc i32) (argv ptr))
+    (returns i32)
+    (do
+      (if
+        (condition (ne_i32 argc (const_i32 3)))
+        (then
+          (do
+            (return (const_i32 10))))
+        (else
+          (do)))
+
+      (let first ptr
+        (load_ptr (ptr_add argv (const_i64 8))))
+      (let second ptr
+        (load_ptr (ptr_add argv (const_i64 16))))
+
+      (if
+        (condition (ne_i32 (load_u8 first) (const_i32 65)))
+        (then
+          (do
+            (return (const_i32 11))))
+        (else
+          (do)))
+
+      (if
+        (condition (ne_i32 (load_u8 second) (const_i32 66)))
+        (then
+          (do
+            (return (const_i32 12))))
+        (else
+          (do)))
+
+      (let mode ptr
+        (call_ptr getenv (const_string_ptr "WEAVE_AUDIT_MODE")))
+      (if
+        (condition (eq_ptr mode (const_null)))
+        (then
+          (do
+            (return (const_i32 13))))
+        (else
+          (do)))
+
+      (if
+        (condition (ne_i32 (load_u8 mode) (const_i32 67)))
+        (then
+          (do
+            (return (const_i32 14))))
+        (else
+          (do)))
+
+      (let buffer ptr (call_ptr malloc (const_i64 1)))
+      (if
+        (condition (eq_ptr buffer (const_null)))
+        (then
+          (do
+            (return (const_i32 15))))
+        (else
+          (do)))
+
+      (let bytes_read i64
+        (call_i64 read (const_i32 0) buffer (const_i64 1)))
+      (if
+        (condition (ne_i64 bytes_read (const_i64 1)))
+        (then
+          (do
+            (call_void free buffer)
+            (return (const_i32 16))))
+        (else
+          (do)))
+
+      (if
+        (condition (ne_i32 (load_u8 buffer) (const_i32 68)))
+        (then
+          (do
+            (call_void free buffer)
+            (return (const_i32 17))))
+        (else
+          (do)))
+
+      (let stdout_bytes i64
+        (call_i64 write (const_i32 1) buffer (const_i64 1)))
+      (if
+        (condition (ne_i64 stdout_bytes (const_i64 1)))
+        (then
+          (do
+            (call_void free buffer)
+            (return (const_i32 18))))
+        (else
+          (do)))
+
+      (let stderr_bytes i64
+        (call_i64 write
+          (const_i32 2)
+          (const_string_ptr "OK")
+          (const_i64 2)))
+      (if
+        (condition (ne_i64 stderr_bytes (const_i64 2)))
+        (then
+          (do
+            (call_void free buffer)
+            (return (const_i32 19))))
+        (else
+          (do)))
+
+      (call_void free buffer)
+      (return (const_i32 42)))))
