@@ -19,6 +19,10 @@ def test_capture_parser() -> None:
             "30",
             "--compiler-output-bytes",
             "4096",
+            "--audit-root",
+            "checkout",
+            "--source-name",
+            "src/a.weave",
         ]
     )
     assert args.command == "capture"
@@ -26,6 +30,8 @@ def test_capture_parser() -> None:
     assert args.output == Path("a.loupe")
     assert args.compiler_timeout_seconds == 30.0
     assert args.compiler_output_bytes == 4096
+    assert args.audit_root == Path("checkout")
+    assert args.source_names == ["src/a.weave"]
 
 
 def test_report_parser() -> None:
@@ -71,6 +77,12 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
             "3.5",
             "--runtime-output-bytes",
             "2048",
+            "--audit-root",
+            "checkout",
+            "--source-name",
+            "src/a.weave",
+            "--source-name",
+            "src/b.weave",
         ]
     )
     assert args.weave_files == [Path("a.weave"), Path("b.weave")]
@@ -83,6 +95,8 @@ def test_audit_parser_supports_sources_reports_and_process_limits() -> None:
     assert args.compiler_output_bytes == 8192
     assert args.runtime_timeout_seconds == 3.5
     assert args.runtime_output_bytes == 2048
+    assert args.audit_root == Path("checkout")
+    assert args.source_names == ["src/a.weave", "src/b.weave"]
 
 
 def test_audit_parser_defers_unsafe_http_policy_to_environment() -> None:
@@ -182,6 +196,8 @@ def test_main_dispatches_capture_limits() -> None:
         include_executable=False,
         compiler_timeout_seconds=12.0,
         compiler_output_bytes=2048,
+        audit_root=None,
+        source_names=None,
     )
 
 
@@ -249,6 +265,8 @@ def test_main_dispatches_audit_limits() -> None:
         review_total_tokens=100000,
         review_request_tokens=25000,
         review_artifact_tokens=50000,
+        audit_root=None,
+        source_names=None,
     )
 
 
