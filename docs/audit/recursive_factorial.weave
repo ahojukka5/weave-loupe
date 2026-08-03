@@ -1,0 +1,73 @@
+; Canonical input-dependent recursive call audit case.
+; Reads WEAVE_RECURSION_N at runtime so the recursive result cannot be replaced
+; by a compile-time constant. Inputs outside 0..5 fall back to five.
+
+(program
+  (name "recursive-factorial")
+  (version "0.1")
+
+  (extern getenv
+    (params (name ptr))
+    (returns ptr))
+
+  (extern atoi
+    (params (text ptr))
+    (returns i32))
+
+  (fn factorial
+    (params (n i32))
+    (returns i32)
+    (do
+      (if
+        (condition
+          (le_i32
+            (param_get n)
+            (const_i32 1)))
+        (then
+          (do
+            (return (const_i32 1))))
+        (else
+          (do)))
+
+      (return
+        (mul_i32
+          (param_get n)
+          (call_i32 factorial
+            (sub_i32
+              (param_get n)
+              (const_i32 1)))))))
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let input ptr
+        (call_ptr getenv
+          (const_string_ptr "WEAVE_RECURSION_N")))
+      (let n i32 (const_i32 5))
+
+      (if
+        (condition (ne_ptr input (const_null)))
+        (then
+          (do
+            (set n (call_i32 atoi input))))
+        (else
+          (do)))
+
+      (if
+        (condition (lt_i32 n (const_i32 0)))
+        (then
+          (do
+            (set n (const_i32 5))))
+        (else
+          (do)))
+
+      (if
+        (condition (gt_i32 n (const_i32 5)))
+        (then
+          (do
+            (set n (const_i32 5))))
+        (else
+          (do)))
+
+      (return (call_i32 factorial n)))))
