@@ -1,0 +1,183 @@
+name: Publish Weave audit
+
+on:
+  workflow_run:
+    workflows: ["Weave audit"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-weave-audit-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish verified audit evidence
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Locate audit artifact
+        id: artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        run: |
+          if [[ -z "$PR_NUMBER" ]]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Workflow run has no associated pull request."
+            exit 0
+          fi
+
+          name="weave-loupe-audit-$PR_NUMBER"
+          artifact_id="$(
+            gh api "repos/$REPOSITORY/actions/runs/$RUN_ID/artifacts" \
+              --jq ".artifacts[] | select(.name == \"$name\") | .id" |
+              head -n 1
+          )"
+          if [[ -z "$artifact_id" ]]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No publication artifact was produced."
+            exit 0
+          fi
+
+          mkdir -p artifact
+          gh run download "$RUN_ID" \
+            --repo "$REPOSITORY" \
+            --name "$name" \
+            --dir artifact
+          manifest="$(find artifact -name MANIFEST.sha256 -type f -print -quit)"
+          [[ -n "$manifest" ]] || {
+            echo "::error::Publication manifest is missing."
+            exit 1
+          }
+          root="$(dirname "$manifest")"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "root=$root" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Verify publication artifact
+        if: steps.artifact.outputs.publish == 'true'
+        shell: bash
+        env:
+          ROOT: ${{ steps.artifact.outputs.root }}
+        run: |
+          [[ -d "$ROOT" ]] || exit 1
+          if find "$ROOT" -type l -print -quit | grep -q .; then
+            echo "::error::Publication artifact contains a symbolic link."
+            exit 1
+          fi
+          (
+            cd "$ROOT"
+            sha256sum -c MANIFEST.sha256
+          )
+          [[ -s "$ROOT/weave-audit-summary.md" ]] || exit 1
+          [[ -f "$ROOT/weave-audit-reports.txt" ]] || exit 1
+
+          while IFS= read -r report; do
+            [[ -n "$report" ]] || continue
+            case "$report" in
+              docs/audit/*.md) ;;
+              *) echo "::error::Unsafe report path: $report"; exit 1 ;;
+            esac
+            [[ "$report" != *".."* ]] || exit 1
+            [[ -f "$ROOT/$report" && ! -L "$ROOT/$report" ]] || exit 1
+          done < "$ROOT/weave-audit-reports.txt"
+
+      - name: Check out audited branch
+        if: steps.artifact.outputs.publish == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Confirm audited branch identity
+        if: steps.artifact.outputs.publish == 'true'
+        shell: bash
+        env:
+          AUDITED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          current="$(git rev-parse HEAD)"
+          if [[ "$current" != "$AUDITED_SHA" ]]; then
+            echo "::error::Branch moved after audit: $current != $AUDITED_SHA"
+            exit 1
+          fi
+
+      - name: Commit passing reports
+        if: steps.artifact.outputs.publish == 'true'
+        shell: bash
+        env:
+          ROOT: ${{ steps.artifact.outputs.root }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          while IFS= read -r report; do
+            [[ -n "$report" ]] || continue
+            [[ ! -L "$report" ]] || {
+              echo "::error::Refusing to overwrite symlink: $report"
+              exit 1
+            }
+            install -D -m 0644 "$ROOT/$report" "$report"
+            git add -- "$report"
+          done < "$ROOT/weave-audit-reports.txt"
+
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(audit): update generated reports"
+          git push origin "HEAD:$HEAD_BRANCH"
+
+      - name: Comment on pull request
+        if: steps.artifact.outputs.publish == 'true'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          SUMMARY_PATH: ${{ steps.artifact.outputs.root }}/weave-audit-summary.md
+          PR_NUMBER: ${{ steps.artifact.outputs.pr_number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- weave-loupe-pr-audit -->';
+            let body = fs.readFileSync(process.env.SUMMARY_PATH, 'utf8');
+            const limit = 60000;
+            if (body.length > limit) {
+              body = body.slice(0, limit) +
+                '\n\n_Report truncated; download the audit artifact for details._\n';
+            }
+            const { owner, repo } = context.repo;
+            const issue_number = Number(process.env.PR_NUMBER);
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 }
+            );
+            const existing = comments.find(
+              comment => comment.user.type === 'Bot' &&
+                comment.body.includes(marker)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
