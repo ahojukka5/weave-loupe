@@ -8,6 +8,7 @@ Each source, audit sidecar, and report are kept together:
 - `fibonacci.weave` — constant-folding and minimal native output
 - `fibonacci_runtime.weave` — input-dependent loops and external calls
 - `function_chain.weave` — multi-function calls and integer arithmetic
+- `integer_edges.weave` — signed arithmetic, conversions, and overflow edges
 - `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
 - `module_import.weave` plus `module_math.weave` — explicit module linking
 - `process_inputs.weave` — arguments, environment, standard input, and output
@@ -22,6 +23,7 @@ Each source, audit sidecar, and report are kept together:
 | `fibonacci` | constant folding, function calls, optimized/native minima | exit 55 plus exact LLVM and native budgets |
 | `fibonacci_runtime` | environment input, comparisons, loop phis, extern ABI | nine runtime cases plus LLVM and native budgets |
 | `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
+| `integer_edges` | signed i32/i64 arithmetic, comparisons, narrowing and wraparound | exit 42, empty output, no optimized-IR undef or poison |
 | `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
 | `module_import` | two source modules, explicit export/import, linking | ordered two-source build exits 42 with empty output |
 | `process_inputs` | argc/argv, declared environment, bounded stdin, stdout and stderr | six runtime cases distinguish input failures and require exact process output |
@@ -86,6 +88,11 @@ The function-chain case keeps three source functions reviewable before
 optimization and verifies their assembled behavior with an exact process result.
 It intentionally avoids a brittle post-optimization instruction budget because
 whole-program inlining and constant folding may erase the helper boundaries.
+
+The integer-edge case verifies signed i32 and i64 addition, subtraction,
+multiplication, division, and comparisons. It also requires i64-to-i32 truncation
+to retain the low 32 bits and a 65536-by-65536 i32 multiplication to wrap to zero
+without introducing optimized-IR `undef` or `poison` values.
 
 The memory-flow case exercises both writes and reads through computed byte
 offsets. Its exact runtime result catches pointer scaling, loop, load/store, call,
