@@ -11,6 +11,12 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from weave_loupe.expected_failure_audit import (
+    EXPECTED_FAILURE_SUFFIX,
+    ExpectedFailureError,
+    load_expected_failure_contract,
+)
+
 COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
 _RUNTIME_SIDECAR_SUFFIX = ".audit.json"
 _SOURCE_SET_SUFFIX = ".audit.sources"
@@ -19,7 +25,9 @@ AUDIT_ENGINE_PATHS = (
     "src/weave_loupe/",
     "scripts/audit_pr.py",
     "scripts/reaudit_stale.py",
+    "scripts/check_workflow_security.py",
     ".github/workflows/weave-audit.yml",
+    ".github/workflows/publish-audit.yml",
     ".github/workflows/scheduled-reaudit.yml",
     "pyproject.toml",
     "uv.lock",
@@ -30,6 +38,7 @@ AUDIT_ENGINE_PATHS = (
 class AuditTarget:
     sources: tuple[Path, ...]
     report: Path
+    expected_failure: Path | None = None
 
     @property
     def primary(self) -> Path:
@@ -69,8 +78,14 @@ def main() -> int:
     try:
         targets = _changed_audit_targets(changed)
         if not targets and _audit_engine_changed(changed):
-            targets = _all_audit_targets(Path("docs/audit"))
-    except (OSError, ValueError) as exc:
+            targets = sorted(
+                [
+                    *_all_audit_targets(Path("docs/audit")),
+                    *_all_audit_targets(Path("docs/negative-audit")),
+                ],
+                key=lambda item: str(item.report),
+            )
+    except (OSError, ValueError, ExpectedFailureError) as exc:
         print(f"loupe PR audit source selection failed: {exc}", file=sys.stderr)
         return 1
 
@@ -134,30 +149,24 @@ def _changed_audit_targets(changed: list[Path]) -> list[AuditTarget]:
 
     selected: dict[Path, AuditTarget] = {}
     for path in changed:
-        target: AuditTarget | None = None
-        name = str(path)
         key = _path_key(path)
-        if path.suffix == ".weave":
-            target = by_source.get(key)
-            if target is None and path.is_file():
-                target = _single_source_target(path)
-        elif name.endswith(_SOURCE_SET_SUFFIX):
-            target = by_manifest.get(key)
-            if target is None:
-                primary = _primary_for_source_set(path)
-                if primary.is_file():
-                    target = _single_source_target(primary)
-        elif name.endswith(_RUNTIME_SIDECAR_SUFFIX):
+        target = by_source.get(key) or by_manifest.get(key) or by_report.get(key)
+        name = str(path)
+        if target is None and path.suffix == ".weave" and path.is_file():
+            target = _single_source_target(path)
+        elif target is None and name.endswith(_SOURCE_SET_SUFFIX):
+            primary = _primary_for_source_set(path)
+            if primary.is_file():
+                target = _single_source_target(primary)
+        elif target is None and name.endswith(_RUNTIME_SIDECAR_SUFFIX):
             primary = Path(name[: -len(_RUNTIME_SIDECAR_SUFFIX)] + ".weave")
             target = by_source.get(_path_key(primary))
             if target is None and primary.is_file():
                 target = _single_source_target(primary)
-        elif name.endswith(_REPORT_SUFFIX):
-            target = by_report.get(key)
-            if target is None:
-                primary = path.with_suffix(".weave")
-                if primary.is_file():
-                    target = _single_source_target(primary)
+        elif target is None and name.endswith(_REPORT_SUFFIX):
+            primary = path.with_suffix(".weave")
+            if primary.is_file():
+                target = _single_source_target(primary)
         if target is not None:
             selected[_path_key(target.report)] = target
     return sorted(selected.values(), key=lambda item: str(item.report))
@@ -181,10 +190,24 @@ def _all_audit_targets(root: Path) -> list[AuditTarget]:
 
 
 def _declared_audit_targets(root: Path) -> list[tuple[Path, AuditTarget]]:
-    return [
+    declared = [
         (manifest, _read_source_set(manifest))
         for manifest in sorted(root.rglob(f"*{_SOURCE_SET_SUFFIX}"))
     ]
+    declared.extend(
+        (contract_path, _read_expected_failure_target(contract_path))
+        for contract_path in sorted(root.rglob(f"*{EXPECTED_FAILURE_SUFFIX}"))
+    )
+    return sorted(declared, key=lambda item: str(item[0]))
+
+
+def _read_expected_failure_target(path: Path) -> AuditTarget:
+    contract = load_expected_failure_contract(path)
+    return AuditTarget(
+        sources=contract.sources,
+        report=contract.report,
+        expected_failure=path,
+    )
 
 
 def _read_source_set(manifest: Path) -> AuditTarget:
@@ -263,22 +286,38 @@ def _audit_file(
     report = target.report
     candidate = candidate_root / report
     candidate.parent.mkdir(parents=True, exist_ok=True)
-    command = [
-        sys.executable,
-        "-m",
-        "weave_loupe.cli",
-        "audit",
-        *(str(source) for source in target.sources),
-        "--weavec",
-        str(weavec),
-        "--model",
-        model,
-        "--max-tokens",
-        str(max_tokens),
-        "--report-out",
-        str(candidate),
-        "--verbose",
-    ]
+    if target.expected_failure is not None:
+        command = [
+            sys.executable,
+            "-m",
+            "weave_loupe.expected_failure_audit",
+            str(target.expected_failure),
+            "--weavec",
+            str(weavec),
+            "--model",
+            model,
+            "--max-tokens",
+            str(max_tokens),
+            "--report-out",
+            str(candidate),
+        ]
+    else:
+        command = [
+            sys.executable,
+            "-m",
+            "weave_loupe.cli",
+            "audit",
+            *(str(source) for source in target.sources),
+            "--weavec",
+            str(weavec),
+            "--model",
+            model,
+            "--max-tokens",
+            str(max_tokens),
+            "--report-out",
+            str(candidate),
+            "--verbose",
+        ]
     completed = subprocess.run(command, capture_output=True, text=True, check=False)
     return FileAudit(
         sources=target.sources,
@@ -311,8 +350,8 @@ def _render_summary(
     if not audits:
         lines.extend(
             [
-                "No auditable `.weave` files were found. The gate is failed "
-                "rather than silently passing without evidence.",
+                "No auditable Weave inputs were found. The gate is failed rather "
+                "than silently passing without evidence.",
                 "",
                 "Changed paths:",
                 "",

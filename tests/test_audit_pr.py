@@ -172,3 +172,52 @@ def test_full_corpus_selection_collapses_grouped_sources(
         ),
         (Path("docs/audit/single.weave"),),
     ]
+
+
+def _write_expected_failure(tmp_path: Path) -> tuple[Path, Path]:
+    source = tmp_path / "missing.weave"
+    source.write_text("(module application)\n", encoding="utf-8")
+    contract = tmp_path / "missing.audit.failure.toml"
+    contract.write_text(
+        'format = "weave-loupe-expected-failure-v1"\n'
+        'sources = ["missing.weave"]\n'
+        "exit_code = 10\n"
+        'phase = "frontend"\n\n'
+        "[[diagnostics]]\n"
+        'code = "frontend.module.invalid-name"\n'
+        "source_index = 0\n"
+        "start_line = 1\n"
+        "start_column = 1\n"
+        "end_line = 1\n"
+        "end_column = 21\n"
+        'span_text = "(module application)"\n',
+        encoding="utf-8",
+    )
+    return source, contract
+
+
+def test_expected_failure_contract_selects_declared_source(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    source, contract = _write_expected_failure(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    targets = _selector()([Path(contract.name)])
+
+    assert len(targets) == 1
+    assert targets[0].sources == (Path(source.name),)
+    assert targets[0].report == Path("missing.md")
+    assert targets[0].expected_failure == Path(contract.name)
+
+
+def test_changed_expected_failure_source_selects_contract(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    source, _ = _write_expected_failure(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    selected = _selector()([Path(source.name)])
+
+    assert len(selected) == 1
+    assert selected[0].sources == (Path("missing.weave"),)
+    assert selected[0].expected_failure == Path("missing.audit.failure.toml")

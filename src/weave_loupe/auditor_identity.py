@@ -12,6 +12,7 @@ _AUDIT_CONTROL_FILES = (
     "scripts/audit_pr.py",
     "scripts/reaudit_stale.py",
     ".github/workflows/weave-audit.yml",
+    ".github/workflows/publish-audit.yml",
     ".github/workflows/scheduled-reaudit.yml",
     "pyproject.toml",
     "uv.lock",

@@ -5,8 +5,11 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "**/*.weave"
+      - "**/*.weave-fail"
       - "**/*.audit.json"
+      - "**/*.audit.failure.toml"
       - "docs/audit/**/*.md"
+      - "docs/negative-audit/**/*.md"
       - "src/weave_loupe/**"
       - "scripts/audit_pr.py"
       - "scripts/reaudit_stale.py"
@@ -76,7 +79,7 @@ jobs:
           while IFS= read -r path; do
             [[ -n "$path" ]] || continue
             case "$path" in
-              *.weave|*.audit.json|src/weave_loupe/*|scripts/audit_pr.py|scripts/reaudit_stale.py|scripts/check_workflow_security.py|.github/workflows/*.yml|pyproject.toml|uv.lock)
+              *.weave|*.weave-fail|*.audit.json|*.audit.failure.toml|src/weave_loupe/*|scripts/audit_pr.py|scripts/reaudit_stale.py|scripts/check_workflow_security.py|.github/workflows/*.yml|pyproject.toml|uv.lock)
                 required=true
                 break
                 ;;
@@ -84,6 +87,14 @@ jobs:
                 source="${path%.md}.weave"
                 if [[ -f "$source" ]] || \
                    git cat-file -e "$BASE_SHA:$source" 2>/dev/null; then
+                  required=true
+                  break
+                fi
+                ;;
+              docs/negative-audit/*.md|docs/negative-audit/**/*.md)
+                contract="${path%.md}.audit.failure.toml"
+                if [[ -f "$contract" ]] || \
+                   git cat-file -e "$BASE_SHA:$contract" 2>/dev/null; then
                   required=true
                   break
                 fi
@@ -199,7 +210,7 @@ jobs:
 
           **Overall:** ❌ FAILED
 
-          The audit infrastructure failed before an LLM report could be produced.
+          The audit infrastructure failed before an audit report could be produced.
           Inspect the failed GitHub Actions step and job log for the exact cause.
           EOF
           fi
@@ -225,7 +236,7 @@ jobs:
           while IFS= read -r report; do
             [[ -n "$report" ]] || continue
             case "$report" in
-              docs/audit/*.md) ;;
+              docs/audit/*.md|docs/negative-audit/*.md) ;;
               *) echo "::error::Unsafe report path: $report"; exit 1 ;;
             esac
             [[ "$report" != *".."* ]] || exit 1
