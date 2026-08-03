@@ -19,6 +19,11 @@ from weave_loupe.bundle_verification import (
     BundleVerification,
     verify_bundle,
 )
+from weave_loupe.path_identity import (
+    PORTABLE_PATH_FORMAT,
+    PathIdentityError,
+    plan_public_paths,
+)
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
 __all__ = [
@@ -109,12 +114,20 @@ def capture_bundle(
     include_executable: bool = False,
     compiler_timeout_seconds: float | None = None,
     compiler_output_bytes: int | None = None,
+    audit_root: Path | None = None,
+    source_names: Sequence[str] | None = None,
 ) -> CaptureResult:
     """Compile ordered sources and atomically publish a portable evidence bundle."""
-    original_inputs = tuple(str(source) for source in sources)
     try:
-        normalized = normalize_sources(sources)
-    except WeavecError as exc:
+        plan = plan_public_paths(
+            sources,
+            audit_root=audit_root,
+            logical_names=source_names,
+        )
+        normalized = normalize_sources(
+            [source.execution_path for source in plan.sources]
+        )
+    except (PathIdentityError, WeavecError) as exc:
         raise BundleError(str(exc)) from exc
 
     destination = output.expanduser().resolve()
@@ -131,14 +144,20 @@ def capture_bundle(
         log_dir.mkdir()
 
         source_entries: list[dict[str, Any]] = []
-        for index, source in enumerate(normalized):
+        for index, (source, public) in enumerate(
+            zip(normalized, plan.sources, strict=True)
+        ):
             target = source_dir / f"{index:03d}-{source.name}"
             shutil.copyfile(source, target)
             source_entries.append(
                 _file_entry(
                     work,
                     target,
-                    extra={"index": index, "input": original_inputs[index]},
+                    extra={
+                        "index": index,
+                        "input": public.identity,
+                        "identity": public.metadata(),
+                    },
                 )
             )
 
@@ -189,6 +208,10 @@ def capture_bundle(
 
         manifest: dict[str, Any] = {
             "format": BUNDLE_FORMAT,
+            "source_identity": {
+                "format": PORTABLE_PATH_FORMAT,
+                "root_kind": plan.root_kind,
+            },
             "compiler": {
                 "binary": Path(result.command[0]).name,
                 "command": _portable_command(source_entries),
@@ -212,7 +235,10 @@ def capture_bundle(
             raise BundleError(verification.error_message())
 
         _replace_directory(work, destination)
-        return CaptureResult(bundle=destination, compiler_exit_code=result.returncode)
+        return CaptureResult(
+            bundle=destination,
+            compiler_exit_code=result.returncode,
+        )
     except BundleError:
         shutil.rmtree(work, ignore_errors=True)
         raise

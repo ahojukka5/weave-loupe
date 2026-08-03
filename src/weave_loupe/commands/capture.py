@@ -16,6 +16,8 @@ def run_capture(
     include_executable: bool,
     compiler_timeout_seconds: float | None = None,
     compiler_output_bytes: int | None = None,
+    audit_root: Path | None = None,
+    source_names: list[str] | None = None,
 ) -> int:
     try:
         result = capture_bundle(
@@ -25,6 +27,8 @@ def run_capture(
             include_executable=include_executable,
             compiler_timeout_seconds=compiler_timeout_seconds,
             compiler_output_bytes=compiler_output_bytes,
+            audit_root=audit_root,
+            source_names=source_names,
         )
     except BundleError as exc:
         print(f"loupe capture: {exc}", file=sys.stderr)
