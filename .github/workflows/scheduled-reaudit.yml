@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: Re-audit every canonical source regardless of age
+        description: Re-audit every canonical positive and negative case
         required: false
         type: boolean
         default: false
@@ -125,7 +125,7 @@ jobs:
           while IFS= read -r report; do
             [[ -n "$report" ]] || continue
             case "$report" in
-              docs/audit/*.md) ;;
+              docs/audit/*.md|docs/negative-audit/*.md) ;;
               *) echo "::error::Unsafe report path: $report"; exit 1 ;;
             esac
             [[ "$report" != *".."* ]] || exit 1
@@ -192,7 +192,7 @@ jobs:
           while IFS= read -r report; do
             [[ -n "$report" ]] || continue
             case "$report" in
-              docs/audit/*.md) ;;
+              docs/audit/*.md|docs/negative-audit/*.md) ;;
               *) echo "::error::Unsafe report path: $report"; exit 1 ;;
             esac
             [[ "$report" != *".."* ]] || exit 1
@@ -235,7 +235,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "docs(audit): refresh scheduled reports"
+          git commit -m "docs(audit): refresh scheduled corpus reports"
           git push origin HEAD:master
 
   publish-findings:
@@ -295,7 +295,8 @@ jobs:
               `${context.repo.repo}/actions/runs/${context.runId}`;
             const findings = data.compiler_findings.map(item =>
               `- \`${item.source}\` — ${item.reason} ` +
-              `(stdout: \`${item.stdout_log}\`, ` +
+              `(${item.kind}, ${item.duration_seconds}s; ` +
+              `stdout: \`${item.stdout_log}\`, ` +
               `stderr: \`${item.stderr_log}\`)`
             ).join('\n');
             const body = `${marker}\n## Scheduled Loupe audit failure\n\n` +
@@ -306,8 +307,9 @@ jobs:
               `- **LLM max tokens:** \`${data.max_tokens}\`\n` +
               `- **Workflow:** ${runUrl}\n\n` +
               `The current compiler failed one or more previously passing ` +
-              `source-to-native audits. The workflow artifact contains the ` +
-              `complete reports and diagnostics.\n\n${findings}\n`;
+              `source-to-native or expected-failure audits. The workflow ` +
+              `artifact contains the complete reports and diagnostics.\n\n` +
+              `${findings}\n`;
             const owner = 'ahojukka5';
             const repo = 'weavec';
             const issues = await github.paginate(
