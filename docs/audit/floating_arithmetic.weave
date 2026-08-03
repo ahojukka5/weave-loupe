@@ -1,0 +1,57 @@
+; Canonical floating-point arithmetic and conversion audit case.
+; Uses exactly representable values so f32 and f64 results remain deterministic
+; across supported native targets while still exercising both lowering paths.
+
+(program
+  (name "floating-arithmetic")
+  (version "0.1")
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let single f32
+        (div_f32
+          (mul_f32
+            (add_f32
+              (const_f32 5)
+              (const_f32 2))
+            (const_f32 12))
+          (const_f32 2)))
+      (let double f64
+        (sub_f64
+          (mul_f64
+            (div_f64
+              (const_f64 126)
+              (const_f64 3))
+            (const_f64 2))
+          (const_f64 42)))
+      (let negative f64
+        (cast_i32_to_f64
+          (const_i32 -42)))
+      (let single_result i32
+        (cast_f32_to_i32
+          (local_get single)))
+      (let double_result i32
+        (cast_f64_to_i32
+          (local_get double)))
+      (let valid bool
+        (and_bool
+          (eq_i32 (local_get single_result) (const_i32 42))
+          (and_bool
+            (eq_i32 (local_get double_result) (const_i32 42))
+            (and_bool
+              (ge_f32 (local_get single) (const_f32 42))
+              (and_bool
+                (le_f64 (local_get double) (const_f64 42))
+                (lt_f64
+                  (local_get negative)
+                  (const_f64 0)))))))
+      (if
+        (condition (local_get valid))
+        (then
+          (do
+            (return (const_i32 42))))
+        (else
+          (do
+            (return (const_i32 0))))))))

@@ -1,0 +1,20 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "optimized_llvm_budget": {
+    "format": "weave-loupe-optimized-llvm-budget-v1",
+    "max_undef_uses": 0,
+    "max_poison_uses": 0
+  },
+  "cases": [
+    {
+      "name": "exact-f32-and-f64-arithmetic",
+      "expect": {
+        "exit_code": 42,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}
