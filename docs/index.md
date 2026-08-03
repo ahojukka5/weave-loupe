@@ -24,6 +24,9 @@ presentation format.
 
 - [Audit corpus](audit/README.md) — source programs beside verbose, generated
   source-to-native audit reports.
+- [Negative audit corpus](negative-audit/README.md) — intentionally invalid
+  programs with exact diagnostic, source-span, exit-code, and artifact-absence
+  contracts.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
 - [GitHub Actions security model](ci-security.md) — immutable action pins,

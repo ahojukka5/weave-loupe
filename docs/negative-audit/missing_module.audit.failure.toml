@@ -1,0 +1,20 @@
+format = "weave-loupe-expected-failure-v1"
+sources = ["missing_module.weave"]
+exit_code = 10
+phase = "frontend"
+forbidden_artifacts = ["executable", "assembly", "disassembly"]
+
+[[diagnostics]]
+code = "frontend.module.import-missing-module"
+severity = "error"
+phase = "frontend"
+source_index = 0
+start_line = 2
+start_column = 11
+end_line = 2
+end_column = 17
+span_text = "absent"
+operand_role = "import-module"
+symbol = "absent"
+span_origin = "compiler-semantic"
+analysis_complete = true
