@@ -1,0 +1,15 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "named-fields-and-alias-mutation",
+      "expect": {
+        "exit_code": 22,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

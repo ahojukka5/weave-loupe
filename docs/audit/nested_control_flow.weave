@@ -1,0 +1,85 @@
+; Canonical nested control-flow audit case.
+; Searches a bounded row/column grid with nested loops and returns immediately
+; from the inner loop when an input-dependent target is found.
+
+(program
+  (name "nested-control-flow")
+  (version "0.1")
+
+  (extern getenv
+    (params (name ptr))
+    (returns ptr))
+
+  (extern atoi
+    (params (text ptr))
+    (returns i32))
+
+  (fn find_cell
+    (params (rows i32) (columns i32) (target i32))
+    (returns i32)
+    (do
+      (let row i32 (const_i32 0))
+      (let column i32 (const_i32 0))
+      (let value i32 (const_i32 0))
+
+      (while
+        (condition (lt_i32 row rows))
+        (do
+          (set column (const_i32 0))
+
+          (while
+            (condition (lt_i32 column columns))
+            (do
+              (set value
+                (add_i32
+                  (mul_i32 row (const_i32 10))
+                  column))
+
+              (if
+                (condition (eq_i32 value target))
+                (then
+                  (do
+                    (return value)))
+                (else
+                  (do)))
+
+              (set column
+                (add_i32 column (const_i32 1)))))
+
+          (set row
+            (add_i32 row (const_i32 1)))))
+
+      (return (const_i32 255))))
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let input ptr
+        (call_ptr getenv
+          (const_string_ptr "WEAVE_GRID_TARGET")))
+      (let target i32 (const_i32 12))
+
+      (if
+        (condition (ne_ptr input (const_null)))
+        (then
+          (do
+            (set target (call_i32 atoi input))))
+        (else
+          (do)))
+
+      (if
+        (condition
+          (and_bool
+            (ge_i32 target (const_i32 0))
+            (lt_i32 target (const_i32 30))))
+        (then
+          (do
+            (return
+              (call_i32 find_cell
+                (const_i32 3)
+                (const_i32 4)
+                target))))
+        (else
+          (do
+            (return (const_i32 255))))))))
