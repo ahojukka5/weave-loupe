@@ -24,6 +24,11 @@ from weave_loupe.path_identity import (
     PathIdentityError,
     plan_public_paths,
 )
+from weave_loupe.schemas import (
+    SchemaCatalogError,
+    SchemaValidationError,
+    require_valid_document,
+)
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
 __all__ = [
@@ -252,6 +257,10 @@ def load_bundle(path: Path) -> Bundle:
     verification = verify_bundle(path)
     if not verification.valid or verification.manifest is None:
         raise BundleError(verification.error_message())
+    try:
+        require_valid_document(verification.manifest, BUNDLE_FORMAT)
+    except (SchemaCatalogError, SchemaValidationError) as exc:
+        raise BundleError(str(exc)) from exc
     return Bundle(root=verification.root, manifest=verification.manifest)
 
 

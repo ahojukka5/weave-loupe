@@ -28,10 +28,19 @@ from weave_loupe.runtime_sandbox import (
     RuntimeSandboxError,
     select_runtime_sandbox,
 )
+from weave_loupe.schemas import (
+    SchemaCatalogError,
+    SchemaValidationError,
+    require_valid_document,
+)
 
 RUNTIME_CASES_FORMAT = "weave-loupe-runtime-cases-v1"
 _RUNTIME_RESULT_FORMAT = "weave-loupe-runtime-matrix-v1"
 _MAX_TIMEOUT_SECONDS = 60.0
+_CONTRACT_REQUIRED = (
+    "audit sidecar must contain runtime cases, a native_budget, or an "
+    "optimized_llvm_budget"
+)
 
 
 class RuntimeCasesError(ValueError):
@@ -83,6 +92,14 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
         raise RuntimeCasesError("runtime case document must be a JSON object")
     if document.get("format") != RUNTIME_CASES_FORMAT:
         raise RuntimeCasesError(f"runtime case format must be {RUNTIME_CASES_FORMAT!r}")
+    try:
+        require_valid_document(document, RUNTIME_CASES_FORMAT)
+    except SchemaValidationError as exc:
+        if exc.problems and all(problem.keyword == "anyOf" for problem in exc.problems):
+            raise RuntimeCasesError(_CONTRACT_REQUIRED) from exc
+        raise RuntimeCasesError(str(exc)) from exc
+    except SchemaCatalogError as exc:
+        raise RuntimeCasesError(str(exc)) from exc
 
     timeout = document.get("timeout_seconds", 5)
     if not isinstance(timeout, (int, float)) or isinstance(timeout, bool):
@@ -105,10 +122,7 @@ def load_runtime_cases(path: Path) -> RuntimeCases:
         document.get("optimized_llvm_budget"),
     )
     if not raw_cases and all(contract is None for contract in contracts):
-        raise RuntimeCasesError(
-            "audit sidecar must contain runtime cases, a native_budget, or an "
-            "optimized_llvm_budget"
-        )
+        raise RuntimeCasesError(_CONTRACT_REQUIRED)
 
     cases = tuple(_parse_case(item, index) for index, item in enumerate(raw_cases))
     names = [case.name for case in cases]
