@@ -32,6 +32,9 @@ presentation format.
 - [Portable source identities](portable-identities.md) — root selection,
   external logical names, sidecar identity, symlink policy, redaction, and moved
   checkout compatibility.
+- [JSON Schema contracts](json-schemas.md) — installed format schemas,
+  representative examples, offline validation, diagnostics, compatibility, and
+  version evolution.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
@@ -82,6 +85,9 @@ presentation format.
   deterministic artifact ranges plus final synthesis when it does not. It records
   full coverage and request provenance, applies runtime, optimized-LLVM, and native
   deterministic gates, and with `--verbose` embeds the evidence in Markdown.
+- `loupe schema` prints or writes one installed deterministic JSON Schema.
+- `loupe validate-json` validates versioned JSON without network access and can
+  write machine-readable diagnostics.
 - `loupe verify-bundle` verifies bundle structure, paths, sizes, hashes, and
   closed-bundle contents before evidence is consumed.
 - `loupe verify-report` verifies that a generated report still matches the current
