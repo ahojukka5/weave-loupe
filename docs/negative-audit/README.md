@@ -31,6 +31,19 @@ configured model and endpoint identities for freshness checks.
 |---|---|---|
 | `missing_module` | explicit-module import resolution failure | exit 10, frontend phase, exact `frontend.module.import-missing-module` span over `absent`, no executable, assembly, or disassembly |
 
+## Workflow ownership
+
+The trusted pull-request audit refreshes changed negative cases and re-runs the
+whole corpus whenever audit-engine code changes. The daily scheduled re-auditor
+discovers this directory together with [`docs/audit`](../audit/README.md), applies
+the same compiler, auditor, model, endpoint, age, source, and contract freshness
+checks, and regenerates every due report.
+
+Scheduled results record the case class, duration, and failure class. Exit code 2
+means that the compiler no longer satisfies a previously passing positive or
+negative contract; exit code 1 remains an infrastructure failure. Passing reports
+from both trees are staged into one immutable artifact and are published only when
+every due case passes and the audited `master` revision has not moved.
+
 Generated reports are not hand-maintained. Change the source or its contract and
-let the trusted pull-request audit publish fresh evidence after all checks pass.
-The positive source-to-native corpus remains under [`docs/audit`](../audit/README.md).
+let the trusted workflows publish fresh evidence after all checks pass.
