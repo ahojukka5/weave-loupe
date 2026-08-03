@@ -5,9 +5,19 @@ for them by the pull-request audit gate.
 
 Each source, audit sidecar, and report are kept together:
 
-- `fibonacci.weave` — auditable source
-- `fibonacci.audit.json` — versioned optimized-IR, native, and runtime expectations
-- `fibonacci.md` — generated report, created only after a passing final verdict
+- `fibonacci.weave` — constant-folding and minimal native output
+- `fibonacci_runtime.weave` — input-dependent loops and external calls
+- `function_chain.weave` — multi-function calls and integer arithmetic
+- adjacent `*.audit.json` files — versioned deterministic expectations
+- adjacent `*.md` files — workflow-generated reports after passing verdicts
+
+## Coverage matrix
+
+| Case | Primary coverage | Deterministic assertions |
+|---|---|---|
+| `fibonacci` | constant folding, function calls, optimized/native minima | exit 55 plus exact LLVM and native budgets |
+| `fibonacci_runtime` | environment input, comparisons, loop phis, extern ABI | nine runtime cases plus LLVM and native budgets |
+| `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
 
 The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
 contract, a native optimization contract, or any combination. Runtime cases
@@ -56,6 +66,11 @@ requires exactly one backward conditional branch and direct calls to
 `getenv@plt` and `atoi@plt`, forbids indirect calls and dead program functions,
 and bounds instructions and padding. Nine runtime cases independently verify
 observable behavior.
+
+The function-chain case keeps three source functions reviewable before
+optimization and verifies their assembled behavior with an exact process result.
+It intentionally avoids a brittle post-optimization instruction budget because
+whole-program inlining and constant folding may erase the helper boundaries.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider
