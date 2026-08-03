@@ -1,0 +1,85 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "all-process-inputs",
+      "args": ["A-first", "B-second"],
+      "env": {
+        "WEAVE_AUDIT_MODE": "C-mode"
+      },
+      "stdin": "D",
+      "expect": {
+        "exit_code": 42,
+        "stdout": "D",
+        "stderr": "OK"
+      }
+    },
+    {
+      "name": "argument-count-mismatch",
+      "args": ["A-first"],
+      "env": {
+        "WEAVE_AUDIT_MODE": "C-mode"
+      },
+      "stdin": "D",
+      "expect": {
+        "exit_code": 10,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "argument-value-mismatch",
+      "args": ["X-first", "B-second"],
+      "env": {
+        "WEAVE_AUDIT_MODE": "C-mode"
+      },
+      "stdin": "D",
+      "expect": {
+        "exit_code": 11,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "environment-unset",
+      "args": ["A-first", "B-second"],
+      "env": {
+        "WEAVE_AUDIT_MODE": null
+      },
+      "stdin": "D",
+      "expect": {
+        "exit_code": 13,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "standard-input-empty",
+      "args": ["A-first", "B-second"],
+      "env": {
+        "WEAVE_AUDIT_MODE": "C-mode"
+      },
+      "stdin": "",
+      "expect": {
+        "exit_code": 16,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "standard-input-value-mismatch",
+      "args": ["A-first", "B-second"],
+      "env": {
+        "WEAVE_AUDIT_MODE": "C-mode"
+      },
+      "stdin": "X",
+      "expect": {
+        "exit_code": 17,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}
