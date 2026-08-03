@@ -26,6 +26,9 @@ presentation format.
   source-to-native audit reports.
 - [Pull-request audit gate](audit-gate.md) — strict verdict protocol, report
   publication, secrets, and merge behavior.
+- [GitHub Actions security model](ci-security.md) — immutable action pins,
+  read-only audit execution, manifested artifacts, trusted publication, and
+  fork-safe validation.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
