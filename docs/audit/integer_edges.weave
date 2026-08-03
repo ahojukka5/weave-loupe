@@ -1,0 +1,61 @@
+; Canonical integer arithmetic and conversion-edge audit case.
+; Verifies signed arithmetic, comparisons, i64-to-i32 truncation, and defined
+; two's-complement wraparound in unannotated i32 multiplication.
+
+(program
+  (name "integer-edges")
+  (version "0.1")
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (let sum i32
+        (add_i32
+          (const_i32 -10)
+          (const_i32 52)))
+      (let difference i64
+        (sub_i64
+          (const_i64 100)
+          (const_i64 58)))
+      (let product i32
+        (mul_i32
+          (const_i32 7)
+          (const_i32 6)))
+      (let quotient i32
+        (div_i32
+          (const_i32 -84)
+          (const_i32 -2)))
+      (let wrapped i32
+        (mul_i32
+          (const_i32 65536)
+          (const_i32 65536)))
+      (let narrowed i32
+        (cast_i64_to_i32
+          (const_i64 4294967338)))
+      (let valid bool
+        (and_bool
+          (eq_i32 (local_get sum) (const_i32 42))
+          (and_bool
+            (eq_i64 (local_get difference) (const_i64 42))
+            (and_bool
+              (eq_i32 (local_get product) (const_i32 42))
+              (and_bool
+                (eq_i32 (local_get quotient) (const_i32 42))
+                (and_bool
+                  (eq_i32 (local_get wrapped) (const_i32 0))
+                  (and_bool
+                    (eq_i32 (local_get narrowed) (const_i32 42))
+                    (and_bool
+                      (lt_i32 (const_i32 -1) (const_i32 0))
+                      (ge_i64
+                        (local_get difference)
+                        (const_i64 42))))))))))
+      (if
+        (condition (local_get valid))
+        (then
+          (do
+            (return (const_i32 42))))
+        (else
+          (do
+            (return (const_i32 0))))))))
