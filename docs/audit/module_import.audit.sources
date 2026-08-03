@@ -1,0 +1,3 @@
+# Compiler input order: application before its imported dependency.
+module_import.weave
+module_math.weave

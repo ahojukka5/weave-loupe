@@ -1,0 +1,15 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "explicit-module-import",
+      "expect": {
+        "exit_code": 42,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

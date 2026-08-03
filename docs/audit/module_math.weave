@@ -1,0 +1,11 @@
+; Companion module for the multi-source module import audit case.
+; Exports exactly one arithmetic function to the application module.
+
+(module arithmetic
+  (export add-two)
+
+  (fn add-two
+    (params (left i32) (right i32))
+    (returns i32)
+    (do
+      (return (op add left right)))))

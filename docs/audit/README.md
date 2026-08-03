@@ -9,7 +9,9 @@ Each source, audit sidecar, and report are kept together:
 - `fibonacci_runtime.weave` — input-dependent loops and external calls
 - `function_chain.weave` — multi-function calls and integer arithmetic
 - `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
+- `module_import.weave` plus `module_math.weave` — explicit module linking
 - adjacent `*.audit.json` files — versioned deterministic expectations
+- adjacent `*.audit.sources` files — ordered multi-source compiler inputs
 - adjacent `*.md` files — workflow-generated reports after passing verdicts
 
 ## Coverage matrix
@@ -20,6 +22,7 @@ Each source, audit sidecar, and report are kept together:
 | `fibonacci_runtime` | environment input, comparisons, loop phis, extern ABI | nine runtime cases plus LLVM and native budgets |
 | `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
 | `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
+| `module_import` | two source modules, explicit export/import, linking | ordered two-source build exits 42 with empty output |
 
 The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
 contract, a native optimization contract, or any combination. Runtime cases
@@ -28,17 +31,25 @@ LLVM contract bounds the exact post-optimization module and can require function
 and call targets. Native contracts bound linked function counts, instructions,
 padding, calls, and loop backedges.
 
+A multi-source case adds an adjacent `NAME.audit.sources` manifest. It contains
+one relative `.weave` path per line in compiler input order, with `NAME.weave`
+first. Empty lines and lines beginning with `#` are ignored. Paths must remain
+inside the manifest directory. Changing any listed source, the runtime sidecar,
+the source-set manifest, or the generated report re-audits the complete set and
+publishes one report beside the primary source.
+
 Observed runtime mismatches, optimized-IR contract violations, exceeded native
 limits, unmet structural minima, or missing required dependencies deterministically
 fail the gate even when the model returns `OK`. Evaluation fails closed when a
 required artifact or complete native reachability is unavailable.
 
 Generated reports are workflow-owned evidence, not hand-maintained prose. Change
-the `.weave` source, its optional `.audit.json` sidecar, or the audit implementation
-instead of editing the adjacent report directly. A pull request that changes or
-deletes `foo.md` automatically re-audits `foo.weave` and replaces the report with
-fresh evidence after a passing verdict. Ordinary corpus documentation such as
-this README has no adjacent source and skips compiler and LLM setup.
+the `.weave` source, its optional `.audit.json` sidecar or `.audit.sources`
+manifest, or the audit implementation instead of editing the adjacent report
+directly. A pull request that changes or deletes `foo.md` automatically re-audits
+the complete source set and replaces the report with fresh evidence after a
+passing verdict. Ordinary corpus documentation such as this README has no
+adjacent source and skips compiler and LLM setup.
 
 The workflow runs `loupe audit --verbose`, so every generated report includes the
 complete source-to-native evidence chain:
@@ -78,6 +89,11 @@ The memory-flow case exercises both writes and reads through computed byte
 offsets. Its exact runtime result catches pointer scaling, loop, load/store, call,
 and allocation-lifetime regressions without depending on target-specific
 instruction counts.
+
+The module-import case places the application before its dependency in compiler
+input order. The compiler must collect both module interfaces, resolve the
+explicit import and export, link the call, and produce the exact result without
+depending on filenames or ambient symbol visibility.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider
