@@ -1,0 +1,92 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "missing-input-defaults-to-five",
+      "expect": {
+        "exit_code": 120,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "zero-base-case",
+      "env": {
+        "WEAVE_RECURSION_N": "0"
+      },
+      "expect": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "one-base-case",
+      "env": {
+        "WEAVE_RECURSION_N": "1"
+      },
+      "expect": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "three-recursive-frames",
+      "env": {
+        "WEAVE_RECURSION_N": "3"
+      },
+      "expect": {
+        "exit_code": 6,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "five-recursive-frames",
+      "env": {
+        "WEAVE_RECURSION_N": "5"
+      },
+      "expect": {
+        "exit_code": 120,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "negative-falls-back",
+      "env": {
+        "WEAVE_RECURSION_N": "-1"
+      },
+      "expect": {
+        "exit_code": 120,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "too-large-falls-back",
+      "env": {
+        "WEAVE_RECURSION_N": "6"
+      },
+      "expect": {
+        "exit_code": 120,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "non-numeric-atoi-zero",
+      "env": {
+        "WEAVE_RECURSION_N": "abc"
+      },
+      "expect": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

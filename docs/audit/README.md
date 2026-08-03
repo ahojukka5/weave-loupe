@@ -13,6 +13,7 @@ Each source, audit sidecar, and report are kept together:
 - `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
 - `module_import.weave` plus `module_math.weave` — explicit module linking
 - `process_inputs.weave` — arguments, environment, standard input, and output
+- `recursive_factorial.weave` — input-dependent recursive calls and base cases
 - adjacent `*.audit.json` files — versioned deterministic expectations
 - adjacent `*.audit.sources` files — ordered multi-source compiler inputs
 - adjacent `*.md` files — workflow-generated reports after passing verdicts
@@ -29,6 +30,7 @@ Each source, audit sidecar, and report are kept together:
 | `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
 | `module_import` | two source modules, explicit export/import, linking | ordered two-source build exits 42 with empty output |
 | `process_inputs` | argc/argv, declared environment, bounded stdin, stdout and stderr | six runtime cases distinguish input failures and require exact process output |
+| `recursive_factorial` | self-recursion, base branches, stack frames, and call returns | eight runtime cases cover base, recursive, and bounded fallback paths |
 
 The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
 contract, a native optimization contract, or any combination. Runtime cases
@@ -95,6 +97,12 @@ The function-chain case keeps three source functions reviewable before
 optimization and verifies their assembled behavior with an exact process result.
 It intentionally avoids a brittle post-optimization instruction budget because
 whole-program inlining and constant folding may erase the helper boundaries.
+
+The recursive-factorial case reads a bounded runtime value so its self-call
+cannot be replaced by a compile-time constant. Eight cases verify both base
+conditions, shallow and deeper recursion, and invalid-input fallback. It avoids
+a structural post-optimization call budget because inlining and recursion
+elimination are permitted toolchain transformations.
 
 The integer-edge case verifies signed i32 and i64 addition, subtraction,
 multiplication, division, and comparisons. It also requires i64-to-i32 truncation
