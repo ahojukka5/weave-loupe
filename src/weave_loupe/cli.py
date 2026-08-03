@@ -36,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     capture.add_argument("--output", "-o", type=Path, required=True)
     capture.add_argument("--weavec", type=Path, default=None)
     capture.add_argument("--include-executable", action="store_true")
+    _add_identity_arguments(capture)
     capture.add_argument(
         "--compiler-timeout-seconds",
         type=float,
@@ -77,6 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     compiler_audit.add_argument("weave_files", nargs="+", type=Path)
     compiler_audit.add_argument("--baseline-weavec", type=Path, required=True)
     compiler_audit.add_argument("--candidate-weavec", type=Path, required=True)
+    _add_identity_arguments(compiler_audit)
     compiler_audit.add_argument(
         "--work-dir",
         type=Path,
@@ -131,6 +133,7 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--weavec", type=Path, default=None)
     audit.add_argument("--wir-out", type=Path, default=None)
     audit.add_argument("--llvm-out", type=Path, default=None)
+    _add_identity_arguments(audit)
     audit.add_argument(
         "--report-out",
         type=Path,
@@ -264,6 +267,28 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _add_identity_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--audit-root",
+        type=Path,
+        default=None,
+        help=(
+            "Root for portable source identities. Defaults to a shared Git root "
+            "or common source parent."
+        ),
+    )
+    parser.add_argument(
+        "--source-name",
+        dest="source_names",
+        action="append",
+        default=None,
+        help=(
+            "Portable logical name for a source outside --audit-root; repeat in "
+            "the same order as source arguments."
+        ),
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -275,6 +300,8 @@ def main(argv: list[str] | None = None) -> int:
             include_executable=args.include_executable,
             compiler_timeout_seconds=args.compiler_timeout_seconds,
             compiler_output_bytes=args.compiler_output_bytes,
+            audit_root=args.audit_root,
+            source_names=args.source_names,
         )
     if args.command == "report":
         return run_report(
@@ -306,6 +333,8 @@ def main(argv: list[str] | None = None) -> int:
             compiler_output_bytes=args.compiler_output_bytes,
             runtime_timeout_seconds=args.runtime_timeout_seconds,
             runtime_output_bytes=args.runtime_output_bytes,
+            audit_root=args.audit_root,
+            source_names=args.source_names,
         )
     if args.command == "audit":
         return run_audit(
@@ -325,6 +354,8 @@ def main(argv: list[str] | None = None) -> int:
             review_total_tokens=args.review_total_tokens,
             review_request_tokens=args.review_request_tokens,
             review_artifact_tokens=args.review_artifact_tokens,
+            audit_root=args.audit_root,
+            source_names=args.source_names,
         )
     if args.command == "verify-bundle":
         return run_verify_bundle(

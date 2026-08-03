@@ -65,6 +65,12 @@ def test_compiler_audit_parser_accepts_complete_configuration() -> None:
             "5",
             "--runtime-output-bytes",
             "4096",
+            "--audit-root",
+            "checkout",
+            "--source-name",
+            "src/a.weave",
+            "--source-name",
+            "src/b.weave",
         ]
     )
 
@@ -81,6 +87,8 @@ def test_compiler_audit_parser_accepts_complete_configuration() -> None:
     assert args.compiler_output_bytes == 8192
     assert args.runtime_timeout_seconds == 5.0
     assert args.runtime_output_bytes == 4096
+    assert args.audit_root == Path("checkout")
+    assert args.source_names == ["src/a.weave", "src/b.weave"]
 
 
 def test_main_dispatches_compiler_audit() -> None:
@@ -112,6 +120,8 @@ def test_main_dispatches_compiler_audit() -> None:
         compiler_output_bytes=None,
         runtime_timeout_seconds=None,
         runtime_output_bytes=None,
+        audit_root=None,
+        source_names=None,
     )
 
 
