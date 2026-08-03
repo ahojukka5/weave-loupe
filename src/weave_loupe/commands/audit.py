@@ -24,9 +24,19 @@ from weave_loupe.optimized_llvm_budget import (
     OptimizedLlvmBudgetError,
     evaluate_optimized_llvm_budget,
 )
+from weave_loupe.path_identity import (
+    PathIdentityError,
+    canonicalize_audit_metadata,
+    plan_public_paths,
+    redact_private_paths,
+)
 from weave_loupe.report_integrity import seal_audit_report
 from weave_loupe.review_report import insert_review_provenance
-from weave_loupe.runtime_cases import RuntimeCasesError, execute_runtime_cases
+from weave_loupe.runtime_cases import (
+    RuntimeCasesError,
+    discover_runtime_cases,
+    execute_runtime_cases,
+)
 from weave_loupe.scalable_review import (
     EvidenceArtifact,
     ReviewPlanningError,
@@ -55,10 +65,21 @@ def run_audit(
     review_total_tokens: int = 524_288,
     review_request_tokens: int = 98_304,
     review_artifact_tokens: int = 262_144,
+    audit_root: Path | None = None,
+    source_names: list[str] | None = None,
 ) -> int:
     response = ""
     report = ""
     try:
+        plan = plan_public_paths(
+            weave_files,
+            audit_root=audit_root,
+            logical_names=source_names,
+        )
+        runtime_configuration = discover_runtime_cases(weave_files)
+        runtime_sidecar = (
+            runtime_configuration.path if runtime_configuration is not None else None
+        )
         with tempfile.TemporaryDirectory(prefix="loupe-audit-") as temp_dir:
             bundle_path = Path(temp_dir) / "audit.loupe"
             capture = capture_bundle(
@@ -68,6 +89,8 @@ def run_audit(
                 include_executable=True,
                 compiler_timeout_seconds=compiler_timeout_seconds,
                 compiler_output_bytes=compiler_output_bytes,
+                audit_root=audit_root,
+                source_names=source_names,
             )
             bundle = load_bundle(capture.bundle)
             if capture.compiler_exit_code != 0:
@@ -78,29 +101,38 @@ def run_audit(
                     )
                 )
 
-            wir = bundle.artifact_text("wir") or ""
-            review_wir = clean_wir_for_review(wir)
-            llvm_ir = bundle.artifact_text("llvm") or ""
-            optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
-            assembly = bundle.artifact_text("assembly") or ""
-            disassembly = bundle.artifact_text("disassembly") or ""
-            optimization_record = bundle.artifact_text("optimization_record") or ""
-            build_manifest = bundle.artifact_text("build_manifest") or ""
-            trace = bundle.artifact_text("trace") or ""
+            raw_wir = bundle.artifact_text("wir") or ""
+            raw_llvm = bundle.artifact_text("llvm") or ""
             if wir_out is not None:
                 wir_out.parent.mkdir(parents=True, exist_ok=True)
-                wir_out.write_text(wir, encoding="utf-8")
+                wir_out.write_text(raw_wir, encoding="utf-8")
             if llvm_out is not None:
                 llvm_out.parent.mkdir(parents=True, exist_ok=True)
-                llvm_out.write_text(llvm_ir, encoding="utf-8")
+                llvm_out.write_text(raw_llvm, encoding="utf-8")
+
+            def redact(value: str) -> str:
+                return redact_private_paths(value, plan=plan)
+
+            wir = redact(raw_wir)
+            review_wir = clean_wir_for_review(wir)
+            llvm_ir = redact(raw_llvm)
+            optimized_llvm = redact(bundle.artifact_text("optimized_llvm") or "")
+            assembly = redact(bundle.artifact_text("assembly") or "")
+            disassembly = redact(bundle.artifact_text("disassembly") or "")
+            optimization_record = redact(
+                bundle.artifact_text("optimization_record") or ""
+            )
+            build_manifest = redact(bundle.artifact_text("build_manifest") or "")
+            trace = redact(bundle.artifact_text("trace") or "")
 
             source_blocks: list[str] = []
-            source_names: list[str] = []
+            public_source_names: list[str] = []
             for source in bundle.sources:
                 source_name = str(source.get("input", source["path"]))
-                source_names.append(source_name)
+                public_source_names.append(source_name)
                 source_blocks.append(
-                    f"--- {source_name} ---\n" + bundle.read_text(str(source["path"]))
+                    f"--- {source_name} ---\n"
+                    + redact(bundle.read_text(str(source["path"])))
                 )
             weave_source = "\n\n".join(source_blocks)
             analysis = analyze_bundle(bundle)
@@ -118,28 +150,52 @@ def run_audit(
                 sources=weave_files,
                 runtime_timeout_seconds=runtime_timeout_seconds,
                 runtime_output_bytes=runtime_output_bytes,
+                audit_root=audit_root,
+                source_names=source_names,
             )
             analysis["optimized_llvm_budget"] = optimized_llvm_budget
             analysis["native_budget"] = native_budget
             analysis["runtime"] = runtime_matrix
             diagnostics = bundle.artifact_json("diagnostics")
-            diagnostics_text = json.dumps(
-                diagnostics, indent=2, sort_keys=True, ensure_ascii=False
+            diagnostics_text = redact(
+                json.dumps(
+                    diagnostics,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
-            optimized_llvm_budget_text = json.dumps(
-                optimized_llvm_budget,
-                indent=2,
-                sort_keys=True,
-                ensure_ascii=False,
+            optimized_llvm_budget_text = redact(
+                json.dumps(
+                    optimized_llvm_budget,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
-            native_budget_text = json.dumps(
-                native_budget, indent=2, sort_keys=True, ensure_ascii=False
+            native_budget_text = redact(
+                json.dumps(
+                    native_budget,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
-            runtime_text = json.dumps(
-                runtime_matrix, indent=2, sort_keys=True, ensure_ascii=False
+            runtime_text = redact(
+                json.dumps(
+                    runtime_matrix,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
-            analysis_text = json.dumps(
-                analysis, indent=2, sort_keys=True, ensure_ascii=False
+            analysis_text = redact(
+                json.dumps(
+                    analysis,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
             config = load_config(
                 model=model,
@@ -158,10 +214,15 @@ def run_audit(
                     native_analysis if isinstance(native_analysis, dict) else None
                 ),
             )
+            metadata = canonicalize_audit_metadata(
+                metadata,
+                plan=plan,
+                runtime_sidecar=runtime_sidecar,
+            )
             stable_metadata = _stable_review_metadata(metadata)
-            stable_metadata_text = metadata_json(stable_metadata)
+            stable_metadata_text = redact(metadata_json(stable_metadata))
             prompt = render_audit_prompt(
-                source_path=", ".join(source_names),
+                source_path=", ".join(public_source_names),
                 weave_source=weave_source,
                 wir=review_wir,
                 llvm_ir=llvm_ir,
@@ -219,7 +280,11 @@ def run_audit(
                     report,
                     [
                         ("Weave source", "lisp", weave_source),
-                        ("WIR (provenance comments hidden)", "lisp", review_wir),
+                        (
+                            "WIR (provenance comments hidden)",
+                            "lisp",
+                            review_wir,
+                        ),
                         ("Raw LLVM IR", "llvm", llvm_ir),
                         ("Optimized LLVM IR", "llvm", optimized_llvm),
                         ("Target assembly", "asm", assembly),
@@ -238,15 +303,27 @@ def run_audit(
                             "json",
                             optimized_llvm_budget_text,
                         ),
-                        ("Native optimization budget", "json", native_budget_text),
-                        ("Runtime execution matrix", "json", runtime_text),
+                        (
+                            "Native optimization budget",
+                            "json",
+                            native_budget_text,
+                        ),
+                        (
+                            "Runtime execution matrix",
+                            "json",
+                            runtime_text,
+                        ),
                         ("Diagnostics", "json", diagnostics_text),
-                        ("Deterministic analysis", "json", analysis_text),
+                        (
+                            "Deterministic analysis",
+                            "json",
+                            analysis_text,
+                        ),
                         ("Build manifest", "json", build_manifest),
                         ("Compiler trace", "json", trace),
                     ],
                 )
-            report = seal_audit_report(report)
+            report = seal_audit_report(redact(report))
 
         sys.stdout.write(report)
         if not report.endswith("\n"):
@@ -272,6 +349,7 @@ def run_audit(
         AuditProtocolError,
         NativeBudgetError,
         OptimizedLlvmBudgetError,
+        PathIdentityError,
         RuntimeCasesError,
         ReviewPlanningError,
     ) as exc:
@@ -301,14 +379,27 @@ def _review_artifacts(
     trace: str,
 ) -> tuple[EvidenceArtifact, ...]:
     return (
-        EvidenceArtifact("metadata", "Reproducibility metadata", "json", metadata_text),
+        EvidenceArtifact(
+            "metadata",
+            "Reproducibility metadata",
+            "json",
+            metadata_text,
+        ),
         EvidenceArtifact("source", "Weave source", "lisp", weave_source),
         EvidenceArtifact("wir", "WIR review projection", "lisp", review_wir),
         EvidenceArtifact("raw_llvm", "Raw LLVM IR", "llvm", llvm_ir),
-        EvidenceArtifact("optimized_llvm", "Optimized LLVM IR", "llvm", optimized_llvm),
+        EvidenceArtifact(
+            "optimized_llvm",
+            "Optimized LLVM IR",
+            "llvm",
+            optimized_llvm,
+        ),
         EvidenceArtifact("assembly", "Target assembly", "asm", assembly),
         EvidenceArtifact(
-            "disassembly", "Linked executable disassembly", "asm", disassembly
+            "disassembly",
+            "Linked executable disassembly",
+            "asm",
+            disassembly,
         ),
         EvidenceArtifact(
             "optimization_record",
@@ -316,12 +407,23 @@ def _review_artifacts(
             "yaml",
             optimization_record,
         ),
-        EvidenceArtifact("diagnostics", "Diagnostics", "json", diagnostics_text),
         EvidenceArtifact(
-            "analysis", "Complete deterministic analysis", "json", analysis_text
+            "diagnostics",
+            "Diagnostics",
+            "json",
+            diagnostics_text,
         ),
         EvidenceArtifact(
-            "build_manifest", "Compiler build manifest", "json", build_manifest
+            "analysis",
+            "Complete deterministic analysis",
+            "json",
+            analysis_text,
+        ),
+        EvidenceArtifact(
+            "build_manifest",
+            "Compiler build manifest",
+            "json",
+            build_manifest,
         ),
         EvidenceArtifact("trace", "Compiler trace", "json", trace),
     )
@@ -399,7 +501,7 @@ def _gate_summary(value: object) -> dict[str, Any]:
         "configured": gate.get("configured"),
         "passed": gate.get("passed"),
         "format": gate.get("format"),
-        "failure_count": len(failures) if isinstance(failures, list) else None,
+        "failure_count": (len(failures) if isinstance(failures, list) else None),
     }
 
 
@@ -411,7 +513,7 @@ def _runtime_summary(value: object) -> dict[str, Any]:
         "passed": runtime.get("passed"),
         "format": runtime.get("format"),
         "case_count": runtime.get("case_count"),
-        "failure_count": len(failures) if isinstance(failures, list) else None,
+        "failure_count": (len(failures) if isinstance(failures, list) else None),
     }
 
 
@@ -420,15 +522,6 @@ def _mapping(value: object) -> dict[str, Any]:
 
 
 def _compiler_failure_message(bundle: Bundle, exit_code: int) -> str:
-    compiler = bundle.manifest.get("compiler")
-    execution = compiler.get("execution") if isinstance(compiler, dict) else None
-    reason = (
-        execution.get("termination_reason") if isinstance(execution, dict) else None
-    )
-    description = (
-        f"weavec build {reason} with compatibility exit {exit_code}"
-        if isinstance(reason, str) and reason != "exited"
-        else f"weavec build failed with exit {exit_code}"
-    )
     stderr = (bundle.log_text("stderr") or "").strip()
-    return description + (f":\n{stderr}" if stderr else "")
+    message = f"weavec exited with code {exit_code}"
+    return f"{message}: {stderr}" if stderr else message

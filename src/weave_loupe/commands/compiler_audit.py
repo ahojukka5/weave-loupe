@@ -17,6 +17,7 @@ from weave_loupe.complete_compiler_audit import (
 from weave_loupe.llm import LlmError, chat_completion, load_config
 from weave_loupe.native_budget import NativeBudgetError
 from weave_loupe.optimized_llvm_budget import OptimizedLlvmBudgetError
+from weave_loupe.path_identity import PathIdentityError
 from weave_loupe.report_integrity import seal_audit_report
 from weave_loupe.runtime_cases import RuntimeCasesError
 
@@ -37,6 +38,8 @@ def run_compiler_audit(
     compiler_output_bytes: int | None,
     runtime_timeout_seconds: float | None,
     runtime_output_bytes: int | None,
+    audit_root: Path | None = None,
+    source_names: list[str] | None = None,
 ) -> int:
     """Run the differential audit and publish deterministic evidence."""
     try:
@@ -56,9 +59,17 @@ def run_compiler_audit(
             runtime_timeout_seconds=runtime_timeout_seconds,
             runtime_output_bytes=runtime_output_bytes,
             reviewer=reviewer,
+            audit_root=audit_root,
+            source_names=source_names,
         )
         payload = (
-            json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+            json.dumps(
+                result,
+                indent=2,
+                sort_keys=True,
+                ensure_ascii=False,
+            )
+            + "\n"
         )
         if json_out is not None:
             json_out.parent.mkdir(parents=True, exist_ok=True)
@@ -67,13 +78,17 @@ def run_compiler_audit(
             sys.stdout.write(payload)
         if report_out is not None:
             report_out.parent.mkdir(parents=True, exist_ok=True)
-            report_out.write_text(_render_markdown(result), encoding="utf-8")
+            report_out.write_text(
+                _render_markdown(result),
+                encoding="utf-8",
+            )
     except (
         AuditProtocolError,
         CompilerAuditError,
         LlmError,
         NativeBudgetError,
         OptimizedLlvmBudgetError,
+        PathIdentityError,
         RuntimeCasesError,
         OSError,
     ) as exc:
@@ -114,7 +129,12 @@ def _reviewer(
             "FAILED: <lowercase-kebab-code>: <reason>.\n"
             "Do not override deterministic failures. Explain semantic, quality, "
             "provenance, and evidence changes after the first line.\n\n"
-            + json.dumps(evidence, indent=2, sort_keys=True, ensure_ascii=False)
+            + json.dumps(
+                evidence,
+                indent=2,
+                sort_keys=True,
+                ensure_ascii=False,
+            )
         )
         completion = chat_completion(config, prompt)
         verdict = parse_audit_response(completion.content)
@@ -156,9 +176,18 @@ def _render_markdown(result: Mapping[str, Any]) -> str:
         "- **Candidate binary SHA-256:** "
         f"`{candidate_compiler.get('sha256', 'unknown')}`",
         "",
-        "## Failures",
+        "## Audited inputs",
         "",
     ]
+    sources = result.get("sources")
+    if isinstance(sources, list):
+        for source in sources:
+            item = _mapping(source)
+            lines.append(
+                f"- `{item.get('path', 'unknown')}` — SHA-256 "
+                f"`{item.get('sha256', 'unavailable')}`"
+            )
+    lines.extend(["", "## Failures", ""])
     if failure_items:
         for item in failure_items:
             failure = _mapping(item)

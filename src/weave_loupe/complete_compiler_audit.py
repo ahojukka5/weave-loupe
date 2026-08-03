@@ -26,6 +26,10 @@ from weave_loupe.optimization_remark_policy import (
     evaluate_optimization_remark_policy,
     load_optimization_remark_policy,
 )
+from weave_loupe.path_identity import (
+    canonicalize_compiler_audit,
+    plan_public_paths,
+)
 
 _WIR_DEFAULT_PATHS = (
     "analysis.wir.metrics.unreachable_blocks",
@@ -52,8 +56,15 @@ def audit_compilers(
     runtime_timeout_seconds: float | None = None,
     runtime_output_bytes: int | None = None,
     reviewer: ReviewCallback | None = None,
+    audit_root: Path | None = None,
+    source_names: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Run the established audit and add complete deterministic evidence."""
+    plan = plan_public_paths(
+        sources,
+        audit_root=audit_root,
+        logical_names=source_names,
+    )
     remark_policy = load_optimization_remark_policy(policy_path)
     core_policy = base_policy_path(
         policy_path,
@@ -110,6 +121,7 @@ def audit_compilers(
         else "pass"
     )
     report["review"] = None
+    report = canonicalize_compiler_audit(report, plan=plan)
     if reviewer is not None:
         review = reviewer(report)
         if not isinstance(review, Mapping):
