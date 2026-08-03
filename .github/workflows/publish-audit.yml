@@ -87,7 +87,7 @@ jobs:
           while IFS= read -r report; do
             [[ -n "$report" ]] || continue
             case "$report" in
-              docs/audit/*.md) ;;
+              docs/audit/*.md|docs/negative-audit/*.md) ;;
               *) echo "::error::Unsafe report path: $report"; exit 1 ;;
             esac
             [[ "$report" != *".."* ]] || exit 1
