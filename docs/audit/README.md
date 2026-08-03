@@ -7,6 +7,7 @@ Each source, audit sidecar, and report are kept together:
 
 - `fibonacci.weave` — constant-folding and minimal native output
 - `fibonacci_runtime.weave` — input-dependent loops and external calls
+- `floating_arithmetic.weave` — exact f32/f64 arithmetic and conversions
 - `function_chain.weave` — multi-function calls and integer arithmetic
 - `integer_edges.weave` — signed arithmetic, conversions, and overflow edges
 - `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
@@ -22,6 +23,7 @@ Each source, audit sidecar, and report are kept together:
 |---|---|---|
 | `fibonacci` | constant folding, function calls, optimized/native minima | exit 55 plus exact LLVM and native budgets |
 | `fibonacci_runtime` | environment input, comparisons, loop phis, extern ABI | nine runtime cases plus LLVM and native budgets |
+| `floating_arithmetic` | exact f32/f64 add, subtract, multiply, divide, compare, and cast | exit 42, empty output, no optimized-IR undef or poison |
 | `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
 | `integer_edges` | signed i32/i64 arithmetic, comparisons, narrowing and wraparound | exit 42, empty output, no optimized-IR undef or poison |
 | `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
@@ -83,6 +85,11 @@ requires exactly one backward conditional branch and direct calls to
 `getenv@plt` and `atoi@plt`, forbids indirect calls and dead program functions,
 and bounds instructions and padding. Nine runtime cases independently verify
 observable behavior.
+
+The floating-arithmetic case uses exactly representable f32 and f64 values while
+exercising addition, subtraction, multiplication, division, ordered comparisons,
+and explicit integer-to-floating and floating-to-integer conversions. It requires
+the exact native result without allowing optimized-IR `undef` or `poison` values.
 
 The function-chain case keeps three source functions reviewable before
 optimization and verifies their assembled behavior with an exact process result.
