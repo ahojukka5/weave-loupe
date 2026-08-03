@@ -29,6 +29,9 @@ presentation format.
 - [GitHub Actions security model](ci-security.md) — immutable action pins,
   read-only audit execution, manifested artifacts, trusted publication, and
   fork-safe validation.
+- [Portable source identities](portable-identities.md) — root selection,
+  external logical names, sidecar identity, symlink policy, redaction, and moved
+  checkout compatibility.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
