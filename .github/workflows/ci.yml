@@ -5,27 +5,44 @@ on:
     branches: [master, main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  guard-self-hosted:
-    name: Verify trusted source for self-hosted jobs
+  source-trust:
+    name: Classify pull request source
     runs-on: ubuntu-latest
+    outputs:
+      trusted: ${{ steps.source.outputs.trusted }}
     steps:
-      - name: Reject pull requests from forks
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      - name: Classify source
+        id: source
+        shell: bash
         run: |
-          echo "::error::Self-hosted jobs do not run for pull requests from forks (head repository: ${{ github.event.pull_request.head.repo.full_name }})."
-          exit 1
+          if [[ "${{ github.event_name }}" != "pull_request" ]] || \
+             [[ "${{ github.event.pull_request.head.repo.full_name }}" == \
+                "${{ github.repository }}" ]]; then
+            echo "trusted=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "trusted=false" >> "$GITHUB_OUTPUT"
+            echo "Fork pull requests use the hosted, secret-free quality job." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   quality:
-    needs: guard-self-hosted
+    name: Quality
+    needs: source-trust
+    if: needs.source-trust.outputs.trusted == 'true'
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       # Runtime unit fixtures explicitly select their local direct test mode.
       # The namespace-isolation integration test skips when its backend is absent.
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           enable-cache: false
 
@@ -34,6 +51,9 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --group dev
+
+      - name: Workflow security policy
+        run: uv run python scripts/check_workflow_security.py
 
       - name: Ruff check
         shell: bash
@@ -65,9 +85,52 @@ jobs:
 
       - name: Upload quality diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: quality-diagnostics-${{ github.run_id }}
           path: build/quality
           if-no-files-found: warn
           retention-days: 7
+
+  fork-quality:
+    name: Fork quality
+    needs: source-trust
+    if: needs.source-trust.outputs.trusted == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          enable-cache: false
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Explain secret-free validation
+        run: |
+          echo "This hosted job runs without repository or model secrets." \
+            >> "$GITHUB_STEP_SUMMARY"
+          echo "A maintainer can mirror the commit to a same-repository branch " \
+            "to request the model-backed audit." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Workflow security policy
+        run: uv run python scripts/check_workflow_security.py
+
+      - name: Ruff check
+        run: uv run ruff check .
+
+      - name: Ruff format
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy
+
+      - name: Pytest
+        run: uv run pytest
