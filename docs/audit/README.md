@@ -8,6 +8,7 @@ Each source, audit sidecar, and report are kept together:
 - `fibonacci.weave` — constant-folding and minimal native output
 - `fibonacci_runtime.weave` — input-dependent loops and external calls
 - `function_chain.weave` — multi-function calls and integer arithmetic
+- `memory_flow.weave` — heap allocation, pointer arithmetic, loads, and stores
 - adjacent `*.audit.json` files — versioned deterministic expectations
 - adjacent `*.md` files — workflow-generated reports after passing verdicts
 
@@ -18,6 +19,7 @@ Each source, audit sidecar, and report are kept together:
 | `fibonacci` | constant folding, function calls, optimized/native minima | exit 55 plus exact LLVM and native budgets |
 | `fibonacci_runtime` | environment input, comparisons, loop phis, extern ABI | nine runtime cases plus LLVM and native budgets |
 | `function_chain` | three-function call graph, parameters, add and multiply | linked executable exits 35 with empty output |
+| `memory_flow` | malloc/free ABI, pointer offsets, i32 loads and stores, loops | linked executable exits 100 with empty output |
 
 The audit sidecar is optional. It may contain runtime cases, an optimized LLVM
 contract, a native optimization contract, or any combination. Runtime cases
@@ -71,6 +73,11 @@ The function-chain case keeps three source functions reviewable before
 optimization and verifies their assembled behavior with an exact process result.
 It intentionally avoids a brittle post-optimization instruction budget because
 whole-program inlining and constant folding may erase the helper boundaries.
+
+The memory-flow case exercises both writes and reads through computed byte
+offsets. Its exact runtime result catches pointer scaling, loop, load/store, call,
+and allocation-lifetime regressions without depending on target-specific
+instruction counts.
 
 The report also records the exact source, Loupe, and weavec commits, compiler and
 artifact hashes, sidecar and executable hashes, model request and provider

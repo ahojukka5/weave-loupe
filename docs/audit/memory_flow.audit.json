@@ -1,0 +1,15 @@
+{
+  "format": "weave-loupe-runtime-cases-v1",
+  "timeout_seconds": 5,
+  "inherit_environment": false,
+  "cases": [
+    {
+      "name": "heap-write-read-sum",
+      "expect": {
+        "exit_code": 100,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}
