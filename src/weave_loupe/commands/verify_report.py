@@ -11,6 +11,7 @@ from typing import Any
 
 from weave_loupe.auditor_identity import identify_auditor, sha256_file
 from weave_loupe.compiler_version import CompilerVersion, identify_weavec
+from weave_loupe.expected_failure_audit import expected_failure_report_reasons
 from weave_loupe.llm import (
     LlmError,
     normalize_endpoint_identity,
@@ -70,6 +71,7 @@ def run_verify_report(
             now=now,
             max_age=timedelta(days=max_age_days),
         )
+        result = _include_expected_failure_contract(result)
         document = _result_document(
             result=result,
             checked_at=now,
@@ -92,6 +94,20 @@ def run_verify_report(
     except (OSError, ValueError, WeavecError, LlmError) as exc:
         print(f"loupe verify-report: {exc}", file=sys.stderr)
         return 1
+
+
+def _include_expected_failure_contract(result: ValidityResult) -> ValidityResult:
+    reasons = expected_failure_report_reasons(result.report)
+    if not reasons:
+        return result
+    return ValidityResult(
+        report=result.report,
+        source=result.source,
+        identity=result.identity,
+        reasons=(*result.reasons, *reasons),
+        sources=result.sources,
+        source_mismatches=result.source_mismatches,
+    )
 
 
 def _result_document(
