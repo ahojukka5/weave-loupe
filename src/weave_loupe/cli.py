@@ -12,6 +12,7 @@ from weave_loupe.commands.capture import run_capture
 from weave_loupe.commands.compiler_audit import run_compiler_audit
 from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.report import run_report
+from weave_loupe.commands.schema import run_schema, run_validate_json
 from weave_loupe.commands.verify_bundle import run_verify_bundle
 from weave_loupe.commands.verify_report import run_verify_report
 from weave_loupe.scalable_review import (
@@ -19,6 +20,7 @@ from weave_loupe.scalable_review import (
     DEFAULT_REQUEST_REVIEW_TOKENS,
     DEFAULT_TOTAL_REVIEW_TOKENS,
 )
+from weave_loupe.schemas import schema_formats
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -208,6 +210,27 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    schema = subparsers.add_parser(
+        "schema",
+        help="Print one installed JSON Schema document.",
+    )
+    schema.add_argument("format_name", choices=schema_formats())
+    schema.add_argument("--output", "-o", type=Path, default=None)
+
+    validate_json = subparsers.add_parser(
+        "validate-json",
+        help="Validate a versioned JSON document without network access.",
+    )
+    validate_json.add_argument("document", type=Path)
+    validate_json.add_argument(
+        "--format",
+        dest="format_name",
+        choices=schema_formats(),
+        default=None,
+        help="Override the document format instead of reading its format field.",
+    )
+    validate_json.add_argument("--json-out", type=Path, default=None)
+
     verify_bundle_parser = subparsers.add_parser(
         "verify-bundle",
         help="Verify bundle structure, paths, sizes, and SHA-256 identities.",
@@ -356,6 +379,14 @@ def main(argv: list[str] | None = None) -> int:
             review_artifact_tokens=args.review_artifact_tokens,
             audit_root=args.audit_root,
             source_names=args.source_names,
+        )
+    if args.command == "schema":
+        return run_schema(format_name=args.format_name, output=args.output)
+    if args.command == "validate-json":
+        return run_validate_json(
+            document=args.document,
+            format_name=args.format_name,
+            json_out=args.json_out,
         )
     if args.command == "verify-bundle":
         return run_verify_bundle(
