@@ -1,0 +1,12 @@
+; Canonical multi-source module import audit corpus case.
+; Imports one explicitly exported function from a separate source module.
+; The linked executable must return 42.
+
+(module application
+  (import arithmetic (add-two))
+
+  (entry main
+    (params)
+    (returns i32)
+    (do
+      (return (call add-two 40 2)))))
