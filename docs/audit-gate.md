@@ -268,33 +268,34 @@ native limits, and the absence of avoidable compiler overhead in final native
 code. Missing essential evidence produces
 `FAILED: insufficient-evidence: ...` rather than a speculative pass.
 
-The `Weave audit` workflow audits every added, copied, modified, renamed, or
-relevant deleted `.weave` or `*.audit.json` input. A changed generated `foo.md`
-report also maps back to `foo.weave`, including report deletion. Manual report
-edits are therefore replaced by a fresh source-to-native audit rather than being
-accepted as trusted generated evidence. Ordinary documentation such as
-`docs/audit/README.md` has no adjacent source and is skipped before compiler or
-LLM setup.
+The `Weave audit` workflow runs a model-backed audit only when the pull request
+adds or directly modifies an existing `.weave` source, `.audit.json` runtime
+sidecar, `.audit.sources` source-set manifest, or `.audit.failure.toml`
+expected-failure contract. A companion source change selects its declared
+multi-source target, and a sidecar change selects its adjacent source.
 
-Changes to the audit engine run the canonical programs under `docs/audit/` as a
-self-test. Each successful `foo.weave` audit produces `foo.md`; reports are
-committed only when every audited source passes and each new report passes
-`loupe verify-report` with the same configured endpoint, model, and maximum-token
-setting. The workflow updates one persistent PR comment and uploads complete audit
-and validity evidence.
+Changes to Loupe implementation, workflows, package metadata, ordinary
+documentation, or generated `foo.md` reports do not re-run historical corpus
+cases. Those pull requests complete the audit check after scope detection,
+without checking out `weavec`, installing LLVM, or calling the reviewer model.
+Quality CI tests the audit implementation itself.
 
-A report records the exact code commit that was audited. The automated report
-commit contains only generated reports, so its parent is the reproducible audited
-state rather than an unaudited source change. The pull-request workflow recognizes
-that report-only follow-up commit and avoids repeating the expensive model audit.
+Each successful changed-case audit produces its generated report. Reports are
+committed only when every selected target passes and each new report passes
+`loupe verify-report` with the same endpoint, model, and maximum-token setting.
+The workflow uploads complete audit and validity evidence, and the trusted
+publisher commits only those newly generated reports to the pull-request branch.
 
 ## Scheduled re-audits
 
-`.github/workflows/scheduled-reaudit.yml` runs daily and checks every canonical
-report. A report is due when:
+`.github/workflows/scheduled-reaudit.yml` polls daily and checks every canonical
+report for freshness. A still-valid report is normally due only when it reaches
+the default 30-day age limit, so historical cases such as Fibonacci are generally
+re-audited about once a month rather than on each pull request. A report is due
+sooner when:
 
-- its timestamp is missing or at least 30 days old;
 - it is manually forced through `workflow_dispatch`;
+- its timestamp is missing or at least 30 days old;
 - its source hash is missing or differs from the current source;
 - an adjacent audit sidecar was added, changed, or removed;
 - its compiler binary hash is missing or differs from the current executable;
@@ -333,10 +334,11 @@ Configure these repository secrets:
 Optional repository variables include `WEAVE_LLM_MODEL`,
 `WEAVE_LLM_MAX_TOKENS`, and `WEAVE_LLM_MAX_ATTEMPTS`.
 
-The report commits use `WEAVE_GITHUB_TOKEN` instead of the workflow-generated
-`GITHUB_TOKEN`. GitHub therefore treats them as ordinary authenticated pushes and
-starts follow-up checks automatically. The pull-request guard recognizes its own
-report-only commit and avoids a duplicate expensive LLM audit.
+Scheduled report commits use `WEAVE_GITHUB_TOKEN` instead of the
+workflow-generated `GITHUB_TOKEN`. GitHub therefore treats them as ordinary
+authenticated pushes and starts follow-up checks automatically. The pull-request
+workflow ignores report-only changes, so those commits do not start another
+expensive model audit.
 
 The pull-request workflow accepts secrets only on same-repository branches. It
 does not use `pull_request_target`, because executing untrusted fork code with the

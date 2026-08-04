@@ -14,12 +14,6 @@ def _selector() -> Callable[[list[Path]], list[Any]]:
     return cast(Callable[[list[Path]], list[Any]], namespace["_changed_audit_targets"])
 
 
-def _all_targets() -> Callable[[Path], list[Any]]:
-    path = Path(__file__).parents[1] / "scripts" / "audit_pr.py"
-    namespace = runpy.run_path(str(path))
-    return cast(Callable[[Path], list[Any]], namespace["_all_audit_targets"])
-
-
 def _write_source(path: Path) -> None:
     path.write_text("(program (entry main))\n", encoding="utf-8")
 
@@ -38,16 +32,14 @@ def test_changed_runtime_sidecar_selects_adjacent_source(
     assert [target.sources for target in selected] == [(Path("demo.weave"),)]
 
 
-def test_changed_or_deleted_report_selects_adjacent_source(
+def test_generated_report_change_does_not_select_source(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
     source = tmp_path / "demo.weave"
     _write_source(source)
     monkeypatch.chdir(tmp_path)
 
-    selected = _selector()([Path("demo.md")])
-
-    assert [target.sources for target in selected] == [(Path("demo.weave"),)]
+    assert _selector()([Path("demo.md")]) == []
 
 
 def test_non_generated_markdown_is_not_selected(
@@ -58,6 +50,17 @@ def test_non_generated_markdown_is_not_selected(
     monkeypatch.chdir(tmp_path)
 
     assert _selector()([Path("README.md")]) == []
+
+
+def test_audit_engine_change_does_not_select_historical_corpus(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    corpus = tmp_path / "docs" / "audit"
+    corpus.mkdir(parents=True)
+    _write_source(corpus / "fibonacci.weave")
+    monkeypatch.chdir(tmp_path)
+
+    assert _selector()([Path("scripts/audit_pr.py")]) == []
 
 
 def test_missing_sidecar_source_is_not_selected(
@@ -145,33 +148,6 @@ def test_source_set_rejects_paths_outside_its_directory(
         assert "escapes its directory" in str(exc)
     else:
         raise AssertionError("unsafe source-set path was accepted")
-
-
-def test_full_corpus_selection_collapses_grouped_sources(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
-    corpus = tmp_path / "docs" / "audit"
-    corpus.mkdir(parents=True)
-    primary = corpus / "app.weave"
-    companion = corpus / "math.weave"
-    standalone = corpus / "single.weave"
-    for source in (primary, companion, standalone):
-        _write_source(source)
-    (corpus / "app.audit.sources").write_text(
-        "app.weave\nmath.weave\n",
-        encoding="utf-8",
-    )
-    monkeypatch.chdir(tmp_path)
-
-    selected = _all_targets()(Path("docs/audit"))
-
-    assert [target.sources for target in selected] == [
-        (
-            Path("docs/audit/app.weave"),
-            Path("docs/audit/math.weave"),
-        ),
-        (Path("docs/audit/single.weave"),),
-    ]
 
 
 def _write_expected_failure(tmp_path: Path) -> tuple[Path, Path]:

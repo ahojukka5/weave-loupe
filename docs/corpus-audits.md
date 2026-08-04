@@ -33,6 +33,19 @@ Freshness includes source and sidecar content, compiler version and binary hash,
 auditor content, model and endpoint identities, token policy, and report age. Use
 `--max-age-days` to change the age limit.
 
+## Pull-request boundary
+
+A corpus case is model-audited in a pull request only when that pull request adds
+or directly changes its `.weave` source, `.audit.json` runtime sidecar,
+`.audit.sources` manifest, or `.audit.failure.toml` contract. Changes to Loupe
+implementation, workflows, package metadata, ordinary documentation, or a
+generated report do not re-run historical cases such as Fibonacci.
+
+The scheduled workflow owns ongoing corpus maintenance. It checks freshness
+daily, but with the default 30-day age limit a still-valid report is normally
+re-audited about once a month. Compiler, input, auditor, endpoint, or reviewer
+identity changes can make a report due sooner.
+
 ## Run the complete corpus
 
 Add `--force` to execute every discovered positive and expected-failure case even
