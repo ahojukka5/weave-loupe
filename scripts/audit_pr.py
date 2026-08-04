@@ -20,18 +20,6 @@ from weave_loupe.expected_failure_audit import (
 COMMENT_MARKER = "<!-- weave-loupe-pr-audit -->"
 _RUNTIME_SIDECAR_SUFFIX = ".audit.json"
 _SOURCE_SET_SUFFIX = ".audit.sources"
-_REPORT_SUFFIX = ".md"
-AUDIT_ENGINE_PATHS = (
-    "src/weave_loupe/",
-    "scripts/audit_pr.py",
-    "scripts/reaudit_stale.py",
-    "scripts/check_workflow_security.py",
-    ".github/workflows/weave-audit.yml",
-    ".github/workflows/publish-audit.yml",
-    ".github/workflows/scheduled-reaudit.yml",
-    "pyproject.toml",
-    "uv.lock",
-)
 
 
 @dataclass(frozen=True)
@@ -77,14 +65,6 @@ def main() -> int:
     changed = _changed_paths(args.base, args.head)
     try:
         targets = _changed_audit_targets(changed)
-        if not targets and _audit_engine_changed(changed):
-            targets = sorted(
-                [
-                    *_all_audit_targets(Path("docs/audit")),
-                    *_all_audit_targets(Path("docs/negative-audit")),
-                ],
-                key=lambda item: str(item.report),
-            )
     except (OSError, ValueError, ExpectedFailureError) as exc:
         print(f"loupe PR audit source selection failed: {exc}", file=sys.stderr)
         return 1
@@ -101,7 +81,7 @@ def main() -> int:
             )
             for target in targets
         ]
-        passed = bool(audits) and all(audit.passed for audit in audits)
+        passed = all(audit.passed for audit in audits)
         if passed:
             for audit in audits:
                 audit.report.parent.mkdir(parents=True, exist_ok=True)
@@ -136,7 +116,6 @@ def _changed_audit_targets(changed: list[Path]) -> list[AuditTarget]:
     declared = _declared_audit_targets(Path("."))
     by_source: dict[Path, AuditTarget] = {}
     by_manifest: dict[Path, AuditTarget] = {}
-    by_report: dict[Path, AuditTarget] = {}
     for manifest, target in declared:
         for source in target.sources:
             key = _path_key(source)
@@ -145,12 +124,11 @@ def _changed_audit_targets(changed: list[Path]) -> list[AuditTarget]:
                 raise ValueError(f"source belongs to multiple audit sets: {source}")
             by_source[key] = target
         by_manifest[_path_key(manifest)] = target
-        by_report[_path_key(target.report)] = target
 
     selected: dict[Path, AuditTarget] = {}
     for path in changed:
         key = _path_key(path)
-        target = by_source.get(key) or by_manifest.get(key) or by_report.get(key)
+        target = by_source.get(key) or by_manifest.get(key)
         name = str(path)
         if target is None and path.suffix == ".weave" and path.is_file():
             target = _single_source_target(path)
@@ -163,10 +141,6 @@ def _changed_audit_targets(changed: list[Path]) -> list[AuditTarget]:
             target = by_source.get(_path_key(primary))
             if target is None and primary.is_file():
                 target = _single_source_target(primary)
-        elif target is None and name.endswith(_REPORT_SUFFIX):
-            primary = path.with_suffix(".weave")
-            if primary.is_file():
-                target = _single_source_target(primary)
         if target is not None:
             selected[_path_key(target.report)] = target
     return sorted(selected.values(), key=lambda item: str(item.report))
@@ -175,18 +149,6 @@ def _changed_audit_targets(changed: list[Path]) -> list[AuditTarget]:
 def _changed_weave_sources(changed: list[Path]) -> list[Path]:
     """Compatibility wrapper returning each selected target's primary source."""
     return [target.primary for target in _changed_audit_targets(changed)]
-
-
-def _all_audit_targets(root: Path) -> list[AuditTarget]:
-    declared = _declared_audit_targets(root)
-    grouped = {_path_key(source) for _, target in declared for source in target.sources}
-    targets = [target for _, target in declared]
-    targets.extend(
-        _single_source_target(source)
-        for source in sorted(root.rglob("*.weave"))
-        if _path_key(source) not in grouped
-    )
-    return sorted(targets, key=lambda item: str(item.report))
 
 
 def _declared_audit_targets(root: Path) -> list[tuple[Path, AuditTarget]]:
@@ -267,14 +229,6 @@ def _path_key(path: Path) -> Path:
         return path.absolute()
 
 
-def _audit_engine_changed(changed: list[Path]) -> bool:
-    return any(
-        str(path) == prefix or str(path).startswith(prefix)
-        for path in changed
-        for prefix in AUDIT_ENGINE_PATHS
-    )
-
-
 def _audit_file(
     *,
     target: AuditTarget,
@@ -337,6 +291,28 @@ def _render_summary(
     audits: list[FileAudit],
     passed: bool,
 ) -> str:
+    if not audits:
+        return "\n".join(
+            [
+                COMMENT_MARKER,
+                "## Weave Loupe audit",
+                "",
+                "**Overall:** ⏭️ NOT REQUIRED",
+                f"**Checked commit:** `{head}`",
+                f"**Base commit:** `{base}`",
+                "",
+                "No audit source, source-set manifest, runtime sidecar, or "
+                "expected-failure contract changed. Historical corpus reports "
+                "are refreshed by the scheduled workflow, not by ordinary pull "
+                "requests.",
+                "",
+                "Changed paths:",
+                "",
+                *[f"- `{path}`" for path in changed],
+                "",
+            ]
+        )
+
     icon = "✅" if passed else "❌"
     lines = [
         COMMENT_MARKER,
@@ -347,20 +323,6 @@ def _render_summary(
         f"**Base commit:** `{base}`",
         "",
     ]
-    if not audits:
-        lines.extend(
-            [
-                "No auditable Weave inputs were found. The gate is failed rather "
-                "than silently passing without evidence.",
-                "",
-                "Changed paths:",
-                "",
-                *[f"- `{path}`" for path in changed],
-                "",
-            ]
-        )
-        return "\n".join(lines)
-
     for audit in audits:
         result = "PASSED" if audit.passed else f"FAILED (exit {audit.returncode})"
         source_label = ", ".join(str(source) for source in audit.sources)

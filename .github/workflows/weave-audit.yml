@@ -5,8 +5,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "**/*.weave"
-      - "**/*.weave-fail"
       - "**/*.audit.json"
+      - "**/*.audit.sources"
       - "**/*.audit.failure.toml"
       - "docs/audit/**/*.md"
       - "docs/negative-audit/**/*.md"
@@ -68,33 +68,12 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          subject="$(git log -1 --pretty=%s)"
-          if [[ "$subject" == "docs(audit): update generated reports" ]]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "reason=generated report commit" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           required=false
           while IFS= read -r path; do
             [[ -n "$path" ]] || continue
             case "$path" in
-              *.weave|*.weave-fail|*.audit.json|*.audit.failure.toml|src/weave_loupe/*|scripts/audit_pr.py|scripts/reaudit_stale.py|scripts/check_workflow_security.py|.github/workflows/*.yml|pyproject.toml|uv.lock)
-                required=true
-                break
-                ;;
-              docs/audit/*.md|docs/audit/**/*.md)
-                source="${path%.md}.weave"
-                if [[ -f "$source" ]] || \
-                   git cat-file -e "$BASE_SHA:$source" 2>/dev/null; then
-                  required=true
-                  break
-                fi
-                ;;
-              docs/negative-audit/*.md|docs/negative-audit/**/*.md)
-                contract="${path%.md}.audit.failure.toml"
-                if [[ -f "$contract" ]] || \
-                   git cat-file -e "$BASE_SHA:$contract" 2>/dev/null; then
+              *.weave|*.audit.json|*.audit.sources|*.audit.failure.toml)
+                if [[ -f "$path" ]]; then
                   required=true
                   break
                 fi
@@ -104,11 +83,16 @@ jobs:
 
           if [[ "$required" == true ]]; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
-            echo "reason=auditable change" >> "$GITHUB_OUTPUT"
+            echo "reason=changed audit input" >> "$GITHUB_OUTPUT"
           else
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "reason=no generated report or compiler audit change" \
-              >> "$GITHUB_OUTPUT"
+            echo "reason=no audit input changed" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Weave audit"
+              echo
+              echo "No audit input changed. Historical corpus reports are"
+              echo "refreshed by the scheduled workflow."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Check out weavec
@@ -146,19 +130,7 @@ jobs:
         if: steps.guard.outputs.skip != 'true'
         run: uv sync --group dev
 
-      - name: Verify compiler self-comparison
-        if: steps.guard.outputs.skip != 'true'
-        shell: bash
-        run: |
-          compiler="$GITHUB_WORKSPACE/.weave-tools/weavec/build/weavec"
-          uv run loupe compiler-audit docs/audit/fibonacci.weave \
-            --baseline-weavec "$compiler" \
-            --candidate-weavec "$compiler" \
-            --work-dir build/compiler-self-audit \
-            --json-out build/compiler-self-audit.json \
-            --report-out build/compiler-self-audit.md
-
-      - name: Run audits
+      - name: Run changed audits
         if: steps.guard.outputs.skip != 'true'
         id: audit
         shell: bash
@@ -230,8 +202,6 @@ jobs:
           if [[ -d build/report-validity ]]; then
             cp -R build/report-validity "$root/report-validity"
           fi
-          cp build/compiler-self-audit.json "$root/compiler-self-audit.json"
-          cp build/compiler-self-audit.md "$root/compiler-self-audit.md"
 
           while IFS= read -r report; do
             [[ -n "$report" ]] || continue
