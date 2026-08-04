@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 loupe = "weave_loupe.cli:main"
+loupe-corpus = "weave_loupe.scheduled_audit:main"
 
 [build-system]
 requires = ["uv_build>=0.9.7,<0.10.0"]
