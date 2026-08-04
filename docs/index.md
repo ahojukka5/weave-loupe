@@ -24,6 +24,8 @@ presentation format.
 
 - [Audit corpus](audit/README.md) — source programs beside verbose, generated
   source-to-native audit reports.
+- [Corpus audit command](corpus-audits.md) — installed positive and negative
+  corpus refreshes, full forced runs, outputs, atomic publication, and exit codes.
 - [Negative audit corpus](negative-audit/README.md) — intentionally invalid
   programs with exact diagnostic, source-span, exit-code, and artifact-absence
   contracts.
@@ -88,6 +90,8 @@ presentation format.
   deterministic artifact ranges plus final synthesis when it does not. It records
   full coverage and request provenance, applies runtime, optimized-LLVM, and native
   deterministic gates, and with `--verbose` embeds the evidence in Markdown.
+- `loupe-corpus` refreshes stale positive and expected-failure reports, or runs
+  the complete corpus with `--force`, while preserving atomic report publication.
 - `loupe schema` prints or writes one installed deterministic JSON Schema.
 - `loupe validate-json` validates versioned JSON without network access and can
   write machine-readable diagnostics.
