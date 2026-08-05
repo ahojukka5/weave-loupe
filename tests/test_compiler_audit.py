@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 
+from tests.capability_fixtures import capability_document
 from weave_loupe.compiler_audit import (
     COMPILER_AUDIT_FORMAT,
     COMPILER_AUDIT_POLICY_FORMAT,
@@ -24,13 +25,18 @@ def _write_compiler(
 ) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / name
+    capabilities = capability_document(version=f"0.3.0+git.{name}")
     path.write_text(
         f"""#!/usr/bin/env python3
 import json
 import pathlib
 import sys
 
+CAPABILITIES = {capabilities!r}
 args = sys.argv[1:]
+if args == ["capabilities", "--json"]:
+    print(json.dumps(CAPABILITIES, sort_keys=True, separators=(",", ":")))
+    raise SystemExit(0)
 if args == ["--version"]:
     print("weavec v0.3.0+git.{name}")
     raise SystemExit(0)
