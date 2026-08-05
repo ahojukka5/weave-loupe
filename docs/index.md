@@ -29,6 +29,9 @@ presentation format.
 - [Compiler capability negotiation](compiler-capabilities.md) — bounded
   `weavec-capabilities-v1` validation, caching, compatibility, retained registry
   evidence, and offline checks.
+- [Retained compiler evidence ingestion](ingest.md) — versioned requests,
+  fail-closed path and byte validation, partial failed builds, source producer
+  metadata, canonical bundles, and offline schema use.
 - [Negative audit corpus](negative-audit/README.md) — intentionally invalid
   programs with exact diagnostic, source-span, exit-code, and artifact-absence
   contracts.
@@ -79,6 +82,8 @@ presentation format.
 ## Commands
 
 - `loupe capture` builds one portable evidence bundle.
+- `loupe ingest` verifies retained compiler outputs and publishes the same
+  portable bundle format without running the compiler or retained executable.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
   JSON with focused WIR, LLVM optimization remark, LLVM, and native sections.
 - `loupe diff` compares the complete stable compiler evidence chain with
