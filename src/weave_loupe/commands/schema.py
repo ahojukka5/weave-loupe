@@ -7,6 +7,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from weave_loupe.bundle import (
+    INGEST_REQUEST_FORMAT,
+    ingest_request_schema_json,
+    validate_ingest_request_document,
+)
 from weave_loupe.schemas import (
     JSON_VALIDATION_FORMAT,
     SchemaCatalogError,
@@ -19,7 +24,11 @@ from weave_loupe.schemas import (
 def run_schema(*, format_name: str, output: Path | None) -> int:
     """Print or write one deterministic JSON Schema document."""
     try:
-        content = schema_json(format_name)
+        content = (
+            ingest_request_schema_json()
+            if format_name == INGEST_REQUEST_FORMAT
+            else schema_json(format_name)
+        )
         if output is None:
             sys.stdout.write(content)
         else:
@@ -42,7 +51,11 @@ def run_validate_json(
     try:
         value = json.loads(document.read_text(encoding="utf-8"))
         resolved_format = format_name or _document_format(value)
-        problems = validate_document(value, resolved_format)
+        problems = (
+            validate_ingest_request_document(value)
+            if resolved_format == INGEST_REQUEST_FORMAT
+            else validate_document(value, resolved_format)
+        )
         result = _result_document(resolved_format, problems)
         if json_out is not None:
             json_out.parent.mkdir(parents=True, exist_ok=True)

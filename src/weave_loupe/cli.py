@@ -7,10 +7,12 @@ import os
 import sys
 from pathlib import Path
 
+from weave_loupe.bundle import INGEST_REQUEST_FORMAT
 from weave_loupe.commands.audit import run_audit
 from weave_loupe.commands.capture import run_capture
 from weave_loupe.commands.compiler_audit import run_compiler_audit
 from weave_loupe.commands.diff import run_diff
+from weave_loupe.commands.ingest import run_ingest
 from weave_loupe.commands.report import run_report
 from weave_loupe.commands.schema import run_schema, run_validate_json
 from weave_loupe.commands.verify_bundle import run_verify_bundle
@@ -21,6 +23,8 @@ from weave_loupe.scalable_review import (
     DEFAULT_TOTAL_REVIEW_TOKENS,
 )
 from weave_loupe.schemas import schema_formats
+
+_PUBLIC_SCHEMA_FORMATS = tuple(sorted((*schema_formats(), INGEST_REQUEST_FORMAT)))
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -51,6 +55,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override the stdout and stderr byte ceiling per stream.",
     )
+
+    ingest = subparsers.add_parser(
+        "ingest",
+        help="Publish retained compiler outputs without recompilation.",
+    )
+    ingest.add_argument("--request", type=Path, required=True)
+    ingest.add_argument("--output", "-o", type=Path, required=True)
 
     report = subparsers.add_parser(
         "report", help="Generate a deterministic self-contained HTML report."
@@ -214,7 +225,7 @@ def build_parser() -> argparse.ArgumentParser:
         "schema",
         help="Print one installed JSON Schema document.",
     )
-    schema.add_argument("format_name", choices=schema_formats())
+    schema.add_argument("format_name", choices=_PUBLIC_SCHEMA_FORMATS)
     schema.add_argument("--output", "-o", type=Path, default=None)
 
     validate_json = subparsers.add_parser(
@@ -225,7 +236,7 @@ def build_parser() -> argparse.ArgumentParser:
     validate_json.add_argument(
         "--format",
         dest="format_name",
-        choices=schema_formats(),
+        choices=_PUBLIC_SCHEMA_FORMATS,
         default=None,
         help="Override the document format instead of reading its format field.",
     )
@@ -326,6 +337,8 @@ def main(argv: list[str] | None = None) -> int:
             audit_root=args.audit_root,
             source_names=args.source_names,
         )
+    if args.command == "ingest":
+        return run_ingest(request=args.request, output=args.output)
     if args.command == "report":
         return run_report(
             bundle_path=args.bundle,
