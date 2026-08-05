@@ -83,13 +83,19 @@ def audit_compilers(
         reviewer=None,
     )
     report.pop("seal", None)
-    baseline = _mapping(report.get("baseline"))
-    candidate = _mapping(report.get("candidate"))
-    comparison = dict(_mapping(report.get("comparison")))
     root = work_dir.expanduser().resolve()
+    baseline_bundle = load_bundle(root / "baseline.loupe")
+    candidate_bundle = load_bundle(root / "candidate.loupe")
+    baseline = dict(_mapping(report.get("baseline")))
+    candidate = dict(_mapping(report.get("candidate")))
+    baseline["compiler_capabilities"] = baseline_bundle.compiler_capability_identity()
+    candidate["compiler_capabilities"] = candidate_bundle.compiler_capability_identity()
+    report["baseline"] = baseline
+    report["candidate"] = candidate
+    comparison = dict(_mapping(report.get("comparison")))
     comparison["bundle_diff"] = compare_bundles(
-        load_bundle(root / "baseline.loupe"),
-        load_bundle(root / "candidate.loupe"),
+        baseline_bundle,
+        candidate_bundle,
         before_context=baseline,
         after_context=candidate,
     )

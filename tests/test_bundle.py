@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+from tests.capability_fixtures import capability_document
 from weave_loupe.bundle import (
     BUNDLE_FORMAT,
     BundleError,
@@ -59,6 +60,12 @@ def test_capture_bundle_records_sources_and_artifacts(
     assert compiler["execution"]["termination_reason"] == "exited"
     assert compiler["execution"]["limits"]["timeout_seconds"] == 120.0
     assert len(compiler["execution"]["stdout"]["sha256"]) == 64
+    capability_identity = bundle.compiler_capability_identity()
+    assert capability_identity is not None
+    assert capability_identity["registry_format"] == "weavec-capabilities-v1"
+    assert capability_identity["compiler_version"] == "0.1.0"
+    assert capability_identity["capture_profile"]["command"] == "build"
+    assert bundle.artifact_text("compiler_capabilities") is not None
     raw_wir = bundle.artifact_text("wir")
     assert raw_wir is not None
     assert "(core-version 2)" in raw_wir
@@ -75,8 +82,17 @@ def test_capture_bundle_records_compiler_timeout(
     source_file: Path,
 ) -> None:
     compiler = tmp_path / "weavec-timeout"
+    registry = repr(capability_document())
     compiler.write_text(
-        "#!/usr/bin/env python3\nwhile True:\n    pass\n",
+        "#!/usr/bin/env python3\n"
+        "import json\n"
+        "import sys\n"
+        f"CAPABILITIES = {registry}\n"
+        "if sys.argv[1:] == ['capabilities', '--json']:\n"
+        "    print(json.dumps(CAPABILITIES, sort_keys=True, separators=(',', ':')))\n"
+        "    raise SystemExit(0)\n"
+        "while True:\n"
+        "    pass\n",
         encoding="utf-8",
     )
     compiler.chmod(0o755)
@@ -91,6 +107,7 @@ def test_capture_bundle_records_compiler_timeout(
 
     assert result.compiler_exit_code == 124
     bundle = load_bundle(output)
+    assert bundle.compiler_capability_identity() is not None
     execution = bundle.manifest["compiler"]["execution"]
     assert execution["termination_reason"] == "timed_out"
     assert execution["exit_code"] is None
@@ -187,7 +204,7 @@ def test_verify_bundle_accepts_valid_capture_after_move(
     verification = verify_bundle(moved)
 
     assert verification.valid is True
-    assert verification.checked_files >= 12
+    assert verification.checked_files >= 13
     assert verification.as_dict()["format"] == ("weave-loupe-bundle-verification-v1")
 
 

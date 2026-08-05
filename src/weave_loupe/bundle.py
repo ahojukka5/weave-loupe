@@ -19,6 +19,11 @@ from weave_loupe.bundle_verification import (
     BundleVerification,
     verify_bundle,
 )
+from weave_loupe.compiler_capabilities import (
+    CompilerCapabilityError,
+    capability_identity_from_document,
+    validate_capability_document,
+)
 from weave_loupe.path_identity import (
     PORTABLE_PATH_FORMAT,
     PathIdentityError,
@@ -91,6 +96,33 @@ class Bundle:
     def artifact_json(self, name: str) -> Any | None:
         text = self.artifact_text(name)
         return json.loads(text) if text is not None else None
+
+    def compiler_capability_identity(self) -> dict[str, Any] | None:
+        """Return validated retained capability identity for new bundles."""
+
+        artifacts = self.manifest.get("artifacts")
+        if not isinstance(artifacts, Mapping):
+            raise BundleError("bundle artifacts must be an object")
+        item = artifacts.get("compiler_capabilities")
+        if item is None:
+            return None
+        if not isinstance(item, Mapping):
+            raise BundleError("compiler capability artifact entry must be an object")
+        digest = item.get("sha256")
+        size = item.get("size")
+        if not isinstance(digest, str) or not isinstance(size, int):
+            raise BundleError("compiler capability artifact identity is invalid")
+        document = self.artifact_json("compiler_capabilities")
+        if document is None:
+            raise BundleError("compiler capability artifact is missing")
+        try:
+            return capability_identity_from_document(
+                document,
+                registry_sha256=digest,
+                registry_bytes=size,
+            )
+        except CompilerCapabilityError as exc:
+            raise BundleError(str(exc)) from exc
 
     def log_path(self, name: str) -> Path | None:
         """Return a verified log path, accepting legacy string entries."""
@@ -185,12 +217,23 @@ def capture_bundle(
             timeout_seconds=compiler_timeout_seconds,
             output_bytes=compiler_output_bytes,
         )
+        capabilities_path = artifact_dir / "compiler-capabilities.json"
+        capabilities_path.write_bytes(result.capabilities.raw_bytes)
+        try:
+            validate_capability_document(
+                json.loads(capabilities_path.read_text(encoding="utf-8"))
+            )
+        except (json.JSONDecodeError, CompilerCapabilityError) as exc:
+            message = f"retained compiler capabilities are invalid: {exc}"
+            raise BundleError(message) from exc
+
         stdout_path = log_dir / "stdout.txt"
         stderr_path = log_dir / "stderr.txt"
         stdout_path.write_text(result.stdout, encoding="utf-8")
         stderr_path.write_text(result.stderr, encoding="utf-8")
 
         artifact_paths: dict[str, Path] = {
+            "compiler_capabilities": capabilities_path,
             "wir": request.wir,
             "llvm": request.llvm,
             "optimized_llvm": request.optimized_llvm,
@@ -261,7 +304,10 @@ def load_bundle(path: Path) -> Bundle:
         require_valid_document(verification.manifest, BUNDLE_FORMAT)
     except (SchemaCatalogError, SchemaValidationError) as exc:
         raise BundleError(str(exc)) from exc
-    return Bundle(root=verification.root, manifest=verification.manifest)
+    bundle = Bundle(root=verification.root, manifest=verification.manifest)
+    if bundle.artifact_path("compiler_capabilities") is not None:
+        bundle.compiler_capability_identity()
+    return bundle
 
 
 def _portable_command(source_entries: Sequence[Mapping[str, Any]]) -> list[str]:
