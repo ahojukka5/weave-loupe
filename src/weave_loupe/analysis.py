@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Mapping
 from typing import Any
 
 from weave_loupe.bundle import Bundle
@@ -25,10 +26,12 @@ def analyze_bundle(bundle: Bundle) -> dict[str, Any]:
     optimized_llvm = bundle.artifact_text("optimized_llvm") or ""
     disassembly = bundle.artifact_text("disassembly") or ""
     build_manifest = bundle.artifact_json("build_manifest")
+    wir_analysis = analyze_wir(wir, llvm)
+    wir_analysis["source_metadata"] = _source_metadata(bundle)
     return {
         "format": "weave-loupe-analysis-v1",
         "compiler_exit_code": _compiler_exit_code(bundle),
-        "wir": analyze_wir(wir, llvm),
+        "wir": wir_analysis,
         "llvm": analyze_llvm(llvm),
         "optimized_llvm": analyze_llvm(optimized_llvm),
         "optimization_remarks": analyze_optimization_remarks(
@@ -154,6 +157,23 @@ def analyze_diagnostics(document: Any | None) -> dict[str, Any]:
         "items": len(items),
         "severities": dict(sorted(severities.items())),
     }
+
+
+def _source_metadata(bundle: Bundle) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for source in bundle.sources:
+        item: dict[str, Any] = {
+            "index": source.get("index"),
+            "input": source.get("input", source.get("path")),
+        }
+        identity = source.get("identity")
+        if isinstance(identity, Mapping):
+            item["identity"] = dict(identity)
+        metadata = source.get("metadata")
+        if isinstance(metadata, Mapping):
+            item["metadata"] = dict(metadata)
+        result.append(item)
+    return result
 
 
 def _compiler_exit_code(bundle: Bundle) -> int:
