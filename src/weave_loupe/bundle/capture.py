@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
-import os
 import shutil
 import tempfile
 from collections.abc import Mapping, Sequence
@@ -25,6 +23,7 @@ from weave_loupe.path_identity import (
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
 from .model import BundleError
+from .publication import file_entry, publish_directory
 
 
 @dataclass(frozen=True)
@@ -79,7 +78,7 @@ def capture_bundle(
             target = source_dir / f"{index:03d}-{source.name}"
             shutil.copyfile(source, target)
             source_entries.append(
-                _file_entry(
+                file_entry(
                     work,
                     target,
                     extra={
@@ -144,7 +143,7 @@ def capture_bundle(
         artifacts: dict[str, dict[str, Any]] = {}
         for name, artifact_path in artifact_paths.items():
             if artifact_path.is_file():
-                artifacts[name] = _file_entry(work, artifact_path)
+                artifacts[name] = file_entry(work, artifact_path)
 
         manifest: dict[str, Any] = {
             "format": BUNDLE_FORMAT,
@@ -161,8 +160,8 @@ def capture_bundle(
             "sources": source_entries,
             "artifacts": artifacts,
             "logs": {
-                "stdout": _file_entry(work, stdout_path),
-                "stderr": _file_entry(work, stderr_path),
+                "stdout": file_entry(work, stdout_path),
+                "stderr": file_entry(work, stderr_path),
             },
         }
         (work / MANIFEST_NAME).write_text(
@@ -174,7 +173,7 @@ def capture_bundle(
         if not verification.valid:
             raise BundleError(verification.error_message())
 
-        _replace_directory(work, destination)
+        publish_directory(work, destination)
         return CaptureResult(
             bundle=destination,
             compiler_exit_code=result.returncode,
@@ -218,37 +217,3 @@ def _portable_command(source_entries: Sequence[Mapping[str, Any]]) -> list[str]:
         ]
     )
     return command
-
-
-def _file_entry(
-    root: Path,
-    path: Path,
-    *,
-    extra: Mapping[str, Any] | None = None,
-) -> dict[str, Any]:
-    data = path.read_bytes()
-    entry: dict[str, Any] = {
-        "path": path.relative_to(root).as_posix(),
-        "size": len(data),
-        "sha256": hashlib.sha256(data).hexdigest(),
-    }
-    if extra:
-        entry.update(extra)
-    return entry
-
-
-def _replace_directory(source: Path, destination: Path) -> None:
-    backup: Path | None = None
-    if destination.exists():
-        backup = destination.with_name(destination.name + ".previous")
-        if backup.exists():
-            shutil.rmtree(backup)
-        os.replace(destination, backup)
-    try:
-        os.replace(source, destination)
-    except OSError:
-        if backup is not None and backup.exists() and not destination.exists():
-            os.replace(backup, destination)
-        raise
-    if backup is not None:
-        shutil.rmtree(backup, ignore_errors=True)

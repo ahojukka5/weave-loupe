@@ -8,6 +8,7 @@ from weave_loupe.bundle_verification import (
 )
 
 from .capture import CaptureResult, capture_bundle
+from .ingest import IngestResult, ingest_bundle
 from .loading import load_bundle
 from .model import Bundle, BundleError
 
@@ -18,7 +19,9 @@ __all__ = [
     "BundleProblem",
     "BundleVerification",
     "CaptureResult",
+    "IngestResult",
     "capture_bundle",
+    "ingest_bundle",
     "load_bundle",
     "verify_bundle",
 ]
