@@ -1,4 +1,4 @@
-"""Portable compiler-evidence bundles."""
+"""Live compiler capture for portable evidence bundles."""
 
 from __future__ import annotations
 
@@ -10,18 +10,11 @@ import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
-from weave_loupe.bundle_verification import (
-    BUNDLE_FORMAT,
-    MANIFEST_NAME,
-    BundleProblem,
-    BundleVerification,
-    verify_bundle,
-)
-from weave_loupe.compiler_capabilities import (
+from weave_loupe.bundle_verification import BUNDLE_FORMAT, MANIFEST_NAME, verify_bundle
+from weave_loupe.compiler.capabilities import (
     CompilerCapabilityError,
-    capability_identity_from_document,
     validate_capability_document,
 )
 from weave_loupe.path_identity import (
@@ -29,28 +22,9 @@ from weave_loupe.path_identity import (
     PathIdentityError,
     plan_public_paths,
 )
-from weave_loupe.schemas import (
-    SchemaCatalogError,
-    SchemaValidationError,
-    require_valid_document,
-)
 from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
 
-__all__ = [
-    "BUNDLE_FORMAT",
-    "Bundle",
-    "BundleError",
-    "BundleProblem",
-    "BundleVerification",
-    "CaptureResult",
-    "capture_bundle",
-    "load_bundle",
-    "verify_bundle",
-]
-
-
-class BundleError(RuntimeError):
-    """Raised when a bundle is invalid or cannot be produced."""
+from .model import BundleError
 
 
 @dataclass(frozen=True)
@@ -59,88 +33,6 @@ class CaptureResult:
 
     bundle: Path
     compiler_exit_code: int
-
-
-@dataclass(frozen=True)
-class Bundle:
-    """Validated bundle directory and manifest."""
-
-    root: Path
-    manifest: Mapping[str, Any]
-
-    @property
-    def sources(self) -> tuple[Mapping[str, Any], ...]:
-        raw = self.manifest.get("sources", [])
-        if not isinstance(raw, list):
-            raise BundleError("bundle sources must be a list")
-        return tuple(cast(Mapping[str, Any], item) for item in raw)
-
-    def read_text(self, relative_path: str) -> str:
-        return _bundle_path(self.root, relative_path).read_text(encoding="utf-8")
-
-    def artifact_path(self, name: str) -> Path | None:
-        artifacts = self.manifest.get("artifacts", {})
-        if not isinstance(artifacts, dict):
-            raise BundleError("bundle artifacts must be an object")
-        item = artifacts.get(name)
-        if item is None:
-            return None
-        if not isinstance(item, dict) or not isinstance(item.get("path"), str):
-            raise BundleError(f"invalid artifact entry: {name}")
-        return _bundle_path(self.root, cast(str, item["path"]))
-
-    def artifact_text(self, name: str) -> str | None:
-        path = self.artifact_path(name)
-        return path.read_text(encoding="utf-8") if path is not None else None
-
-    def artifact_json(self, name: str) -> Any | None:
-        text = self.artifact_text(name)
-        return json.loads(text) if text is not None else None
-
-    def compiler_capability_identity(self) -> dict[str, Any] | None:
-        """Return validated retained capability identity for new bundles."""
-
-        artifacts = self.manifest.get("artifacts")
-        if not isinstance(artifacts, Mapping):
-            raise BundleError("bundle artifacts must be an object")
-        item = artifacts.get("compiler_capabilities")
-        if item is None:
-            return None
-        if not isinstance(item, Mapping):
-            raise BundleError("compiler capability artifact entry must be an object")
-        digest = item.get("sha256")
-        size = item.get("size")
-        if not isinstance(digest, str) or not isinstance(size, int):
-            raise BundleError("compiler capability artifact identity is invalid")
-        document = self.artifact_json("compiler_capabilities")
-        if document is None:
-            raise BundleError("compiler capability artifact is missing")
-        try:
-            return capability_identity_from_document(
-                document,
-                registry_sha256=digest,
-                registry_bytes=size,
-            )
-        except CompilerCapabilityError as exc:
-            raise BundleError(str(exc)) from exc
-
-    def log_path(self, name: str) -> Path | None:
-        """Return a verified log path, accepting legacy string entries."""
-        logs = self.manifest.get("logs", {})
-        if not isinstance(logs, dict):
-            raise BundleError("bundle logs must be an object")
-        item = logs.get(name)
-        if item is None:
-            return None
-        relative_path = item if isinstance(item, str) else item.get("path")
-        if not isinstance(relative_path, str):
-            raise BundleError(f"invalid log entry: {name}")
-        return _bundle_path(self.root, relative_path)
-
-    def log_text(self, name: str) -> str | None:
-        """Read a captured compiler log by logical name."""
-        path = self.log_path(name)
-        return path.read_text(encoding="utf-8") if path is not None else None
 
 
 def capture_bundle(
@@ -295,21 +187,6 @@ def capture_bundle(
         raise BundleError(str(exc)) from exc
 
 
-def load_bundle(path: Path) -> Bundle:
-    """Load a bundle only after complete fail-closed integrity verification."""
-    verification = verify_bundle(path)
-    if not verification.valid or verification.manifest is None:
-        raise BundleError(verification.error_message())
-    try:
-        require_valid_document(verification.manifest, BUNDLE_FORMAT)
-    except (SchemaCatalogError, SchemaValidationError) as exc:
-        raise BundleError(str(exc)) from exc
-    bundle = Bundle(root=verification.root, manifest=verification.manifest)
-    if bundle.artifact_path("compiler_capabilities") is not None:
-        bundle.compiler_capability_identity()
-    return bundle
-
-
 def _portable_command(source_entries: Sequence[Mapping[str, Any]]) -> list[str]:
     command = ["weavec", "build"]
     command.extend(str(entry["path"]) for entry in source_entries)
@@ -358,15 +235,6 @@ def _file_entry(
     if extra:
         entry.update(extra)
     return entry
-
-
-def _bundle_path(root: Path, relative_path: str) -> Path:
-    candidate = (root / relative_path).resolve()
-    try:
-        candidate.relative_to(root.resolve())
-    except ValueError as exc:
-        raise BundleError(f"bundle path escapes root: {relative_path}") from exc
-    return candidate
 
 
 def _replace_directory(source: Path, destination: Path) -> None:
