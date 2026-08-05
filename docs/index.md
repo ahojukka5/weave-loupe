@@ -26,6 +26,9 @@ presentation format.
   source-to-native audit reports.
 - [Corpus audit command](corpus-audits.md) — installed positive and negative
   corpus refreshes, full forced runs, outputs, atomic publication, and exit codes.
+- [Compiler capability negotiation](compiler-capabilities.md) — bounded
+  `weavec-capabilities-v1` validation, caching, compatibility, retained registry
+  evidence, and offline checks.
 - [Negative audit corpus](negative-audit/README.md) — intentionally invalid
   programs with exact diagnostic, source-span, exit-code, and artifact-absence
   contracts.
@@ -95,6 +98,8 @@ presentation format.
 - `loupe schema` prints or writes one installed deterministic JSON Schema.
 - `loupe validate-json` validates versioned JSON without network access and can
   write machine-readable diagnostics.
+- `python -m weave_loupe.compiler_capabilities` validates a saved compiler
+  registry offline and prints its normalized compatibility identity.
 - `loupe verify-bundle` verifies bundle structure, paths, sizes, hashes, and
   closed-bundle contents before evidence is consumed.
 - `loupe verify-report` verifies that a generated report still matches the current

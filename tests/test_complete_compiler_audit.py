@@ -154,7 +154,10 @@ def _run(
         "review": None,
         "seal": {"format": "old", "sha256": "old"},
     }
-    bundle = Bundle(root=tmp_path, manifest={"format": "weave-loupe-bundle-v1"})
+    bundle = Bundle(
+        root=tmp_path,
+        manifest={"format": "weave-loupe-bundle-v1", "artifacts": {}},
+    )
     wir_changed = baseline["analysis"]["wir"] != candidate["analysis"]["wir"]
     before_records = baseline["analysis"]["optimization_remarks"]["records"]
     after_records = candidate["analysis"]["optimization_remarks"]["records"]
