@@ -16,6 +16,11 @@ from weave_loupe.bounded_process import (
     configured_process_limits,
     run_bounded_process,
 )
+from weave_loupe.compiler_capabilities import (
+    CompilerCapabilityError,
+    CompilerCapabilityRegistry,
+    load_compiler_capabilities,
+)
 from weave_loupe.process_budget import with_user_process_baseline
 
 
@@ -46,6 +51,7 @@ class BuildResult:
 
     request: BuildRequest
     execution: ProcessResult
+    capabilities: CompilerCapabilityRegistry
 
     @property
     def command(self) -> tuple[str, ...]:
@@ -150,6 +156,10 @@ def run_build(
         )
 
     binary = resolve_weavec(weavec)
+    try:
+        capabilities = load_compiler_capabilities(binary, environment=environment)
+    except CompilerCapabilityError as exc:
+        raise WeavecError(str(exc)) from exc
     command = build_command(binary, request)
     try:
         configured_limits = limits or configured_process_limits(
@@ -166,7 +176,11 @@ def run_build(
     except (ProcessExecutionError, ProcessLimitError) as exc:
         raise WeavecError(str(exc)) from exc
 
-    return BuildResult(request=request, execution=execution)
+    return BuildResult(
+        request=request,
+        execution=execution,
+        capabilities=capabilities,
+    )
 
 
 def normalize_sources(sources: Sequence[Path]) -> tuple[Path, ...]:

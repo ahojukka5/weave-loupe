@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
+from tests.capability_fixtures import capability_document
 from weave_loupe.bounded_process import ProcessLimits
 from weave_loupe.weavec import (
     BuildRequest,
@@ -48,7 +49,18 @@ def _limits(*, timeout: float = 2.0, output: int = 4096) -> ProcessLimits:
 
 def _script(tmp_path: Path, body: str) -> Path:
     script = tmp_path / "weavec-hostile"
-    script.write_text(f"#!/usr/bin/env python3\n{body}\n", encoding="utf-8")
+    registry = repr(capability_document())
+    script.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json\n"
+        "import sys\n"
+        f"CAPABILITIES = {registry}\n"
+        "if sys.argv[1:] == ['capabilities', '--json']:\n"
+        "    print(json.dumps(CAPABILITIES, sort_keys=True, separators=(',', ':')))\n"
+        "    raise SystemExit(0)\n"
+        f"{body}\n",
+        encoding="utf-8",
+    )
     script.chmod(0o755)
     return script
 
@@ -118,12 +130,29 @@ def test_run_build_retains_outputs_and_execution_evidence(
     assert result.execution.stdout.observed_bytes == len(b"compiled\n")
     assert len(result.execution.stdout.sha256) == 64
     assert result.execution.limits.timeout_seconds == 120.0
+    assert result.capabilities.identity["registry_format"] == "weavec-capabilities-v1"
+    assert result.capabilities.identity["compiler_version"] == "0.1.0"
+    assert result.capabilities.identity["capture_profile"]["command"] == "build"
     assert request.wir.is_file()
     assert request.llvm.is_file()
     assert request.optimized_llvm.is_file()
     assert request.assembly.is_file()
     assert request.disassembly.is_file()
     assert request.optimization_record.is_file()
+
+
+def test_run_build_rejects_incompatible_compiler_before_build(
+    tmp_path: Path,
+    source_file: Path,
+) -> None:
+    compiler = tmp_path / "incompatible-weavec"
+    compiler.write_text("#!/bin/sh\nexit 9\n", encoding="utf-8")
+    compiler.chmod(0o755)
+
+    with pytest.raises(WeavecError, match="WEAVEC_CAPABILITIES_FAILED"):
+        run_build(_request(tmp_path, source_file), weavec=compiler)
+
+    assert not (tmp_path / "program").exists()
 
 
 def test_run_build_terminates_infinite_compiler(
@@ -147,7 +176,7 @@ def test_run_build_terminates_compiler_output_overflow(
 ) -> None:
     compiler = _script(
         tmp_path,
-        "import sys, time\n"
+        "import time\n"
         "sys.stdout.buffer.write(b'x' * 100000)\n"
         "sys.stdout.buffer.flush()\n"
         "time.sleep(10)",
