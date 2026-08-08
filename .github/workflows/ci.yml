@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   source-trust:
-    name: Classify pull request source
+    name: "security: classify PR source (fork vs. trusted)"
     runs-on: ubuntu-latest
     outputs:
       trusted: ${{ steps.source.outputs.trusted }}
@@ -30,7 +30,7 @@ jobs:
           fi
 
   quality:
-    name: Quality
+    name: "test: lint, type-check & pytest"
     needs: source-trust
     if: needs.source-trust.outputs.trusted == 'true'
     runs-on: self-hosted
@@ -93,7 +93,7 @@ jobs:
           retention-days: 7
 
   fork-quality:
-    name: Fork quality
+    name: "test: lint, type-check & pytest (fork)"
     needs: source-trust
     if: needs.source-trust.outputs.trusted == 'false'
     runs-on: ubuntu-latest

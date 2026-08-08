@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   fork-guidance:
-    name: Fork audit guidance
+    name: "security: fork audit guidance"
     if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +43,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   audit:
-    name: Audit evidence
+    name: "test: weave audit (LLM-verified)"
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 60
