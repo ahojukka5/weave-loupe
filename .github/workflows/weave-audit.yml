@@ -26,26 +26,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  fork-guidance:
-    name: Fork audit guidance
-    if: github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-latest
-    steps:
-      - name: Explain the trusted audit path
-        run: |
-          echo "::notice::Model-backed audits do not receive secrets for forks."
-          {
-            echo "## Fork audit path"
-            echo
-            echo "This pull request receives the hosted, secret-free CI checks."
-            echo "A maintainer can mirror the commit to a branch in this repository"
-            echo "and rerun the audit without exposing credentials to fork code."
-          } >> "$GITHUB_STEP_SUMMARY"
-
   audit:
     name: Audit evidence
     if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
     env:
       WEAVE_LLM_ENDPOINT: ${{ secrets.WEAVE_LLM_ENDPOINT || vars.WEAVE_LLM_ENDPOINT }}
