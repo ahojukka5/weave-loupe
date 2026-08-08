@@ -7,25 +7,35 @@ from pathlib import Path
 from types import ModuleType
 
 import weave_loupe.bundle as public_bundle
-from weave_loupe.bundle import capture, loading, model
+from weave_loupe.bundle import capture, loading, model, verification
 
 
 def test_public_bundle_api_reexports_lifecycle_roles() -> None:
     assert public_bundle.Bundle is model.Bundle
     assert public_bundle.BundleError is model.BundleError
+    assert public_bundle.BundleProblem is verification.BundleProblem
+    assert public_bundle.BundleVerification is verification.BundleVerification
     assert public_bundle.CaptureResult is capture.CaptureResult
     assert public_bundle.capture_bundle is capture.capture_bundle
     assert public_bundle.load_bundle is loading.load_bundle
+    assert public_bundle.verify_bundle is verification.verify_bundle
 
 
-def test_bundle_model_and_loading_do_not_import_compiler_execution() -> None:
+def test_bundle_model_loading_and_verification_do_not_import_compiler_execution() -> (
+    None
+):
     forbidden = {
         "weave_loupe.compiler.client",
         "weave_loupe.compiler_capabilities",
         "weave_loupe.weavec",
     }
-    for module in (model, loading):
+    for module in (model, loading, verification):
         assert _imports(module).isdisjoint(forbidden)
+
+
+def test_flat_bundle_verification_module_is_absent() -> None:
+    package_root = Path(public_bundle.__file__ or "").resolve().parent.parent
+    assert not (package_root / "bundle_verification.py").exists()
 
 
 def _imports(module: ModuleType) -> set[str]:

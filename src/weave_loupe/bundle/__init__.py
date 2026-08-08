@@ -1,12 +1,5 @@
 """Public compiler-evidence bundle boundary."""
 
-from weave_loupe.bundle_verification import (
-    BUNDLE_FORMAT,
-    BundleProblem,
-    BundleVerification,
-    verify_bundle,
-)
-
 from .capture import CaptureResult, capture_bundle
 from .ingest import IngestResult, ingest_bundle
 from .ingest_contract import (
@@ -17,6 +10,12 @@ from .ingest_contract import (
 )
 from .loading import load_bundle
 from .model import Bundle, BundleError
+from .verification import (
+    BUNDLE_FORMAT,
+    BundleProblem,
+    BundleVerification,
+    verify_bundle,
+)
 
 __all__ = [
     "BUNDLE_FORMAT",
