@@ -1,8 +1,8 @@
-name: Scheduled Weave re-audit
+name: Manual Weave re-audit
 
+# Corpus-wide LLM re-audits are explicit evidence generation while the project
+# is pre-1.0. They do not auto-commit reports or file cross-repository issues.
 on:
-  schedule:
-    - cron: "17 3 * * *"
   workflow_dispatch:
     inputs:
       force:
@@ -15,17 +15,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: scheduled-weave-reaudit
+  group: manual-weave-reaudit
   cancel-in-progress: false
 
 jobs:
   re-audit:
-    name: Generate scheduled audit evidence
+    name: Generate audit evidence
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    outputs:
-      exit_code: ${{ steps.audit.outputs.exit_code }}
-      audited_sha: ${{ steps.context.outputs.audited_sha }}
     env:
       WEAVE_LLM_ENDPOINT: ${{ secrets.WEAVE_LLM_ENDPOINT || vars.WEAVE_LLM_ENDPOINT }}
       WEAVE_LLM_API_KEY: ${{ secrets.WEAVE_LLM_API_KEY || secrets.WEAVE_LLM_API_TOKEN }}
@@ -40,10 +37,6 @@ jobs:
           ref: master
           fetch-depth: 0
           persist-credentials: false
-
-      - name: Record audited revision
-        id: context
-        run: echo "audited_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Check out current weavec
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -80,8 +73,7 @@ jobs:
         run: |
           set +e
           force=()
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && \
-                "${{ inputs.force }}" == "true" ]]; then
+          if [[ "${{ inputs.force }}" == "true" ]]; then
             force=(--force)
           fi
           uv run python scripts/reaudit_stale.py \
@@ -90,30 +82,28 @@ jobs:
             --llm-endpoint "$WEAVE_LLM_ENDPOINT" \
             --max-tokens "$WEAVE_LLM_MAX_TOKENS" \
             --max-age-days 30 \
-            --summary build/scheduled-audit/summary.md \
-            --reports-list build/scheduled-audit/reports.txt \
-            --failures-json build/scheduled-audit/failures.json \
-            --logs-dir build/scheduled-audit/logs \
+            --summary build/manual-audit/summary.md \
+            --reports-list build/manual-audit/reports.txt \
+            --failures-json build/manual-audit/failures.json \
+            --logs-dir build/manual-audit/logs \
             "${force[@]}"
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Stage immutable scheduled artifact
+      - name: Stage immutable audit artifact
         if: always()
         shell: bash
         run: |
-          source_root=build/scheduled-audit
-          root=build/scheduled-publication
+          source_root=build/manual-audit
+          root=build/manual-publication
           mkdir -p "$source_root" "$root"
           [[ -f "$source_root/summary.md" ]] || \
-            printf '# Scheduled audit\n\nAudit infrastructure failed.\n' \
+            printf '# Manual audit\n\nAudit infrastructure failed.\n' \
               > "$source_root/summary.md"
-          [[ -f "$source_root/reports.txt" ]] || \
-            : > "$source_root/reports.txt"
+          [[ -f "$source_root/reports.txt" ]] || : > "$source_root/reports.txt"
           [[ -f "$source_root/failures.json" ]] || \
-            printf '{"compiler_findings":[]}\n' \
-              > "$source_root/failures.json"
+            printf '{"compiler_findings":[]}\n' > "$source_root/failures.json"
 
           cp "$source_root/summary.md" "$root/summary.md"
           cp "$source_root/reports.txt" "$root/reports.txt"
@@ -126,10 +116,10 @@ jobs:
             [[ -n "$report" ]] || continue
             case "$report" in
               docs/audit/*.md|docs/negative-audit/*.md) ;;
-              *) echo "::error::Unsafe report path: $report"; exit 1 ;;
+              *) echo "::warning::Unsafe report path ignored: $report"; continue ;;
             esac
-            [[ "$report" != *".."* ]] || exit 1
-            [[ -f "$report" && ! -L "$report" ]] || exit 1
+            [[ "$report" != *".."* ]] || continue
+            [[ -f "$report" && ! -L "$report" ]] || continue
             mkdir -p "$root/$(dirname "$report")"
             cp -- "$report" "$root/$report"
           done < "$root/reports.txt"
@@ -141,216 +131,21 @@ jobs:
               xargs -0 sha256sum > MANIFEST.sha256
           )
 
-      - name: Upload scheduled audit evidence
+      - name: Upload audit evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: scheduled-weave-audit-${{ github.run_id }}
-          path: build/scheduled-publication
+          name: manual-weave-audit-${{ github.run_id }}
+          path: build/manual-publication
           if-no-files-found: error
           retention-days: 30
 
-  publish-reports:
-    name: Publish passing scheduled reports
-    needs: re-audit
-    if: needs.re-audit.outputs.exit_code == '0'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download scheduled artifact
-        id: artifact
+      - name: Report audit outcome
+        if: always()
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
         run: |
-          mkdir -p artifact
-          gh run download "$RUN_ID" \
-            --repo "$REPOSITORY" \
-            --name "scheduled-weave-audit-$RUN_ID" \
-            --dir artifact
-          manifest="$(find artifact -name MANIFEST.sha256 -type f -print -quit)"
-          [[ -n "$manifest" ]] || exit 1
-          echo "root=$(dirname "$manifest")" >> "$GITHUB_OUTPUT"
-
-      - name: Verify scheduled artifact
-        shell: bash
-        env:
-          ROOT: ${{ steps.artifact.outputs.root }}
-        run: |
-          if find "$ROOT" -type l -print -quit | grep -q .; then
-            echo "::error::Scheduled artifact contains a symbolic link."
-            exit 1
+          code="${{ steps.audit.outputs.exit_code }}"
+          if [[ -n "$code" && "$code" != "0" ]]; then
+            echo "::warning::Manual model-backed audit exited with code $code. Review the artifact for details."
           fi
-          (
-            cd "$ROOT"
-            sha256sum -c MANIFEST.sha256
-          )
-          [[ -f "$ROOT/reports.txt" ]] || exit 1
-          while IFS= read -r report; do
-            [[ -n "$report" ]] || continue
-            case "$report" in
-              docs/audit/*.md|docs/negative-audit/*.md) ;;
-              *) echo "::error::Unsafe report path: $report"; exit 1 ;;
-            esac
-            [[ "$report" != *".."* ]] || exit 1
-            [[ -f "$ROOT/$report" && ! -L "$ROOT/$report" ]] || exit 1
-          done < "$ROOT/reports.txt"
-
-      - name: Check out master
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: master
-          fetch-depth: 0
-          persist-credentials: true
-
-      - name: Confirm audited master identity
-        shell: bash
-        env:
-          AUDITED_SHA: ${{ needs.re-audit.outputs.audited_sha }}
-        run: |
-          current="$(git rev-parse HEAD)"
-          if [[ "$current" != "$AUDITED_SHA" ]]; then
-            echo "::error::Master moved after audit: $current != $AUDITED_SHA"
-            exit 1
-          fi
-
-      - name: Commit refreshed reports
-        shell: bash
-        env:
-          ROOT: ${{ steps.artifact.outputs.root }}
-        run: |
-          while IFS= read -r report; do
-            [[ -n "$report" ]] || continue
-            [[ ! -L "$report" ]] || exit 1
-            install -D -m 0644 "$ROOT/$report" "$report"
-            git add -- "$report"
-          done < "$ROOT/reports.txt"
-
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "docs(audit): refresh scheduled corpus reports"
-          git push origin HEAD:master
-
-  publish-findings:
-    name: Publish compiler findings
-    needs: re-audit
-    if: needs.re-audit.outputs.exit_code == '2'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Download scheduled artifact
-        id: artifact
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          mkdir -p artifact
-          gh run download "$RUN_ID" \
-            --repo "$REPOSITORY" \
-            --name "scheduled-weave-audit-$RUN_ID" \
-            --dir artifact
-          manifest="$(find artifact -name MANIFEST.sha256 -type f -print -quit)"
-          [[ -n "$manifest" ]] || exit 1
-          echo "root=$(dirname "$manifest")" >> "$GITHUB_OUTPUT"
-
-      - name: Verify findings artifact
-        shell: bash
-        env:
-          ROOT: ${{ steps.artifact.outputs.root }}
-        run: |
-          if find "$ROOT" -type l -print -quit | grep -q .; then
-            exit 1
-          fi
-          (
-            cd "$ROOT"
-            sha256sum -c MANIFEST.sha256
-          )
-          jq -e '.compiler_findings | type == "array"' \
-            "$ROOT/failures.json" > /dev/null
-
-      - name: Raise weavec issue for compiler findings
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
-        env:
-          FAILURES_PATH: ${{ steps.artifact.outputs.root }}/failures.json
-        with:
-          github-token: ${{ secrets.WEAVE_GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const data = JSON.parse(
-              fs.readFileSync(process.env.FAILURES_PATH, 'utf8')
-            );
-            const marker = '<!-- weave-loupe-scheduled-audit -->';
-            const title = 'Automated Loupe audit failure';
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/` +
-              `${context.repo.repo}/actions/runs/${context.runId}`;
-            const findings = data.compiler_findings.map(item =>
-              `- \`${item.source}\` — ${item.reason} ` +
-              `(${item.kind}, ${item.duration_seconds}s; ` +
-              `stdout: \`${item.stdout_log}\`, ` +
-              `stderr: \`${item.stderr_log}\`)`
-            ).join('\n');
-            const body = `${marker}\n## Scheduled Loupe audit failure\n\n` +
-              `- **Detected:** \`${data.timestamp_utc}\`\n` +
-              `- **Compiler:** \`${data.compiler.display}\`\n` +
-              `- **LLM endpoint:** \`${data.endpoint}\`\n` +
-              `- **LLM model:** \`${data.model}\`\n` +
-              `- **LLM max tokens:** \`${data.max_tokens}\`\n` +
-              `- **Workflow:** ${runUrl}\n\n` +
-              `The current compiler failed one or more previously passing ` +
-              `source-to-native or expected-failure audits. The workflow ` +
-              `artifact contains the complete reports and diagnostics.\n\n` +
-              `${findings}\n`;
-            const owner = 'ahojukka5';
-            const repo = 'weavec';
-            const issues = await github.paginate(
-              github.rest.issues.listForRepo,
-              { owner, repo, state: 'open', per_page: 100 }
-            );
-            const existing = issues.find(issue =>
-              !issue.pull_request && issue.title === title &&
-              (issue.body || '').includes(marker)
-            );
-            if (existing) {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: existing.number,
-                body
-              });
-            } else {
-              await github.rest.issues.create({ owner, repo, title, body });
-            }
-
-  enforce:
-    name: Enforce scheduled audit result
-    if: always()
-    needs: [re-audit, publish-reports, publish-findings]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Enforce result
-        shell: bash
-        env:
-          EXIT_CODE: ${{ needs.re-audit.outputs.exit_code }}
-          REPORT_RESULT: ${{ needs.publish-reports.result }}
-          FINDING_RESULT: ${{ needs.publish-findings.result }}
-        run: |
-          if [[ "$EXIT_CODE" == "0" ]]; then
-            test "$REPORT_RESULT" = "success"
-            exit 0
-          fi
-          if [[ "$EXIT_CODE" == "2" ]]; then
-            test "$FINDING_RESULT" = "success"
-          fi
-          exit 1
+          exit 0
