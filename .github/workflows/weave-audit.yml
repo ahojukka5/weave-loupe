@@ -187,7 +187,7 @@ jobs:
             : > "$root/weave-audit-reports.txt"
           fi
           if [[ -d build/report-validity ]]; then
-            cp -R "$source_root/logs" "$root/logs" 2>/dev/null || true
+            cp -R build/report-validity "$root/report-validity"
           fi
 
           while IFS= read -r report; do
