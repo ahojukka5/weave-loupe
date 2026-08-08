@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   audit:
-    name: Audit evidence
+    name: "test: weave audit (LLM-verified)"
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     timeout-minutes: 60
@@ -187,7 +187,7 @@ jobs:
             : > "$root/weave-audit-reports.txt"
           fi
           if [[ -d build/report-validity ]]; then
-            cp -R build/report-validity "$root/report-validity"
+            cp -R "$source_root/logs" "$root/logs" 2>/dev/null || true
           fi
 
           while IFS= read -r report; do
