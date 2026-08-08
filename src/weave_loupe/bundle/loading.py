@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from weave_loupe.bundle_verification import BUNDLE_FORMAT, verify_bundle
 from weave_loupe.schemas import (
     SchemaCatalogError,
     SchemaValidationError,
@@ -12,6 +11,7 @@ from weave_loupe.schemas import (
 )
 
 from .model import Bundle, BundleError
+from .verification import BUNDLE_FORMAT, verify_bundle
 
 
 def load_bundle(path: Path) -> Bundle:

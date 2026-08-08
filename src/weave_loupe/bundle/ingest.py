@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, cast
 
-from weave_loupe.bundle_verification import BUNDLE_FORMAT, MANIFEST_NAME
 from weave_loupe.compiler.capabilities import (
     CompilerCapabilityError,
     require_capture_capabilities,
@@ -35,6 +34,7 @@ from .ingest_contract import (
 from .loading import load_bundle
 from .model import BundleError
 from .publication import file_entry, publish_directory
+from .verification import BUNDLE_FORMAT, MANIFEST_NAME
 
 _WIR_CORE_V2 = re.compile(r"\(core-version\s+2\)")
 

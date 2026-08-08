@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from weave_loupe.bundle_verification import BUNDLE_FORMAT, MANIFEST_NAME, verify_bundle
 from weave_loupe.compiler.capabilities import (
     CompilerCapabilityError,
     validate_capability_document,
@@ -24,6 +23,7 @@ from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run
 
 from .model import BundleError
 from .publication import file_entry, publish_directory
+from .verification import BUNDLE_FORMAT, MANIFEST_NAME, verify_bundle
 
 
 @dataclass(frozen=True)
