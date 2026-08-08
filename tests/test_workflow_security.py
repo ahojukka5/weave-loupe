@@ -40,7 +40,7 @@ permissions:
   contents: read
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,7 +67,7 @@ jobs:
   audit:
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - run: echo unsafe
 """,
@@ -89,7 +89,7 @@ permissions:
   contents: read
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       TOKEN: ${{ secrets.WEAVE_GITHUB_TOKEN }}
     steps:
@@ -116,7 +116,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - run: uv run python scripts/publish.py
 """,
