@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish verified audit evidence
+    name: "stage: publish verified audit evidence"
     if: >-
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success' &&

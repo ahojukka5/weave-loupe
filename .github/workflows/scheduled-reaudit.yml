@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   re-audit:
-    name: Generate audit evidence
+    name: "generate: audit evidence"
     runs-on: self-hosted
     timeout-minutes: 60
     env:
