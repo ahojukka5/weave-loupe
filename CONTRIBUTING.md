@@ -127,3 +127,51 @@ its version so other tools can share one lookup path.
 - If you rewrite a PR's history before merging, verify the resulting tree
   matches the original PR diff (aside from an intentional fix) before
   pushing — only commit boundaries should move.
+
+### What blocks a merge
+
+`master` is protected by a repository ruleset. Deterministic CI is the merge
+authority; model-backed auditing is advisory evidence and never gates a merge.
+
+The one required check is:
+
+```text
+test: lint, type-check & pytest
+```
+
+That job runs workflow-security validation, Ruff lint, Ruff format checking,
+mypy, and the full pytest suite. A pull request cannot merge while it is queued,
+running, failing, or cancelled.
+
+`test: weave audit (LLM-verified)` is **not** required. Its absence, a model
+outage, a rate limit, or a model concern must never decide whether code can
+merge. Promoting it — or any other advisory workflow — to a required check is a
+policy change to make deliberately, not a side effect of renaming a job.
+
+The ruleset also blocks branch deletion and force pushes, requires linear
+history, and requires changes to arrive through a pull request. It has no bypass
+actors, so administrators follow the same path.
+
+Approvals are not required, because the repository is developed by a single
+maintainer working with agents; the gate that matters here is that the
+deterministic check has actually finished and passed.
+
+Branches are not required to be up to date with `master` before merging. That
+would force a rebase and a full re-run every time an unrelated pull request
+merged first, and it protects against a different failure class than the one
+this ruleset exists for.
+
+To inspect or change the ruleset:
+
+```sh
+# what GitHub currently enforces on master
+gh api repos/ahojukka5/weave-loupe/rules/branches/master
+
+# the ruleset itself, including bypass actors
+gh api repos/ahojukka5/weave-loupe/rulesets
+gh api repos/ahojukka5/weave-loupe/rulesets/<id>
+```
+
+If a required job is ever renamed, the ruleset's `required_status_checks`
+context must be updated in the same change, or the gate silently stops
+applying — a renamed job is simply a check that never reports.
