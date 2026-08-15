@@ -418,3 +418,26 @@ def _imports(module: ModuleType) -> set[str]:
         elif isinstance(node, ast.ImportFrom) and node.module is not None:
             names.add(node.module)
     return names
+
+
+def test_ingest_accepts_every_supported_wir_core_version() -> None:
+    from weave_loupe.bundle.ingest import require_supported_wir_core_version
+    from weave_loupe.wir_syntax import SUPPORTED_CORE_VERSIONS
+
+    for version in SUPPORTED_CORE_VERSIONS:
+        wir = f"(core-module\n  (core-version {version})\n  (decls))\n"
+
+        assert require_supported_wir_core_version(wir) == version
+
+
+def test_ingest_rejects_unreadable_and_unsupported_wir_core_versions() -> None:
+    from weave_loupe.bundle.ingest import require_supported_wir_core_version
+
+    with pytest.raises(BundleError, match="does not declare a core version"):
+        require_supported_wir_core_version("(core-module (decls))")
+
+    with pytest.raises(BundleError, match=r"does not declare a core version"):
+        require_supported_wir_core_version('(core-module (core-version "2") (decls))')
+
+    with pytest.raises(BundleError, match="unsupported core version 1"):
+        require_supported_wir_core_version("(core-module (core-version 1) (decls))")

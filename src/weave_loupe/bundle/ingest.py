@@ -20,6 +20,10 @@ from weave_loupe.compiler.capabilities import (
     validate_capability_document,
 )
 from weave_loupe.schemas import SchemaProblem
+from weave_loupe.wir_syntax import (
+    SUPPORTED_CORE_VERSIONS,
+    describe_supported_core_versions,
+)
 
 from .ingest_contract import (
     COMPILER_ARTIFACT_PATHS,
@@ -36,7 +40,28 @@ from .model import BundleError
 from .publication import file_entry, publish_directory
 from .verification import BUNDLE_FORMAT, MANIFEST_NAME
 
-_WIR_CORE_V2 = re.compile(r"\(core-version\s+2\)")
+_WIR_CORE_VERSION = re.compile(r"\(core-version\s+(\d+)\s*\)")
+
+
+def require_supported_wir_core_version(wir: str) -> int:
+    """Return the core version retained WIR declares, or reject it.
+
+    Ingest is fail-closed, so WIR whose version cannot be read is refused rather
+    than stored unvalidated. Every version Loupe can analyse is accepted here,
+    including versions older than the one the current compiler emits: bundles
+    retain WIR text, so evidence captured under an earlier contract must stay
+    ingestible for as long as it exists.
+    """
+    declared = _WIR_CORE_VERSION.search(wir)
+    if declared is None:
+        raise BundleError("retained WIR does not declare a core version")
+    version = int(declared.group(1))
+    if version not in SUPPORTED_CORE_VERSIONS:
+        raise BundleError(
+            f"retained WIR declares unsupported core version {version}, "
+            f"expected {describe_supported_core_versions()}"
+        )
+    return version
 
 
 @dataclass(frozen=True)
@@ -436,8 +461,7 @@ def _validate_protocol_artifacts(
             wir = wir_path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as exc:
             raise BundleError(f"retained WIR is not valid UTF-8: {exc}") from exc
-        if _WIR_CORE_V2.search(wir) is None:
-            raise BundleError("retained WIR does not declare core version 2")
+        require_supported_wir_core_version(wir)
 
     if "diagnostics" in artifacts:
         diagnostics = _json_artifact(work, artifacts, "diagnostics")

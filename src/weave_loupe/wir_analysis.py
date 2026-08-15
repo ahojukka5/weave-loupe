@@ -1,4 +1,11 @@
-"""Deterministic structural analysis for WIR core version 2."""
+"""Deterministic structural analysis for every supported WIR core version.
+
+The analysis is form-generic: it counts opcodes without an allowlist and
+interprets only the envelope, the declaration and contract roles, the
+control-flow and operand forms it builds a control-flow graph from, and call
+operators. A version that adds expression forms is therefore analysable without
+a change here, and the version it declares is reported rather than assumed.
+"""
 
 from __future__ import annotations
 
@@ -9,12 +16,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from weave_loupe.wir_syntax import (
+    SUPPORTED_CORE_VERSIONS,
     WirAtom,
     WirComment,
     WirDocument,
     WirList,
     WirSyntaxError,
     atom_text,
+    describe_supported_core_versions,
     head,
     parse_wir,
     walk,
@@ -133,8 +142,8 @@ def analyze_wir(wir: str, llvm_ir: str = "") -> dict[str, Any]:
     except WirSyntaxError as exc:
         return _failure(str(exc), available=True, llvm_ir=llvm_ir)
 
-    module, envelope_failure = _module(document)
-    if module is None:
+    module, core_version, envelope_failure = _module(document)
+    if module is None or core_version is None:
         return _failure(
             envelope_failure or "invalid WIR module envelope",
             available=True,
@@ -216,7 +225,7 @@ def analyze_wir(wir: str, llvm_ir: str = "") -> dict[str, Any]:
         "available": True,
         "valid": True,
         "failure_reason": None,
-        "core_version": 2,
+        "core_version": core_version,
         "metrics": {key: metrics.get(key, 0) for key in _METRIC_KEYS},
         "opcodes": dict(sorted(aggregate_opcodes.items())),
         "types": dict(sorted(aggregate_types.items())),
@@ -286,23 +295,34 @@ def _failure(
     }
 
 
-def _module(document: WirDocument) -> tuple[WirList | None, str | None]:
+def _module(document: WirDocument) -> tuple[WirList | None, int | None, str | None]:
     if len(document.expressions) != 1:
-        return None, "WIR must contain exactly one top-level expression"
+        return None, None, "WIR must contain exactly one top-level expression"
     root = document.expressions[0]
     if not isinstance(root, WirList) or head(root) != "core-module":
-        return None, "WIR root must be core-module"
+        return None, None, "WIR root must be core-module"
     versions = _children(root, "core-version")
     if len(versions) != 1:
-        return None, "WIR must contain exactly one core-version declaration"
-    version = versions[0]
-    values = [atom_text(item) for item in version.items[1:]]
-    if values != ["2"]:
-        return None, "WIR core-version must contain the single integer token 2"
+        return None, None, "WIR must contain exactly one core-version declaration"
+    values = [atom_text(item) for item in versions[0].items[1:]]
+    supported = describe_supported_core_versions()
+    if len(values) != 1 or values[0] is None or not values[0].isdigit():
+        return (
+            None,
+            None,
+            f"WIR core-version must contain a single integer token, one of {supported}",
+        )
+    version = int(values[0])
+    if version not in SUPPORTED_CORE_VERSIONS:
+        return (
+            None,
+            None,
+            f"WIR core version {version} is unsupported, expected {supported}",
+        )
     declarations = _children(root, "decls")
     if len(declarations) != 1:
-        return None, "WIR must contain exactly one decls form"
-    return root, None
+        return None, None, "WIR must contain exactly one decls form"
+    return root, version, None
 
 
 def _children(expression: WirList, name: str) -> list[WirList]:

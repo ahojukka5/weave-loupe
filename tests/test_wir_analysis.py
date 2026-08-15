@@ -96,8 +96,73 @@ def test_analyze_wir_reports_syntax_and_envelope_failures() -> None:
     assert syntax["metrics"]["functions"] == 0
     assert version["valid"] is False
     assert version["failure_reason"] == (
-        "WIR core-version must contain the single integer token 2"
+        "WIR core version 1 is unsupported, expected 2 or 3"
     )
+    assert version["core_version"] is None
+
+
+def test_analyze_wir_rejects_a_malformed_version_token() -> None:
+    missing = wir_analysis.analyze_wir("(core-module (core-version) (decls))")
+    string = wir_analysis.analyze_wir('(core-module (core-version "2") (decls))')
+
+    expected = "WIR core-version must contain a single integer token, one of 2 or 3"
+    assert missing["valid"] is False
+    assert missing["failure_reason"] == expected
+    assert string["valid"] is False
+    assert string["failure_reason"] == expected
+
+
+def test_analyze_wir_accepts_every_supported_core_version() -> None:
+    template = """(core-module
+  (core-version {version})
+  (decls
+    (fn main
+      (params)
+      (returns i32)
+      (do (return (const_i32 0))))))
+"""
+
+    for version in wir_analysis.SUPPORTED_CORE_VERSIONS:
+        analysis = wir_analysis.analyze_wir(template.format(version=version))
+
+        assert analysis["valid"] is True, version
+        assert analysis["failure_reason"] is None, version
+        # The declared version is reported, not the one Loupe happens to prefer.
+        assert analysis["core_version"] == version
+
+
+def test_analyze_wir_counts_unfamiliar_forms_without_interpreting_them() -> None:
+    # Struct field access as proposed for the next core version. The analysis is
+    # form-generic, so a form it has never seen is counted as an opcode without
+    # a change here -- and a field access must not become a call-graph edge.
+    wir = """(core-module
+  (core-version 3)
+  (decls
+    (struct Point
+      (field x f64)
+      (field y f64))
+    (fn read
+      (params (p ptr))
+      (returns f64)
+      (do (return (field_get_f64 Point x (param_get p)))))))
+"""
+
+    analysis = wir_analysis.analyze_wir(wir)
+
+    assert analysis["valid"] is True
+    assert analysis["core_version"] == 3
+    assert analysis["opcodes"]["field_get_f64"] == 1
+    assert analysis["call_graph"]["read"] == []
+    assert analysis["metrics"]["calls"] == 0
+    assert analysis["metrics"]["unresolved_symbols"] == 0
+
+    # The declaration is recorded by kind and name, and counted as unknown
+    # because Loupe does not model structs yet. That is a reporting fact rather
+    # than a failure: no gate reads this metric. Teaching Loupe the declaration
+    # belongs with the version that finalizes its form.
+    assert analysis["declarations"][0]["kind"] == "struct"
+    assert analysis["declarations"][0]["name"] == "Point"
+    assert analysis["metrics"]["unknown_declarations"] == 1
 
 
 def test_analyze_wir_reports_symbols_names_and_provenance() -> None:
