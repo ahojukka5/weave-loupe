@@ -112,6 +112,29 @@ its version so other tools can share one lookup path.
 - [ ] Extra detail (if any) is a bullet list after the summary
 - [ ] Body lines are wrapped to 80 characters
 
+## WIR core versions
+
+Loupe reads **every** WIR core version it has ever been able to read, not just
+the one the current compiler emits. Bundles retain WIR text, so evidence
+captured under an earlier contract stays readable for as long as the bundle
+does.
+
+This is deliberately different from the compiler, which accepts exactly one
+version and rejects the rest. A compiler consumes the contract it targets; an
+analyser consumes every contract that was ever published.
+
+The supported set lives in one place, `SUPPORTED_CORE_VERSIONS` in
+`src/weave_loupe/wir_syntax.py`. When weavec announces a coordinated version
+transition, add the new version there **before** the compiler emits it, so that
+a Loupe release able to read it already exists. Only remove a version when no
+retained bundle can still contain it — in practice, effectively never.
+
+The analysis itself is form-generic: it counts opcodes without an allowlist and
+interprets only the envelope, declaration and contract roles, the control-flow
+and operand forms it builds a graph from, and call operators. A version that
+adds expression forms therefore needs no analysis change, only the version
+entry.
+
 ## Pull requests and merging
 
 - Generated audit evidence (`docs/audit/*.md`, `*.audit.json` reports) is

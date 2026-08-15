@@ -5,6 +5,26 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+# Every WIR core version Loupe can read, lowest first.
+#
+# A compiler consumes the one contract it targets. An analyser consumes every
+# contract that was ever published, because bundles retain WIR text: evidence
+# captured under an earlier version stays readable for as long as the bundle
+# does. So this set only ever grows, and a version is removed from it only when
+# no retained bundle can still contain it.
+#
+# Version 3 is accepted before any compiler emits it, so that a Loupe release
+# capable of reading it exists first. See ahojukka5/weavec#208.
+SUPPORTED_CORE_VERSIONS: tuple[int, ...] = (2, 3)
+
+
+def describe_supported_core_versions() -> str:
+    """Render the supported versions for a diagnostic message."""
+    versions = [str(version) for version in SUPPORTED_CORE_VERSIONS]
+    if len(versions) == 1:
+        return versions[0]
+    return f"{', '.join(versions[:-1])} or {versions[-1]}"
+
 
 class WirSyntaxError(ValueError):
     """Raised when WIR cannot be tokenized or parsed."""
