@@ -19,7 +19,7 @@ changing the machine-readable evidence.
 Version 2 compares:
 
 - compiler exit codes;
-- normalized WIR core-v2 declarations, functions, structured blocks, edges,
+- normalized WIR core declarations, functions, structured blocks, edges,
   operations, calls, types, suspicious findings, provenance, and WIR-to-LLVM
   correspondence;
 - raw LLVM structural metrics;
