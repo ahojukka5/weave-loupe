@@ -1,7 +1,8 @@
 # Deterministic WIR structural analysis
 
-Weave Loupe treats WIR core version 2 as a first-class compiler stage between
-source parsing and LLVM lowering. The normalized analysis format is
+Weave Loupe treats WIR as a first-class compiler stage between source parsing
+and LLVM lowering, and reads every published core version -- currently 2 and 3
+(`SUPPORTED_CORE_VERSIONS` in `wir_syntax.py`). The normalized analysis format is
 `weave-loupe-wir-analysis-v1`.
 
 Loupe never rewrites the WIR stored in a `.loupe` bundle. The exact compiler
@@ -10,7 +11,8 @@ derived, reproducible view that can be regenerated from those bytes.
 
 ## Accepted module envelope
 
-The analyzer expects the public core-v2 envelope:
+The analyzer expects the public core envelope, with `core-version` naming any
+supported version (2 or 3):
 
 ```lisp
 (core-module
@@ -34,7 +36,7 @@ return types, typed operations, operands, calls, local bindings, and determinist
 call graphs. It reports added and removed functions explicitly in v2 bundle
 diffs instead of relying on aggregate count changes.
 
-For each function Loupe derives structured blocks from core-v2 `do`, `if`, and
+For each function Loupe derives structured blocks from `do`, `if`, and
 `while` forms. Blocks receive stable local identifiers (`b0`, `b1`, ...), roles,
 reachability, ordered opcode lists, and normalized control-flow edges. Loop edges
 are identified as backedges.

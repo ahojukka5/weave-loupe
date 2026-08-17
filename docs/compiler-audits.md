@@ -30,7 +30,7 @@ The comparison records:
 - baseline and candidate compiler versions, Git identities, binary hashes, and
   artifact hashes;
 - compiler exit status and captured evidence availability;
-- WIR core-v2 validity, declarations, structured blocks, calls, findings, source
+- WIR core validity, declarations, structured blocks, calls, findings, source
   provenance, and WIR-to-LLVM correspondence;
 - raw and optimized LLVM analysis;
 - architecture-aware native analysis and call-graph reachability;

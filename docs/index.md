@@ -49,7 +49,7 @@ presentation format.
 - [Token-aware scalable review](scalable-review.md) — conservative budgets,
   deterministic chunking, complete byte coverage, staged synthesis, and request
   provenance.
-- [Deterministic WIR structural analysis](wir-analysis.md) — core-v2 declarations,
+- [Deterministic WIR structural analysis](wir-analysis.md) — WIR declarations,
   functions, structured control flow, provenance, suspicious findings,
   WIR-to-LLVM correspondence, diffs, HTML, and compiler policy.
 - [LLVM optimization remark analysis](optimization-remarks.md) — safe YAML

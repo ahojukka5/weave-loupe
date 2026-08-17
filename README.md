@@ -25,8 +25,8 @@ uv run loupe report build/fibonacci.loupe \
 
 The bundle retains ordered source copies, exact WIR, provenance-rich LLVM,
 diagnostics, compilation trace, build manifest, stdout, stderr, hashes, and the
-compiler exit code. Derived analysis treats WIR core version 2 as a first-class
-stage: declarations, typed operations, structured control flow, source spans,
+compiler exit code. Derived analysis treats WIR as a first-class stage and
+reads every supported core version (currently 2 and 3): declarations, typed operations, structured control flow, source spans,
 suspicious findings, and WIR-to-LLVM correspondence are normalized without
 rewriting the stored artifact. A failed compiler run is still captured with every
 artifact that reached publication.

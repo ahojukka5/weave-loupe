@@ -35,7 +35,7 @@ Loupe requires:
 
 - final public compiler variant `weavec`;
 - `weave-surface-v1` and `weave-surface-grammar-v1`;
-- WIR core version 2;
+- WIR core versions 2 and 3;
 - `weavec-capabilities-v1`;
 - `weavec-build-manifest-v1`;
 - `weavec-diagnostics-v1`;
@@ -54,7 +54,8 @@ registries fail before source compilation.
 Registry version 1 does not advertise every `weavec build` output flag as a
 separate machine-readable entry. Loupe therefore records its complete capture
 profile and binds it to the strongest contract expressible by version 1: the
-stable public build command, WIR v2, the three versioned JSON protocols, the
+stable public build command, the supported WIR core versions, the three
+versioned JSON protocols, the
 native target, `O3`, and native CPU selection. A future additive registry field
 may make individual output negotiation explicit without weakening this baseline.
 
