@@ -1,6 +1,9 @@
 # Pull-request audit gate
 
-`loupe audit` is a merge gate, not only a free-form reviewer. The model response
+`loupe audit` produces advisory evidence, not a merge gate: deterministic
+compiler and test results are the merge authority, and a failing audit never
+blocks a merge (see CONTRIBUTING). The protocol below is still strict, because
+advisory evidence is only useful if it is machine-checkable. The model response
 must start with one exact protocol line:
 
 ```text
@@ -286,15 +289,13 @@ committed only when every selected target passes and each new report passes
 The workflow uploads complete audit and validity evidence, and the trusted
 publisher commits only those newly generated reports to the pull-request branch.
 
-## Scheduled re-audits
+## Manual re-audits
 
-`.github/workflows/scheduled-reaudit.yml` polls daily and checks every canonical
-report for freshness. A still-valid report is normally due only when it reaches
-the default 30-day age limit, so historical cases such as Fibonacci are generally
-re-audited about once a month rather than on each pull request. A report is due
-sooner when:
+`.github/workflows/scheduled-reaudit.yml` ("Manual Weave re-audit") runs on
+`workflow_dispatch` only -- it does not poll on a schedule. When run it checks
+every canonical report for freshness. A report is due when:
 
-- it is manually forced through `workflow_dispatch`;
+- every case is forced through the `force` dispatch input;
 - its timestamp is missing or at least 30 days old;
 - its source hash is missing or differs from the current source;
 - an adjacent audit sidecar was added, changed, or removed;
@@ -314,34 +315,25 @@ age and compiler lineage. A one-minute-old report therefore cannot remain green
 after its program, runtime expectations, native budget, compiler executable,
 auditor implementation, endpoint, or requested reviewer changes.
 
-Passing reports replace the old files atomically and are committed to `master`.
-A failed re-audit preserves the last passing report and uploads the new failure
-evidence. Exit code `2` creates or updates a deduplicated issue in
-`ahojukka5/weavec` with the compiler identity, affected sources, reviewer request,
-and workflow link. Infrastructure failures fail the scheduled job but do not
-misclassify the compiler. Scheduled summaries and failure JSON record endpoint,
-model, request limit, compiler version, compiler binary hash, identity source, and
-auditor content fingerprint.
+Results are uploaded as workflow artifacts. The workflow runs with
+`permissions: contents: read` and `persist-credentials: false`: it does **not**
+commit reports to `master` and does **not** open or update issues in
+`ahojukka5/weavec`. Turning this advisory workflow into anything that writes is
+a deliberate decision, not a configuration detail -- see CONTRIBUTING.
+
+Summaries and failure JSON record endpoint, model, request limit, compiler
+version, compiler binary hash, identity source, and auditor content fingerprint.
 
 Configure these repository secrets:
 
 - `WEAVE_LLM_ENDPOINT`
 - `WEAVE_LLM_API_KEY` or the compatibility name `WEAVE_LLM_API_TOKEN`
-- `WEAVE_GITHUB_TOKEN`, a fine-grained personal access token or GitHub App token
-  with repository-content write access to `weave-loupe` and issue write access to
-  `weavec`
 
 Optional repository variables include `WEAVE_LLM_MODEL`,
 `WEAVE_LLM_MAX_TOKENS`, and `WEAVE_LLM_MAX_ATTEMPTS`.
 
-Scheduled report commits use `WEAVE_GITHUB_TOKEN` instead of the
-workflow-generated `GITHUB_TOKEN`. GitHub therefore treats them as ordinary
-authenticated pushes and starts follow-up checks automatically. The pull-request
-workflow ignores report-only changes, so those commits do not start another
-expensive model audit.
-
 The pull-request workflow accepts secrets only on same-repository branches. It
 does not use `pull_request_target`, because executing untrusted fork code with the
-LLM or repository-write credential would expose those secrets. Repositories that
+LLM credential would expose those secrets. Repositories that
 consume Loupe separately need their own selected repository or organization
 secrets.
