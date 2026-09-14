@@ -5,7 +5,11 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "regression_evidence_protocol.py"
+SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "regression_evidence_protocol.py"
+)
 SPEC = importlib.util.spec_from_file_location("regression_evidence_protocol", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -62,19 +66,22 @@ def results_for(corpus: dict[str, object]) -> dict[str, object]:
                     "case_id": case_entry["id"],
                     "condition": condition,
                     "defect_detected": condition != "source-tests",
-                    "phase_localized": condition in {
-                        "full-evidence",
-                        "deterministic",
-                        "deterministic-model",
-                    },
+                    "phase_localized": condition
+                    in {"full-evidence", "deterministic", "deterministic-model"},
                     "mechanism_localized": condition
                     in {"deterministic", "deterministic-model"},
                     "false_positive_on_good": False,
                     "evidence_bytes": 1000,
-                    "input_tokens": 100 if condition == "deterministic-model" else None,
-                    "output_tokens": 50 if condition == "deterministic-model" else None,
+                    "input_tokens": (
+                        100 if condition == "deterministic-model" else None
+                    ),
+                    "output_tokens": (
+                        50 if condition == "deterministic-model" else None
+                    ),
                     "review_seconds": 1.0,
-                    "deterministic_gate_status": "fail" if deterministic else None,
+                    "deterministic_gate_status": (
+                        "fail" if deterministic else None
+                    ),
                 }
             )
     return {
@@ -113,11 +120,17 @@ def test_model_cannot_change_deterministic_gate_status() -> None:
     corpus = normalized_corpus()
     results = results_for(corpus)
     for row in results["rows"]:  # type: ignore[index]
-        if row["case_id"] == "case-00" and row["condition"] == "deterministic-model":
+        if (
+            row["case_id"] == "case-00"
+            and row["condition"] == "deterministic-model"
+        ):
             row["deterministic_gate_status"] = "pass"
             break
 
-    with pytest.raises(MODULE.ProtocolError, match="changed deterministic gate status"):
+    with pytest.raises(
+        MODULE.ProtocolError,
+        match="changed deterministic gate status",
+    ):
         MODULE.validate_results(results, corpus)
 
 
