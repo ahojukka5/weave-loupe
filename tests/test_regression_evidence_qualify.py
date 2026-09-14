@@ -14,7 +14,6 @@ SPEC = importlib.util.spec_from_file_location("regression_evidence_qualify", SCR
 assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
-PROTOCOL = MODULE.__import__("regression_evidence_protocol") if False else None
 import regression_evidence_protocol as protocol  # noqa: E402
 
 
@@ -35,7 +34,11 @@ def commit(repo: Path, message: str) -> str:
     return git(repo, "rev-parse", "HEAD")
 
 
-def fake_weavec_repo(tmp_path: Path, *, bad_oracle_exit: int = 1) -> tuple[Path, str, str]:
+def fake_weavec_repo(
+    tmp_path: Path,
+    *,
+    bad_oracle_exit: int = 1,
+) -> tuple[Path, str, str]:
     repo = tmp_path / "weavec"
     repo.mkdir()
     git(repo, "init")
@@ -46,7 +49,8 @@ def fake_weavec_repo(tmp_path: Path, *, bad_oracle_exit: int = 1) -> tuple[Path,
     scripts.mkdir()
     (scripts / "build.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     (repo / "oracle.sh").write_text(
-        f"#!/bin/sh\nexit {bad_oracle_exit}\n", encoding="utf-8"
+        f"#!/bin/sh\nexit {bad_oracle_exit}\n",
+        encoding="utf-8",
     )
     bad = commit(repo, "bad")
 
