@@ -1,0 +1,50 @@
+{
+  "schema": "weave-loupe-regression-corpus-v1",
+  "status": "draft",
+  "loupe": {
+    "repository": "ahojukka5/weave-loupe",
+    "revision": "42b4b6927eeb8b14ce2e4779669e2d54fd7492c4"
+  },
+  "compiler": {
+    "repository": "ahojukka5/weavec"
+  },
+  "model_review": {
+    "provider": "not-run",
+    "model": "not-run",
+    "configuration_id": "not-frozen",
+    "prompt_id": "not-frozen"
+  },
+  "conditions": [
+    "source-tests",
+    "source-ir",
+    "full-evidence",
+    "deterministic",
+    "deterministic-model"
+  ],
+  "cases": [
+    {
+      "id": "fmt-generic-type-params",
+      "family": "formatter",
+      "bad_revision": "c4d6299cb571cbf77382447337bf414e7a064ce2",
+      "good_revision": "b0f33a5ca9b07552094e0d7994fbf0359b121826",
+      "expected_stage": "formatter",
+      "failure_mechanism": "The compact formatter skipped the type-params clause and emitted generic source whose type parameter was undeclared.",
+      "oracle": {
+        "command": ["bash", "test/generic-type-params/test.sh"]
+      },
+      "relevant_tests": ["test/generic-type-params/test.sh"]
+    },
+    {
+      "id": "frontend-qmeasure-dispatch",
+      "family": "frontend-wir",
+      "bad_revision": "b42d85118db8a8d13e8ad40a0d2cf4fc0fa33372",
+      "good_revision": "9bcc03191968b6a357f77fe2aea621315b9e6811",
+      "expected_stage": "frontend",
+      "failure_mechanism": "The qmeasure head was not reserved, so direct-call resolution claimed it as an unresolved ordinary function before quantum lowering.",
+      "oracle": {
+        "command": ["bash", "test/quantum/test.sh"]
+      },
+      "relevant_tests": ["test/quantum/test.sh", "test/trace/test.sh"]
+    }
+  ]
+}
