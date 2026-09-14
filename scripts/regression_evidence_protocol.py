@@ -21,6 +21,7 @@ CONDITIONS = (
     "deterministic-model",
 )
 STAGES = {
+    "formatter",
     "frontend",
     "wir",
     "llvm",
@@ -258,13 +259,14 @@ def validate_results(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
         _nonnegative_number(
             row.get("review_seconds"), f"{case_id}/{condition}.review_seconds"
         )
-        gate_status = row.get("deterministic_gate_status")
+        gate = row.get("deterministic_gate_status")
         if condition in {"deterministic", "deterministic-model"}:
-            if gate_status not in GATE_STATUSES:
+            if gate not in GATE_STATUSES:
                 raise ProtocolError(
-                    f"{case_id}/{condition}: invalid deterministic_gate_status"
+                    f"{case_id}/{condition}: deterministic_gate_status must be "
+                    f"one of {sorted(GATE_STATUSES)}"
                 )
-        elif gate_status is not None:
+        elif gate is not None:
             raise ProtocolError(
                 f"{case_id}/{condition}: deterministic_gate_status must be null"
             )
@@ -272,22 +274,14 @@ def validate_results(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
 
     missing = expected - seen
     if missing:
-        preview = ", ".join(
-            f"{case}/{condition}"
-            for case, condition in sorted(missing)[:8]
-        )
-        raise ProtocolError(
-            f"results are incomplete; missing {len(missing)} rows: {preview}"
-        )
+        formatted = ", ".join(f"{case}/{condition}" for case, condition in sorted(missing))
+        raise ProtocolError(f"results are incomplete: missing {formatted}")
 
-    by_key = {(row["case_id"], row["condition"]): row for row in normalized}
+    row_by_key = {(row["case_id"], row["condition"]): row for row in normalized}
     for case_id in sorted(case_ids):
-        deterministic = by_key[(case_id, "deterministic")]
-        model = by_key[(case_id, "deterministic-model")]
-        if (
-            deterministic["deterministic_gate_status"]
-            != model["deterministic_gate_status"]
-        ):
+        deterministic = row_by_key[(case_id, "deterministic")]
+        model = row_by_key[(case_id, "deterministic-model")]
+        if model["deterministic_gate_status"] != deterministic["deterministic_gate_status"]:
             raise ProtocolError(
                 f"{case_id}: model condition changed deterministic gate status"
             )
@@ -296,104 +290,83 @@ def validate_results(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
 
 
 def _median(values: list[float]) -> float | None:
-    return None if not values else float(statistics.median(values))
+    if not values:
+        return None
+    return float(statistics.median(values))
+
+
+def _rate(rows: list[dict[str, Any]], field: str) -> float:
+    if not rows:
+        return 0.0
+    return sum(bool(row[field]) for row in rows) / len(rows)
 
 
 def score(corpus: dict[str, Any], results: dict[str, Any]) -> dict[str, Any]:
-    by_condition: dict[str, list[dict[str, Any]]] = {
-        condition: [] for condition in CONDITIONS
-    }
+    by_condition: dict[str, list[dict[str, Any]]] = {condition: [] for condition in CONDITIONS}
     for row in results["rows"]:
         by_condition[row["condition"]].append(row)
 
-    condition_scores: dict[str, dict[str, Any]] = {}
+    summaries: dict[str, Any] = {}
     for condition in CONDITIONS:
         rows = by_condition[condition]
-        token_rows = [
-            row
+        token_totals = [
+            float(row["input_tokens"] + row["output_tokens"])
             for row in rows
-            if row["input_tokens"] is not None
-            and row["output_tokens"] is not None
+            if row["input_tokens"] is not None and row["output_tokens"] is not None
         ]
-        condition_scores[condition] = {
+        summaries[condition] = {
             "case_count": len(rows),
-            "detection_count": sum(row["defect_detected"] for row in rows),
-            "detection_rate": sum(row["defect_detected"] for row in rows)
-            / len(rows),
-            "phase_localization_count": sum(
-                row["phase_localized"] for row in rows
-            ),
-            "phase_localization_rate": sum(
-                row["phase_localized"] for row in rows
-            )
-            / len(rows),
-            "mechanism_localization_count": sum(
-                row["mechanism_localized"] for row in rows
-            ),
-            "mechanism_localization_rate": sum(
-                row["mechanism_localized"] for row in rows
-            )
-            / len(rows),
-            "false_positive_count": sum(
-                row["false_positive_on_good"] for row in rows
-            ),
-            "false_positive_rate": sum(
-                row["false_positive_on_good"] for row in rows
-            )
-            / len(rows),
-            "median_evidence_bytes": _median(
-                [float(row["evidence_bytes"]) for row in rows]
-            ),
-            "token_complete_case_count": len(token_rows),
-            "median_total_tokens": _median(
-                [
-                    float(row["input_tokens"] + row["output_tokens"])
-                    for row in token_rows
-                ]
-            ),
-            "median_review_seconds": _median(
-                [float(row["review_seconds"]) for row in rows]
-            ),
+            "detection_rate": _rate(rows, "defect_detected"),
+            "phase_localization_rate": _rate(rows, "phase_localized"),
+            "mechanism_localization_rate": _rate(rows, "mechanism_localized"),
+            "false_positive_rate": _rate(rows, "false_positive_on_good"),
+            "median_evidence_bytes": _median([float(row["evidence_bytes"]) for row in rows]),
+            "median_model_tokens": _median(token_totals),
+            "median_review_seconds": _median([float(row["review_seconds"]) for row in rows]),
         }
 
-    deterministic_rows = {
+    deterministic = {
         row["case_id"]: row for row in by_condition["deterministic"]
     }
-    model_rows = {
+    model = {
         row["case_id"]: row for row in by_condition["deterministic-model"]
     }
-    model_added = 0
-    model_lost = 0
-    model_same = 0
-    for case_id in sorted(deterministic_rows):
-        deterministic_detected = deterministic_rows[case_id]["defect_detected"]
-        model_detected = model_rows[case_id]["defect_detected"]
-        if deterministic_detected == model_detected:
-            model_same += 1
-        elif model_detected:
-            model_added += 1
+    added = 0
+    lost = 0
+    same = 0
+    for case_id in sorted(deterministic):
+        base_detected = bool(deterministic[case_id]["defect_detected"])
+        model_detected = bool(model[case_id]["defect_detected"])
+        if model_detected and not base_detected:
+            added += 1
+        elif base_detected and not model_detected:
+            lost += 1
         else:
-            model_lost += 1
+            same += 1
 
     return {
         "schema": SCORE_SCHEMA,
         "corpus_sha256": corpus["corpus_sha256"],
         "case_count": len(corpus["cases"]),
-        "conditions": condition_scores,
+        "conditions": summaries,
         "model_increment_over_deterministic": {
-            "added_detections": model_added,
-            "lost_detections": model_lost,
-            "same_detection_status": model_same,
+            "added_detections": added,
+            "lost_detections": lost,
+            "same_detection_status": same,
         },
-        "interpretation": (
-            "Descriptive evidence only. Detection, localization, false positives, "
-            "information volume and review cost remain separate endpoints."
-        ),
     }
 
 
+def _write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     validate_parser = subparsers.add_parser("validate-corpus")
@@ -406,35 +379,26 @@ def main() -> int:
     score_parser = subparsers.add_parser("score")
     score_parser.add_argument("corpus", type=Path)
     score_parser.add_argument("results", type=Path)
-    score_parser.add_argument("--output", type=Path)
+    score_parser.add_argument("--output", required=True, type=Path)
 
     args = parser.parse_args()
     try:
         if args.command == "validate-corpus":
-            corpus = load_corpus(
-                args.corpus,
-                require_frozen=args.require_frozen,
-            )
-            print(json.dumps(corpus["corpus_summary"], indent=2, sort_keys=True))
+            corpus = load_corpus(args.corpus, require_frozen=args.require_frozen)
+            print(json.dumps(corpus["corpus_summary"], sort_keys=True))
             return 0
         if args.command == "hash-corpus":
-            corpus = validate_corpus(_read_json(args.corpus))
-            print(canonical_corpus_hash(corpus))
+            corpus = load_corpus(args.corpus)
+            print(corpus["corpus_sha256"])
             return 0
         if args.command == "score":
             corpus = load_corpus(args.corpus, require_frozen=True)
             results = validate_results(_read_json(args.results), corpus)
-            scored = score(corpus, results)
-            encoded = json.dumps(scored, indent=2, sort_keys=True) + "\n"
-            if args.output:
-                args.output.parent.mkdir(parents=True, exist_ok=True)
-                args.output.write_text(encoded, encoding="utf-8")
-            else:
-                print(encoded, end="")
+            _write_json(args.output, score(corpus, results))
             return 0
     except ProtocolError as exc:
         parser.error(str(exc))
-    raise AssertionError("unreachable")
+    return 1
 
 
 if __name__ == "__main__":
