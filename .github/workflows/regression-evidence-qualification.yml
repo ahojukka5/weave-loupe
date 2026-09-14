@@ -1,0 +1,76 @@
+name: Research regression qualification
+
+on:
+  push:
+    branches:
+      - research/compiler-evidence-protocol
+    paths:
+      - ".github/workflows/regression-evidence-qualification.yml"
+      - "scripts/regression_evidence_protocol.py"
+      - "scripts/regression_evidence_qualify.py"
+      - "experiments/compiler-evidence/qualification-smoke.json"
+      - "tests/test_regression_evidence_qualify.py"
+  pull_request:
+    paths:
+      - ".github/workflows/regression-evidence-qualification.yml"
+      - "scripts/regression_evidence_protocol.py"
+      - "scripts/regression_evidence_qualify.py"
+      - "experiments/compiler-evidence/qualification-smoke.json"
+      - "tests/test_regression_evidence_qualify.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regression-evidence-qualification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualify:
+    name: "generate: historical regression qualification"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out Loupe
+        uses: actions/checkout@v4
+
+      - name: Check out complete weavec history
+        uses: actions/checkout@v4
+        with:
+          repository: ahojukka5/weavec
+          path: _weavec
+          fetch-depth: 0
+
+      - name: Install matched LLVM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm
+          clang --version
+          llc --version
+
+      - name: Validate draft smoke corpus
+        run: |
+          python3 scripts/regression_evidence_protocol.py validate-corpus \
+            experiments/compiler-evidence/qualification-smoke.json
+
+      - name: Qualify historical bad/good pairs
+        run: |
+          python3 scripts/regression_evidence_qualify.py \
+            experiments/compiler-evidence/qualification-smoke.json \
+            --weavec-repo _weavec \
+            --output build/regression-evidence/qualification-smoke.json
+
+      - name: Show qualification result
+        if: always()
+        run: |
+          if test -f build/regression-evidence/qualification-smoke.json; then
+            cat build/regression-evidence/qualification-smoke.json
+          fi
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-evidence-qualification-smoke
+          path: build/regression-evidence/qualification-smoke.json
+          if-no-files-found: warn
