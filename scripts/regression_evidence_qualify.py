@@ -8,6 +8,7 @@ import json
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,7 @@ def _run(
     cwd: Path,
     timeout_seconds: int,
 ) -> dict[str, Any]:
-    started = __import__("time").monotonic()
+    started = time.monotonic()
     try:
         completed = subprocess.run(
             command,
@@ -42,7 +43,7 @@ def _run(
         stdout = exc.stdout or b""
         stderr = exc.stderr or b""
         timed_out = True
-    elapsed = __import__("time").monotonic() - started
+    elapsed = time.monotonic() - started
     return {
         "command": command,
         "returncode": returncode,
@@ -56,8 +57,18 @@ def _run(
 
 
 def _worktree_add(repo: Path, revision: str, destination: Path) -> None:
+    command = [
+        "git",
+        "-C",
+        str(repo),
+        "worktree",
+        "add",
+        "--detach",
+        str(destination),
+        revision,
+    ]
     subprocess.run(
-        ["git", "-C", str(repo), "worktree", "add", "--detach", str(destination), revision],
+        command,
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -66,7 +77,15 @@ def _worktree_add(repo: Path, revision: str, destination: Path) -> None:
 
 def _worktree_remove(repo: Path, destination: Path) -> None:
     subprocess.run(
-        ["git", "-C", str(repo), "worktree", "remove", "--force", str(destination)],
+        [
+            "git",
+            "-C",
+            str(repo),
+            "worktree",
+            "remove",
+            "--force",
+            str(destination),
+        ],
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -114,9 +133,7 @@ def qualify_corpus(
 ) -> dict[str, Any]:
     repo = weavec_repo.resolve()
     if not (repo / ".git").exists():
-        # A linked worktree uses a .git file, so accept either form.
-        if not (repo / ".git").is_file():
-            raise ProtocolError(f"weavec repository is not a git checkout: {repo}")
+        raise ProtocolError(f"weavec repository is not a git checkout: {repo}")
 
     rows: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="loupe-regression-qualify-") as raw_tmp:
