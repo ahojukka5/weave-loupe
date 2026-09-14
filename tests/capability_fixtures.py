@@ -8,6 +8,7 @@ def capability_document(
     *,
     version: str = "0.1.0",
     target: str = "x86_64-unknown-linux-gnu",
+    wir_core_version: int = 2,
 ) -> dict[str, Any]:
     return {
         "format": "weavec-capabilities-v1",
@@ -24,7 +25,7 @@ def capability_document(
             "grammar_id": "weave-surface-grammar-v1",
             "syntax": "s-expression",
             "case_sensitive": True,
-            "wir_core_version": 2,
+            "wir_core_version": wir_core_version,
         },
         "protocols": [
             {
@@ -48,8 +49,8 @@ def capability_document(
                 "kind": "compilation-trace",
             },
             {
-                "id": "weave-wir-core-v2",
-                "version": 2,
+                "id": f"weave-wir-core-v{wir_core_version}",
+                "version": wir_core_version,
                 "kind": "intermediate-representation",
             },
         ],

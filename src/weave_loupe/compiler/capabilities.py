@@ -5,6 +5,11 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any, NoReturn
 
+from weave_loupe.wir_syntax import (
+    SUPPORTED_CORE_VERSIONS,
+    describe_supported_core_versions,
+)
+
 CAPABILITIES_FORMAT = "weavec-capabilities-v1"
 CAPABILITY_IDENTITY_FORMAT = "weave-loupe-weavec-capability-identity-v1"
 CAPTURE_PROFILE_FORMAT = "weave-loupe-capture-profile-v1"
@@ -12,14 +17,12 @@ CAPABILITIES_SCHEMA_ID = "urn:weavec:schema:capabilities:v1"
 CAPABILITIES_SCHEMA_VERSION = 1
 EXPECTED_SURFACE_VERSION = "weave-surface-v1"
 EXPECTED_GRAMMAR_ID = "weave-surface-grammar-v1"
-EXPECTED_WIR_CORE_VERSION = 2
 
 REQUIRED_PROTOCOLS: Mapping[str, int] = {
     "weavec-capabilities-v1": 1,
     "weavec-build-manifest-v1": 1,
     "weavec-diagnostics-v1": 1,
     "weavec-compilation-trace-v1": 1,
-    "weave-wir-core-v2": 2,
 }
 REQUIRED_CAPTURE_OUTPUTS = (
     "executable",
@@ -83,7 +86,6 @@ def validate_capability_document(value: Any) -> dict[str, Any]:
         "grammar_id": EXPECTED_GRAMMAR_ID,
         "syntax": "s-expression",
         "case_sensitive": True,
-        "wir_core_version": EXPECTED_WIR_CORE_VERSION,
     }
     if any(
         language.get(key) != expected for key, expected in expected_language.items()
@@ -92,8 +94,19 @@ def validate_capability_document(value: Any) -> dict[str, Any]:
             "WEAVEC_LANGUAGE_UNSUPPORTED",
             "installed weavec language or WIR contract is incompatible",
         )
+    wir_core_version = language.get("wir_core_version")
+    if wir_core_version not in SUPPORTED_CORE_VERSIONS:
+        _fail(
+            "WEAVEC_LANGUAGE_UNSUPPORTED",
+            "installed weavec language or WIR contract is incompatible: "
+            f"wir_core_version {wir_core_version!r} is not one of "
+            f"{describe_supported_core_versions()}",
+        )
 
-    protocols = _validate_protocols(document.get("protocols"))
+    protocols = _validate_protocols(
+        document.get("protocols"),
+        wir_core_version=wir_core_version,
+    )
     commands = _validate_commands(document.get("commands"), protocols)
     targets = _validate_targets(document.get("targets"))
     features = _validate_features(document.get("features"))
@@ -174,6 +187,7 @@ def require_capture_capabilities(document: Mapping[str, Any]) -> dict[str, Any]:
             "Loupe capture requires native CPU selection",
         )
 
+    wir_core_version = document["language"]["wir_core_version"]
     return {
         "format": CAPTURE_PROFILE_FORMAT,
         "command": "build",
@@ -184,7 +198,9 @@ def require_capture_capabilities(document: Mapping[str, Any]) -> dict[str, Any]:
             "runtime": target["runtime"],
             "native": target["native"],
         },
-        "protocols": sorted(required_build_protocols | {"weave-wir-core-v2"}),
+        "protocols": sorted(
+            required_build_protocols | {_wir_core_protocol_id(wir_core_version)}
+        ),
         "outputs": list(REQUIRED_CAPTURE_OUTPUTS),
         "output_contract": (
             "registry-v1-stable-build-interface-with-versioned-protocols"
@@ -224,9 +240,21 @@ def capability_identity_from_document(
     return result
 
 
-def _validate_protocols(value: Any) -> list[dict[str, Any]]:
+def _wir_core_protocol_id(version: int) -> str:
+    return f"weave-wir-core-v{version}"
+
+
+def _required_protocols(wir_core_version: int) -> dict[str, int]:
+    return {
+        **REQUIRED_PROTOCOLS,
+        _wir_core_protocol_id(wir_core_version): wir_core_version,
+    }
+
+
+def _validate_protocols(value: Any, *, wir_core_version: int) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     seen: set[str] = set()
+    required = _required_protocols(wir_core_version)
     for index, raw in enumerate(_array(value, "protocols")):
         item = dict(_object(raw, f"protocols[{index}]"))
         identifier = _nonempty(item.get("id"), f"protocols[{index}].id")
@@ -238,14 +266,14 @@ def _validate_protocols(value: Any) -> list[dict[str, Any]]:
                 f"duplicate compiler protocol {identifier!r}",
             )
         seen.add(identifier)
-        expected = REQUIRED_PROTOCOLS.get(identifier)
+        expected = required.get(identifier)
         if expected is not None and version != expected:
             _fail(
                 "WEAVEC_PROTOCOL_UNSUPPORTED",
                 f"compiler protocol {identifier!r} has incompatible version {version}",
             )
         result.append(item)
-    for identifier in REQUIRED_PROTOCOLS:
+    for identifier in required:
         if identifier not in seen:
             _fail(
                 "WEAVEC_PROTOCOL_UNSUPPORTED",

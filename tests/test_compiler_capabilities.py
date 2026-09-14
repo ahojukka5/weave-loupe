@@ -16,6 +16,7 @@ from weave_loupe.compiler_capabilities import (
     require_capture_capabilities,
     validate_capability_document,
 )
+from weave_loupe.wir_syntax import SUPPORTED_CORE_VERSIONS
 
 
 @pytest.fixture(autouse=True)
@@ -64,6 +65,40 @@ def test_offline_validation_accepts_additive_fields() -> None:
     assert profile["target"]["triple"] == "x86_64-unknown-linux-gnu"
     assert profile["optimization_level"] == "O3"
     assert "llvm_provenance" in profile["outputs"]
+
+
+def test_offline_validation_accepts_every_supported_wir_core_version() -> None:
+    for version in SUPPORTED_CORE_VERSIONS:
+        document = capability_document_copy(wir_core_version=version)
+
+        validated = validate_capability_document(document)
+        profile = require_capture_capabilities(validated)
+
+        assert validated["language"]["wir_core_version"] == version
+        assert f"weave-wir-core-v{version}" in profile["protocols"]
+
+
+def test_offline_validation_rejects_unsupported_wir_core_version() -> None:
+    document = capability_document_copy(wir_core_version=1)
+
+    with pytest.raises(CompilerCapabilityError) as captured:
+        validate_capability_document(document)
+
+    assert captured.value.code == "WEAVEC_LANGUAGE_UNSUPPORTED"
+    assert "1" in captured.value.message
+
+
+def test_offline_validation_rejects_mismatched_wir_core_protocol() -> None:
+    document = capability_document_copy(wir_core_version=3)
+    for item in document["protocols"]:
+        if item["id"].startswith("weave-wir-core-"):
+            item["id"] = "weave-wir-core-v2"
+            item["version"] = 2
+
+    with pytest.raises(CompilerCapabilityError) as captured:
+        validate_capability_document(document)
+
+    assert captured.value.code == "WEAVEC_PROTOCOL_UNSUPPORTED"
 
 
 def test_offline_validation_rejects_missing_required_protocol() -> None:
@@ -161,7 +196,17 @@ def test_retained_document_identity_is_offline_and_path_free() -> None:
     assert identity["registry_sha256"] == "a" * 64
     assert identity["compiler_version"] == "0.1.0"
     assert identity["wir_core_version"] == 2
+    assert "weave-wir-core-v2" in identity["capture_profile"]["protocols"]
     assert "path" not in identity
+
+    next_document = capability_document_copy(wir_core_version=3)
+    next_identity = capability_identity_from_document(
+        next_document,
+        registry_sha256="b" * 64,
+        registry_bytes=len(raw),
+    )
+    assert next_identity["wir_core_version"] == 3
+    assert "weave-wir-core-v3" in next_identity["capture_profile"]["protocols"]
 
 
 def test_module_main_validates_saved_document_offline(

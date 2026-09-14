@@ -124,10 +124,13 @@ version and rejects the rest. A compiler consumes the contract it targets; an
 analyser consumes every contract that was ever published.
 
 The supported set lives in one place, `SUPPORTED_CORE_VERSIONS` in
-`src/weave_loupe/wir_syntax.py`. When weavec announces a coordinated version
-transition, add the new version there **before** the compiler emits it, so that
-a Loupe release able to read it already exists. Only remove a version when no
-retained bundle can still contain it — in practice, effectively never.
+`src/weave_loupe/wir_syntax.py`. Capture and `compiler-audit` use the same set
+in the capability handshake, before any WIR text is read: a compiler that
+advertises any version in the set is accepted, and the capture profile records
+the version it found rather than a constant. When weavec announces a coordinated
+version transition, add the new version there **before** the compiler emits it,
+so that a Loupe release able to read it already exists. Only remove a version
+when no retained bundle can still contain it — in practice, effectively never.
 
 The analysis itself is form-generic: it counts opcodes without an allowlist and
 interprets only the envelope, declaration and contract roles, the control-flow
