@@ -21,8 +21,7 @@ def git(repo: Path, *args: str) -> str:
     completed = subprocess.run(
         ["git", "-C", str(repo), *args],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     return completed.stdout.strip()
@@ -60,7 +59,13 @@ def fake_weavec_repo(
     return repo, bad, good
 
 
-def draft_corpus(bad: str, good: str) -> dict[str, object]:
+def draft_corpus(
+    bad: str,
+    good: str,
+    *,
+    oracle_command: list[str] | None = None,
+    require_compiler_build: bool = True,
+) -> dict[str, object]:
     corpus: dict[str, object] = {
         "schema": protocol.CORPUS_SCHEMA,
         "status": "draft",
@@ -84,8 +89,9 @@ def draft_corpus(bad: str, good: str) -> dict[str, object]:
                 "good_revision": good,
                 "expected_stage": "frontend",
                 "failure_mechanism": "fake historical defect",
-                "oracle": {"command": ["bash", "oracle.sh"]},
+                "oracle": {"command": oracle_command or ["bash", "oracle.sh"]},
                 "relevant_tests": ["oracle.sh"],
+                "qualification": {"require_compiler_build": require_compiler_build},
             }
         ],
     }
@@ -133,3 +139,97 @@ def test_qualifier_rejects_non_git_checkout(tmp_path: Path) -> None:
             protocol.validate_corpus(draft_corpus("a" * 40, "b" * 40)),
             weavec_repo=tmp_path,
         )
+
+
+def test_qualifier_runs_independent_oracle_from_oracle_root(
+    tmp_path: Path,
+) -> None:
+    repo, bad, good = fake_weavec_repo(tmp_path)
+    oracle_root = tmp_path / "oracles"
+    oracle_root.mkdir()
+    (oracle_root / "check.sh").write_text(
+        "#!/bin/sh\n"
+        'test -n "$WEAVEC_ROOT" || exit 2\n'
+        'test -f "$WEAVEC_ROOT/oracle.sh" || exit 3\n'
+        'exec sh "$WEAVEC_ROOT/oracle.sh"\n',
+        encoding="utf-8",
+    )
+
+    result = MODULE.qualify_corpus(
+        protocol.validate_corpus(
+            draft_corpus(
+                bad,
+                good,
+                oracle_command=["sh", "check.sh"],
+            )
+        ),
+        weavec_repo=repo,
+        oracle_root=oracle_root,
+        build_timeout_seconds=30,
+        oracle_timeout_seconds=30,
+    )
+
+    assert result["all_qualified"] is True
+    assert result["rows"][0]["bad"]["revision"] == bad
+    assert result["rows"][0]["good"]["revision"] == good
+
+
+def test_qualifier_can_skip_compiler_build(tmp_path: Path) -> None:
+    repo, bad, good = fake_weavec_repo(tmp_path)
+    (repo / "scripts" / "build.sh").write_text(
+        "#!/bin/sh\nexit 99\n",
+        encoding="utf-8",
+    )
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "break default build")
+
+    oracle_root = tmp_path / "oracles"
+    oracle_root.mkdir()
+    (oracle_root / "check.sh").write_text(
+        "#!/bin/sh\n"
+        'if grep -q good "$WEAVEC_ROOT/marker.txt" 2>/dev/null; then\n'
+        "  exit 0\n"
+        "fi\n"
+        "exit 1\n",
+        encoding="utf-8",
+    )
+
+    result = MODULE.qualify_corpus(
+        protocol.validate_corpus(
+            draft_corpus(
+                bad,
+                good,
+                oracle_command=["sh", "check.sh"],
+                require_compiler_build=False,
+            )
+        ),
+        weavec_repo=repo,
+        oracle_root=oracle_root,
+        build_timeout_seconds=30,
+        oracle_timeout_seconds=30,
+    )
+
+    assert result["all_qualified"] is True
+    assert result["rows"][0]["bad"]["build"]["skipped"] is True
+    assert result["rows"][0]["good"]["build"]["skipped"] is True
+
+
+def test_draft_historical_corpus_keeps_exact_revisions() -> None:
+    corpus_path = (
+        Path(__file__).resolve().parents[1]
+        / "experiments"
+        / "compiler-evidence"
+        / "corpus.json"
+    )
+    corpus = protocol.load_corpus(corpus_path)
+    assert corpus["status"] == "draft"
+    assert len(corpus["cases"]) == 10
+    families = {case["family"] for case in corpus["cases"]}
+    assert len(families) >= 4
+    for case in corpus["cases"]:
+        assert len(case["bad_revision"]) >= 40
+        assert len(case["good_revision"]) >= 40
+        assert case["bad_revision"] != case["good_revision"]
+        command = case["oracle"]["command"]
+        assert command[0] == "bash"
+        assert command[1].startswith("experiments/compiler-evidence/oracles/")

@@ -66,6 +66,12 @@ Loupe cannot materialize an artifact that the historical compiler never
 published, record that evidence as unavailable rather than synthesizing it and
 pretending it was contemporaneous.
 
+Each admitted case keeps an independent executable oracle under
+`experiments/compiler-evidence/oracles/`. The qualifier checks out the exact
+bad and good SHAs, optionally builds that compiler, and runs the same oracle
+command against both trees. A case whose defect is `scripts/build.sh` itself
+sets `qualification.require_compiler_build` to `false`.
+
 ## Result contract
 
 There is exactly one result row for every `(case, condition)` pair. The validator
@@ -127,6 +133,22 @@ During corpus construction:
 python scripts/regression_evidence_protocol.py hash-corpus \
   experiments/compiler-evidence/corpus.json
 ```
+
+Before freeze, qualify every historical pair with an independent oracle
+that lives in this repository, not in the compiler revision under test:
+
+```bash
+python scripts/regression_evidence_qualify.py \
+  experiments/compiler-evidence/corpus.json \
+  --weavec-repo /path/to/weavec \
+  --oracle-root . \
+  --output build/regression-evidence/qualification.json
+```
+
+Admit a case only when the bad revision fails the oracle and the paired
+good revision passes it. Do not freeze `corpus_sha256` until every
+admitted case has that proof. Do not run model scoring against a draft
+corpus.
 
 After every condition is materialized and reviewed:
 

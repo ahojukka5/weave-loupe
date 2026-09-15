@@ -1,0 +1,199 @@
+{
+  "schema": "weave-loupe-regression-corpus-v1",
+  "status": "draft",
+  "loupe": {
+    "repository": "ahojukka5/weave-loupe",
+    "revision": "unfrozen-draft-revision"
+  },
+  "compiler": {
+    "repository": "ahojukka5/weavec"
+  },
+  "model_review": {
+    "provider": "not-run",
+    "model": "not-run",
+    "configuration_id": "not-frozen",
+    "prompt_id": "not-frozen"
+  },
+  "conditions": [
+    "source-tests",
+    "source-ir",
+    "full-evidence",
+    "deterministic",
+    "deterministic-model"
+  ],
+  "cases": [
+    {
+      "id": "fmt-decimal-preservation",
+      "family": "formatter",
+      "bad_revision": "2d899cda31289aa5d67e50030b4acbd3195bb1f3",
+      "good_revision": "f19f685905c7ef2bc8e23470325d199da4213e02",
+      "expected_stage": "formatter",
+      "failure_mechanism": "weavec fmt rewrote decimal literals to 0 because decimal atoms were reprinted from an empty integer node value.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/fmt-decimal-preservation.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/fmt-decimal-preservation.sh"
+      ]
+    },
+    {
+      "id": "backend-float-to-i32-call-type",
+      "family": "llvm-backend",
+      "bad_revision": "55e51c176e32c28d9fc309d06c01e53e5174914c",
+      "good_revision": "a75959a34173903e1e7df0444de3dd2f7325ed6f",
+      "expected_stage": "llvm",
+      "failure_mechanism": "cast_f64_to_i32 and cast_f32_to_i32 reported the source float type at call sites, emitting invalid LLVM.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/backend-float-to-i32-call-type.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/backend-float-to-i32-call-type.sh"
+      ]
+    },
+    {
+      "id": "frontend-loop-control-wir",
+      "family": "frontend-wir",
+      "bad_revision": "38628cf1d80d38514da8a7af582a695419703ebb",
+      "good_revision": "1e7a380852504c3aa70476d9df9f262e53f4fdc9",
+      "expected_stage": "wir",
+      "failure_mechanism": "for/break/continue lowering emitted structurally invalid WIR, so bounded loop programs could not be built.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/frontend-loop-control-wir.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/frontend-loop-control-wir.sh"
+      ]
+    },
+    {
+      "id": "fmt-generic-type-params",
+      "family": "formatter",
+      "bad_revision": "c4d6299cb571cbf77382447337bf414e7a064ce2",
+      "good_revision": "b0f33a5ca9b07552094e0d7994fbf0359b121826",
+      "expected_stage": "formatter",
+      "failure_mechanism": "The compact formatter skipped the type-params clause and emitted generic source whose type parameter was undeclared.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/fmt-generic-type-params.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/fmt-generic-type-params.sh"
+      ]
+    },
+    {
+      "id": "frontend-qmeasure-dispatch",
+      "family": "frontend-wir",
+      "bad_revision": "b42d85118db8a8d13e8ad40a0d2cf4fc0fa33372",
+      "good_revision": "9bcc03191968b6a357f77fe2aea621315b9e6811",
+      "expected_stage": "frontend",
+      "failure_mechanism": "The qmeasure head was not reserved, so direct-call resolution claimed it as an unresolved ordinary function before quantum lowering.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/frontend-qmeasure-dispatch.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/frontend-qmeasure-dispatch.sh"
+      ]
+    },
+    {
+      "id": "frontend-enum-helper-balance",
+      "family": "frontend-wir",
+      "bad_revision": "014ff702bc7b0446d4d6d3c080b675385a063e86",
+      "good_revision": "d680d358947bd0b052fa3dc5dde6ca89870ca079",
+      "expected_stage": "wir",
+      "failure_mechanism": "Specialized Option/Result helper and match WIR was unbalanced or payload typing was wrong, so native programs never saw constructors.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/frontend-enum-helper-balance.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/frontend-enum-helper-balance.sh"
+      ]
+    },
+    {
+      "id": "protocol-wir-version-capability",
+      "family": "protocol",
+      "bad_revision": "9fabb35ad8cf88dde02e362b9c57c1e6d51bc9ff",
+      "good_revision": "2ecb98b81aec17dde87ae81355b5aa8bfdf953b9",
+      "expected_stage": "protocol",
+      "failure_mechanism": "Capabilities advertised weave-wir-core-v2 while the compiler emitted and consumed core version 3.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/protocol-wir-version-capability.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/protocol-wir-version-capability.sh"
+      ]
+    },
+    {
+      "id": "backend-string-escape",
+      "family": "llvm-backend",
+      "bad_revision": "b17d3e2aac327e30fe53ab2cd15b4db52e082f6a",
+      "good_revision": "bee061e05d2b15a4b00d3c919ea8ceecbd2693a5",
+      "expected_stage": "llvm",
+      "failure_mechanism": "Unknown WIR escapes such as \\t were copied into invalid LLVM string constants.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/backend-string-escape.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/backend-string-escape.sh"
+      ]
+    },
+    {
+      "id": "project-cache-bypass-report",
+      "family": "project-protocol",
+      "bad_revision": "a5504a526f466c94f6a1bff2f2deea8afcf14c30",
+      "good_revision": "f6f3b8faafad5e54ab9970bca8332b7b845878a4",
+      "expected_stage": "protocol",
+      "failure_mechanism": "--cache-report silently produced no file when a protocol/evidence flag bypassed the module cache.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/project-cache-bypass-report.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/project-cache-bypass-report.sh"
+      ]
+    },
+    {
+      "id": "build-advisory-tool-probe",
+      "family": "build-toolchain",
+      "bad_revision": "8750590a17a87225725d1b543f5ee405d6f588c1",
+      "good_revision": "74d0f68fbdec27cc771c3706e2a1729aa5e1df61",
+      "expected_stage": "toolchain",
+      "failure_mechanism": "LLVM tool refusing --version aborted build.sh through pipefail before any later work.",
+      "oracle": {
+        "command": [
+          "bash",
+          "experiments/compiler-evidence/oracles/build-advisory-tool-probe.sh"
+        ]
+      },
+      "relevant_tests": [
+        "experiments/compiler-evidence/oracles/build-advisory-tool-probe.sh"
+      ],
+      "qualification": {
+        "require_compiler_build": false
+      }
+    }
+  ]
+}
