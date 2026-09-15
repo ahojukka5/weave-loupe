@@ -173,9 +173,12 @@ def lineage_for_bundle(bundle: Bundle) -> dict[str, Any]:
             stages = [
                 dict(item) for item in lineage["stages"] if isinstance(item, Mapping)
             ]
+            inferred = (
+                lineage.get("inferred") is True or lineage.get("declared") is False
+            )
             return {
-                "declared": lineage.get("declared") is not False,
-                "inferred": False,
+                "declared": lineage.get("declared") is True and not inferred,
+                "inferred": inferred,
                 "stages": stages,
             }
     build_manifest = bundle.artifact_json("build_manifest")
@@ -423,12 +426,6 @@ def _exit_code(manifest: Mapping[str, Any]) -> int:
         if isinstance(exit_code, int) and not isinstance(exit_code, bool):
             return exit_code
     return -1
-
-
-def _load_build_manifest_from_mapping(
-    manifest: Mapping[str, Any],
-) -> Mapping[str, Any] | None:
-    return None
 
 
 def validate_compilation(
