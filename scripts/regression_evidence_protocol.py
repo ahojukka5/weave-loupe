@@ -274,14 +274,19 @@ def validate_results(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
 
     missing = expected - seen
     if missing:
-        formatted = ", ".join(f"{case}/{condition}" for case, condition in sorted(missing))
+        formatted = ", ".join(
+            f"{case}/{condition}" for case, condition in sorted(missing)
+        )
         raise ProtocolError(f"results are incomplete: missing {formatted}")
 
     row_by_key = {(row["case_id"], row["condition"]): row for row in normalized}
     for case_id in sorted(case_ids):
         deterministic = row_by_key[(case_id, "deterministic")]
         model = row_by_key[(case_id, "deterministic-model")]
-        if model["deterministic_gate_status"] != deterministic["deterministic_gate_status"]:
+        if (
+            model["deterministic_gate_status"]
+            != deterministic["deterministic_gate_status"]
+        ):
             raise ProtocolError(
                 f"{case_id}: model condition changed deterministic gate status"
             )
@@ -302,7 +307,9 @@ def _rate(rows: list[dict[str, Any]], field: str) -> float:
 
 
 def score(corpus: dict[str, Any], results: dict[str, Any]) -> dict[str, Any]:
-    by_condition: dict[str, list[dict[str, Any]]] = {condition: [] for condition in CONDITIONS}
+    by_condition: dict[str, list[dict[str, Any]]] = {
+        condition: [] for condition in CONDITIONS
+    }
     for row in results["rows"]:
         by_condition[row["condition"]].append(row)
 
@@ -320,9 +327,13 @@ def score(corpus: dict[str, Any], results: dict[str, Any]) -> dict[str, Any]:
             "phase_localization_rate": _rate(rows, "phase_localized"),
             "mechanism_localization_rate": _rate(rows, "mechanism_localized"),
             "false_positive_rate": _rate(rows, "false_positive_on_good"),
-            "median_evidence_bytes": _median([float(row["evidence_bytes"]) for row in rows]),
+            "median_evidence_bytes": _median(
+                [float(row["evidence_bytes"]) for row in rows]
+            ),
             "median_model_tokens": _median(token_totals),
-            "median_review_seconds": _median([float(row["review_seconds"]) for row in rows]),
+            "median_review_seconds": _median(
+                [float(row["review_seconds"]) for row in rows]
+            ),
         }
 
     deterministic = {
