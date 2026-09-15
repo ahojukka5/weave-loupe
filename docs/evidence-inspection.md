@@ -19,8 +19,13 @@ Evidence levels:
 | `standard` | plus WIR, raw LLVM, optimized LLVM, assembly, disassembly, remarks |
 | `full` | plus the native executable |
 
-`--include-executable` keeps the binary under `standard`. `--evidence-level full`
-does the same.
+`--include-executable` is an independent retention override. It does not
+rename the declared evidence level. `standard --include-executable` remains
+`standard` and keeps the binary. `lightweight --include-executable` is a
+lightweight bundle plus that binary: IR and native emits stay omitted, and
+the compiler command stays the lightweight public `weavec build` shape.
+`--evidence-level full` implies the executable (`retention.level` is `full`
+and `include_executable` is true).
 
 The compiler command is still the public `weavec build` interface. Loupe does
 not invent extra stage boundaries; it records the compiler's own artifacts:

@@ -126,7 +126,11 @@ def test_capture_bundle_can_keep_executable(
         weavec=fake_weavec,
         include_executable=True,
     )
-    assert load_bundle(output).artifact_path("executable") is not None
+    bundle = load_bundle(output)
+    assert bundle.artifact_path("executable") is not None
+    retention = bundle.manifest["compilation"]["retention"]
+    assert retention["level"] == "standard"
+    assert retention["include_executable"] is True
 
 
 def test_capture_bundle_records_hash(

@@ -19,7 +19,9 @@ compiler exit: 0
 
 The bundle contains the source, WIR, LLVM with source/WIR provenance comments,
 diagnostics, trace, build manifest, and compiler logs. Use
-`--include-executable` when the native executable must also be retained.
+`--include-executable` when the native executable must also be retained; the
+declared evidence level stays `standard` unless you pass `--evidence-level
+full`.
 
 ## 2. Generate a report
 

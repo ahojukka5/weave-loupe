@@ -59,7 +59,13 @@ def capture_bundle(
     source_names: Sequence[str] | None = None,
     evidence_level: EvidenceLevel | str = "standard",
 ) -> CaptureResult:
-    """Compile ordered sources and atomically publish a portable evidence bundle."""
+    """Compile ordered sources and atomically publish a portable evidence bundle.
+
+    ``evidence_level`` is stored as ``compilation.retention.level``.
+    ``include_executable`` is an independent retention override: it does not
+    rename ``standard`` or ``lightweight`` to ``full``. ``full`` implies that
+    the native executable is retained.
+    """
     level = normalize_evidence_level(evidence_level)
     keep_executable = include_executable or level == "full"
     try:
@@ -182,9 +188,7 @@ def capture_bundle(
             manifest_artifacts=artifact_identities({"artifacts": artifacts}),
             sources=source_identities({"sources": source_entries}),
             exit_code=result.returncode,
-            evidence_level=(
-                "full" if keep_executable and level != "lightweight" else level
-            ),
+            evidence_level=level,
             include_executable=keep_executable,
             identity=compiler_content_identity(
                 Path(result.command[0]),

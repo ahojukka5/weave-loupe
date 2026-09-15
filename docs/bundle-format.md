@@ -21,8 +21,11 @@ example.loupe/
 ```
 
 The optional executable is stored when `capture --include-executable` or
-`--evidence-level full` is used. `--evidence-level lightweight` omits IR and
-native emits while still retaining diagnostics, trace, and the build manifest.
+`--evidence-level full` is used. That flag does not change
+`compilation.retention.level`. `--evidence-level lightweight` omits IR and
+native emits while still retaining diagnostics, trace, and the build
+manifest. Combined with `--include-executable`, it is still `lightweight` plus
+the binary.
 
 Historical v1 bundles without `compilation` remain valid. Loupe infers lineage
 from known artifact names and marks that reconstruction as inferred.

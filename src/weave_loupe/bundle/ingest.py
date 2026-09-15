@@ -198,9 +198,9 @@ def ingest_bundle(*, request: Path, output: Path) -> IngestResult:
                 compiler_identity[key] = compiler[key]
         include_executable = "executable" in output_artifacts
         has_ir = "wir" in output_artifacts or "llvm" in output_artifacts
-        level = normalize_evidence_level(
-            "full" if include_executable else "standard" if has_ir else "lightweight"
-        )
+        # Ingest reconstructs the emit set from retained artifacts. A binary is
+        # an independent include_executable flag, not a promotion to full.
+        level = normalize_evidence_level("standard" if has_ir else "lightweight")
         compilation = compilation_record(
             manifest_artifacts=artifact_identities({"artifacts": output_artifacts}),
             sources=source_identities({"sources": source_entries}),

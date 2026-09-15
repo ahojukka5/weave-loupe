@@ -43,12 +43,24 @@ def build_parser() -> argparse.ArgumentParser:
     capture.add_argument("weave_files", nargs="+", type=Path)
     capture.add_argument("--output", "-o", type=Path, required=True)
     capture.add_argument("--weavec", type=Path, default=None)
-    capture.add_argument("--include-executable", action="store_true")
+    capture.add_argument(
+        "--include-executable",
+        action="store_true",
+        help=(
+            "Retain the native executable without changing --evidence-level. "
+            "Valid with lightweight (binary only; no IR or native emits) and "
+            "standard. Implied by --evidence-level full."
+        ),
+    )
     capture.add_argument(
         "--evidence-level",
         choices=("lightweight", "standard", "full"),
         default="standard",
-        help="lightweight omits IR/native emits; full retains the executable.",
+        help=(
+            "Manifest retention.level. lightweight omits IR/native emits; "
+            "standard and full emit them. full also retains the executable. "
+            "--include-executable does not rename the level."
+        ),
     )
     _add_identity_arguments(capture)
     capture.add_argument(
