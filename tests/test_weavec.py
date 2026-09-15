@@ -116,7 +116,8 @@ def test_build_command_uses_public_artifact_flags(
     assert "--diagnostics-json" in command
     assert "--trace-json" in command
     assert "--manifest-json" in command
-    assert command[-1] == "--llvm-provenance"
+    assert "--llvm-provenance" in command
+    assert "--manifest-json" in command
 
 
 def test_run_build_retains_outputs_and_execution_evidence(

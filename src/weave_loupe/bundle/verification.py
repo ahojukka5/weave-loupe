@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Any, cast
 
+from .lineage import validate_compilation
+
 BUNDLE_FORMAT = "weave-loupe-bundle-v1"
 BUNDLE_VERIFICATION_FORMAT = "weave-loupe-bundle-verification-v1"
 MANIFEST_NAME = "bundle.json"
@@ -27,6 +29,13 @@ _REQUIRED_SUCCESS_ARTIFACTS = frozenset(
         "optimized_llvm",
         "trace",
         "wir",
+    }
+)
+_LIGHTWEIGHT_SUCCESS_ARTIFACTS = frozenset(
+    {
+        "build_manifest",
+        "diagnostics",
+        "trace",
     }
 )
 
@@ -161,13 +170,22 @@ def verify_bundle(path: Path, *, closed: bool = True) -> BundleVerification:
     legacy_logs.extend(legacy_log_entries)
 
     if compiler_exit_code == 0:
-        for name in sorted(_REQUIRED_SUCCESS_ARTIFACTS - artifacts):
+        required = _required_success_artifacts(manifest)
+        for name in sorted(required - artifacts):
             _problem(
                 problems,
                 "required-artifact-missing",
                 f"artifacts.{name}",
                 "successful compiler run is missing a required artifact",
             )
+
+    for problem in validate_compilation(manifest):
+        _problem(
+            problems,
+            problem["code"],
+            problem["location"],
+            problem["message"],
+        )
 
     if closed:
         _validate_closed_bundle(root, set(declared_paths), problems)
@@ -686,6 +704,15 @@ def _validate_file(
                 f"declared SHA-256 does not match {actual_digest}",
             )
     return True
+
+
+def _required_success_artifacts(manifest: Mapping[str, Any]) -> frozenset[str]:
+    compilation = manifest.get("compilation")
+    if isinstance(compilation, Mapping):
+        retention = compilation.get("retention")
+        if isinstance(retention, Mapping) and retention.get("level") == "lightweight":
+            return _LIGHTWEIGHT_SUCCESS_ARTIFACTS
+    return _REQUIRED_SUCCESS_ARTIFACTS
 
 
 def _validate_closed_bundle(

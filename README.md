@@ -18,6 +18,9 @@ Ensure `weavec` is on `PATH`, or pass `--weavec` / set `WEAVEC_BIN`.
 uv run loupe capture docs/audit/fibonacci.weave \
   --output build/fibonacci.loupe
 
+uv run loupe inspect build/fibonacci.loupe
+uv run loupe analyze build/fibonacci.loupe --markdown-out build/fibonacci.md
+
 uv run loupe report build/fibonacci.loupe \
   --output build/fibonacci.html \
   --analysis-json build/fibonacci-analysis.json

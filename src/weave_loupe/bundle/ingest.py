@@ -35,6 +35,12 @@ from .ingest_contract import (
     MAX_INGEST_TOTAL_BYTES,
     validate_ingest_request_document,
 )
+from .lineage import (
+    artifact_identities,
+    compilation_record,
+    normalize_evidence_level,
+    source_identities,
+)
 from .loading import load_bundle
 from .model import BundleError
 from .publication import file_entry, publish_directory
@@ -161,6 +167,50 @@ def ingest_bundle(*, request: Path, output: Path) -> IngestResult:
             sources=sources,
             artifacts=artifacts,
         )
+        build_manifest = None
+        if "build_manifest" in output_artifacts:
+            try:
+                build_manifest = json.loads(
+                    (work / COMPILER_ARTIFACT_PATHS["build_manifest"]).read_text(
+                        encoding="utf-8"
+                    )
+                )
+            except (OSError, json.JSONDecodeError):
+                build_manifest = None
+        if not isinstance(build_manifest, dict):
+            build_manifest = None
+        capability = output_artifacts.get("compiler_capabilities", {})
+        capability_digest = (
+            capability.get("sha256") if isinstance(capability, Mapping) else None
+        )
+        compiler_identity: dict[str, Any] = {}
+        if isinstance(capability_digest, str):
+            compiler_identity["capability_registry_sha256"] = capability_digest
+        for key in (
+            "compiler_sha256",
+            "compiler_version",
+            "git_sha",
+            "development",
+            "version_source",
+            "target",
+        ):
+            if key in compiler:
+                compiler_identity[key] = compiler[key]
+        include_executable = "executable" in output_artifacts
+        has_ir = "wir" in output_artifacts or "llvm" in output_artifacts
+        level = normalize_evidence_level(
+            "full" if include_executable else "standard" if has_ir else "lightweight"
+        )
+        compilation = compilation_record(
+            manifest_artifacts=artifact_identities({"artifacts": output_artifacts}),
+            sources=source_identities({"sources": source_entries}),
+            exit_code=cast(int, compiler["exit_code"]),
+            evidence_level=level,
+            include_executable=include_executable,
+            identity=compiler_identity,
+            build_manifest=build_manifest,
+            declared=True,
+        )
 
         manifest: dict[str, Any] = {
             "format": BUNDLE_FORMAT,
@@ -170,6 +220,7 @@ def ingest_bundle(*, request: Path, output: Path) -> IngestResult:
                 "exit_code": compiler["exit_code"],
                 "execution": compiler["execution"],
             },
+            "compilation": compilation,
             "sources": source_entries,
             "artifacts": dict(sorted(output_artifacts.items())),
             "logs": output_logs,

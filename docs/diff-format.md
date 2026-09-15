@@ -33,7 +33,12 @@ Version 2 compares:
 - stable compiler and build-manifest fields;
 - optimization-record document identities;
 - runtime observations and optimized-LLVM and native contract results when the
-  caller supplies those results.
+  caller supplies those results;
+- stage localization: the earliest changed compilation stage, unchanged
+  stages, missing evidence, and whether the source inputs match.
+
+The first changed stage is localization evidence. It is not automatically the
+bug origin.
 
 Portable bundles intentionally do not contain post-capture runtime executions or
 sidecar contract evaluations. A standalone `loupe diff` therefore marks the

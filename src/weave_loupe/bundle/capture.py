@@ -19,8 +19,21 @@ from weave_loupe.path_identity import (
     PathIdentityError,
     plan_public_paths,
 )
-from weave_loupe.weavec import BuildRequest, WeavecError, normalize_sources, run_build
+from weave_loupe.weavec import (
+    BuildRequest,
+    EvidenceLevel,
+    WeavecError,
+    normalize_sources,
+    run_build,
+)
 
+from .identity import compiler_content_identity
+from .lineage import (
+    artifact_identities,
+    compilation_record,
+    normalize_evidence_level,
+    source_identities,
+)
 from .model import BundleError
 from .publication import file_entry, publish_directory
 from .verification import BUNDLE_FORMAT, MANIFEST_NAME, verify_bundle
@@ -44,8 +57,11 @@ def capture_bundle(
     compiler_output_bytes: int | None = None,
     audit_root: Path | None = None,
     source_names: Sequence[str] | None = None,
+    evidence_level: EvidenceLevel | str = "standard",
 ) -> CaptureResult:
     """Compile ordered sources and atomically publish a portable evidence bundle."""
+    level = normalize_evidence_level(evidence_level)
+    keep_executable = include_executable or level == "full"
     try:
         plan = plan_public_paths(
             sources,
@@ -107,6 +123,7 @@ def capture_bundle(
             weavec=weavec,
             timeout_seconds=compiler_timeout_seconds,
             output_bytes=compiler_output_bytes,
+            evidence_level=level,
         )
         capabilities_path = artifact_dir / "compiler-capabilities.json"
         capabilities_path.write_bytes(result.capabilities.raw_bytes)
@@ -135,7 +152,7 @@ def capture_bundle(
             "trace": request.trace,
             "build_manifest": request.build_manifest,
         }
-        if include_executable:
+        if keep_executable:
             artifact_paths["executable"] = request.executable
         elif request.executable.exists():
             request.executable.unlink()
@@ -145,6 +162,41 @@ def capture_bundle(
             if artifact_path.is_file():
                 artifacts[name] = file_entry(work, artifact_path)
 
+        build_manifest = None
+        manifest_entry = artifacts.get("build_manifest")
+        if manifest_entry is not None:
+            try:
+                build_manifest = json.loads(
+                    (work / str(manifest_entry["path"])).read_text(encoding="utf-8")
+                )
+            except (OSError, json.JSONDecodeError, TypeError):
+                build_manifest = None
+        if not isinstance(build_manifest, dict):
+            build_manifest = None
+        capability_digest = artifacts.get("compiler_capabilities", {}).get("sha256")
+        target_triple = None
+        if isinstance(build_manifest, dict):
+            raw_target = build_manifest.get("target")
+            target_triple = raw_target if isinstance(raw_target, str) else None
+        compilation = compilation_record(
+            manifest_artifacts=artifact_identities({"artifacts": artifacts}),
+            sources=source_identities({"sources": source_entries}),
+            exit_code=result.returncode,
+            evidence_level=(
+                "full" if keep_executable and level != "lightweight" else level
+            ),
+            include_executable=keep_executable,
+            identity=compiler_content_identity(
+                Path(result.command[0]),
+                capability_registry_sha256=(
+                    capability_digest if isinstance(capability_digest, str) else None
+                ),
+                target=target_triple,
+            ),
+            build_manifest=build_manifest,
+            declared=True,
+        )
+        portable_command = _portable_command(source_entries, evidence_level=level)
         manifest: dict[str, Any] = {
             "format": BUNDLE_FORMAT,
             "source_identity": {
@@ -153,10 +205,11 @@ def capture_bundle(
             },
             "compiler": {
                 "binary": Path(result.command[0]).name,
-                "command": _portable_command(source_entries),
+                "command": portable_command,
                 "exit_code": result.returncode,
                 "execution": result.execution.as_dict(),
             },
+            "compilation": compilation,
             "sources": source_entries,
             "artifacts": artifacts,
             "logs": {
@@ -186,34 +239,42 @@ def capture_bundle(
         raise BundleError(str(exc)) from exc
 
 
-def _portable_command(source_entries: Sequence[Mapping[str, Any]]) -> list[str]:
+def _portable_command(
+    source_entries: Sequence[Mapping[str, Any]],
+    *,
+    evidence_level: EvidenceLevel,
+) -> list[str]:
     command = ["weavec", "build"]
     command.extend(str(entry["path"]) for entry in source_entries)
+    command.extend(["-o", "artifacts/program"])
+    if evidence_level in {"standard", "full"}:
+        command.extend(
+            [
+                "--emit-wir",
+                "artifacts/program.wir",
+                "--emit-llvm",
+                "artifacts/program.ll",
+                "--emit-optimized-llvm",
+                "artifacts/program.optimized.ll",
+                "--emit-assembly",
+                "artifacts/program.s",
+                "--emit-disassembly",
+                "artifacts/program.disasm",
+                "--optimization-record",
+                "artifacts/program.opt.yaml",
+                "-O3",
+                "--native",
+                "--llvm-provenance",
+            ]
+        )
     command.extend(
         [
-            "-o",
-            "artifacts/program",
-            "--emit-wir",
-            "artifacts/program.wir",
-            "--emit-llvm",
-            "artifacts/program.ll",
-            "--emit-optimized-llvm",
-            "artifacts/program.optimized.ll",
-            "--emit-assembly",
-            "artifacts/program.s",
-            "--emit-disassembly",
-            "artifacts/program.disasm",
-            "--optimization-record",
-            "artifacts/program.opt.yaml",
-            "-O3",
-            "--native",
             "--diagnostics-json",
             "artifacts/diagnostics.json",
             "--trace-json",
             "artifacts/trace.json",
             "--manifest-json",
             "artifacts/build-manifest.json",
-            "--llvm-provenance",
         ]
     )
     return command

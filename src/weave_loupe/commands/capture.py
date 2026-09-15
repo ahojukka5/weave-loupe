@@ -18,6 +18,7 @@ def run_capture(
     compiler_output_bytes: int | None = None,
     audit_root: Path | None = None,
     source_names: list[str] | None = None,
+    evidence_level: str = "standard",
 ) -> int:
     try:
         result = capture_bundle(
@@ -29,6 +30,7 @@ def run_capture(
             compiler_output_bytes=compiler_output_bytes,
             audit_root=audit_root,
             source_names=source_names,
+            evidence_level=evidence_level,
         )
     except BundleError as exc:
         print(f"loupe capture: {exc}", file=sys.stderr)

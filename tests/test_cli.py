@@ -32,6 +32,7 @@ def test_capture_parser() -> None:
     assert args.compiler_output_bytes == 4096
     assert args.audit_root == Path("checkout")
     assert args.source_names == ["src/a.weave"]
+    assert args.evidence_level == "standard"
 
 
 def test_report_parser() -> None:
@@ -198,6 +199,7 @@ def test_main_dispatches_capture_limits() -> None:
         compiler_output_bytes=2048,
         audit_root=None,
         source_names=None,
+        evidence_level="standard",
     )
 
 
@@ -324,3 +326,19 @@ def test_main_dispatches_report_verification() -> None:
         json_out=None,
         allow_unsafe_http=True,
     )
+
+
+def test_inspect_and_analyze_parsers() -> None:
+    inspect = build_parser().parse_args(
+        ["inspect", "a.loupe", "--stage", "wir", "--view", "source_ir"]
+    )
+    analyze = build_parser().parse_args(
+        ["analyze", "a.loupe", "--json-out", "a.json", "--markdown-out", "a.md"]
+    )
+
+    assert inspect.command == "inspect"
+    assert inspect.stage == "wir"
+    assert inspect.view == "source_ir"
+    assert analyze.command == "analyze"
+    assert analyze.json_out == Path("a.json")
+    assert analyze.markdown_out == Path("a.md")
