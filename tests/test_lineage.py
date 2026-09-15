@@ -5,6 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+from weave_loupe.bundle import capture as capture_mod
 from weave_loupe.bundle import capture_bundle, load_bundle
 from weave_loupe.bundle.inspection import analyze_evidence, inspect_bundle
 from weave_loupe.bundle.lineage import lineage_for_bundle
@@ -15,6 +18,32 @@ from weave_loupe.bundle.views import evidence_view
 from weave_loupe.commands.analyze import run_analyze
 from weave_loupe.commands.inspect import run_inspect
 from weave_loupe.diffing import compare_bundles
+
+_IR_EMIT_FLAGS = (
+    "--emit-wir",
+    "--emit-llvm",
+    "--emit-optimized-llvm",
+    "--emit-assembly",
+    "--emit-disassembly",
+    "--optimization-record",
+    "-O3",
+    "--native",
+    "--llvm-provenance",
+)
+_LIGHTWEIGHT_ARTIFACTS = {
+    "compiler_capabilities",
+    "diagnostics",
+    "trace",
+    "build_manifest",
+}
+_STANDARD_ARTIFACTS = _LIGHTWEIGHT_ARTIFACTS | {
+    "wir",
+    "llvm",
+    "optimized_llvm",
+    "assembly",
+    "disassembly",
+    "optimization_record",
+}
 
 
 def test_capture_records_compiler_identity_and_declared_lineage(
@@ -161,6 +190,122 @@ def test_full_capture_retains_executable_and_is_complete(
     completeness = inspect_bundle(bundle)["completeness"]
     assert completeness["complete"] is True
     assert completeness["evidence_level"] == "full"
+
+
+@pytest.mark.parametrize(
+    ("evidence_level", "include_executable", "expected_level", "keep_binary"),
+    [
+        ("lightweight", False, "lightweight", False),
+        ("lightweight", True, "lightweight", True),
+        ("standard", False, "standard", False),
+        ("standard", True, "standard", True),
+        ("full", False, "full", True),
+    ],
+)
+def test_capture_retention_level_is_independent_of_executable_flag(
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    evidence_level: str,
+    include_executable: bool,
+    expected_level: str,
+    keep_binary: bool,
+) -> None:
+    recorded: list[tuple[str, ...]] = []
+    original = capture_mod.run_build
+
+    def wrapped(*args: object, **kwargs: object):
+        result = original(*args, **kwargs)
+        recorded.append(result.command)
+        return result
+
+    monkeypatch.setattr(capture_mod, "run_build", wrapped)
+    output = tmp_path / f"{evidence_level}-exe-{include_executable}.loupe"
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+        evidence_level=evidence_level,
+        include_executable=include_executable,
+    )
+
+    assert len(recorded) == 1
+    actual_command = recorded[0]
+    emit_ir = expected_level in {"standard", "full"}
+    for flag in _IR_EMIT_FLAGS:
+        assert (flag in actual_command) is emit_ir
+
+    bundle = load_bundle(output)
+    artifacts = set(bundle.manifest["artifacts"])
+    expected_artifacts = (
+        _STANDARD_ARTIFACTS if emit_ir else _LIGHTWEIGHT_ARTIFACTS
+    ).copy()
+    if keep_binary:
+        expected_artifacts.add("executable")
+    assert artifacts == expected_artifacts
+    assert (bundle.artifact_path("executable") is not None) is keep_binary
+
+    retention = bundle.manifest["compilation"]["retention"]
+    assert retention["level"] == expected_level
+    assert retention["include_executable"] is keep_binary
+    assert bundle.manifest["compilation"]["lineage"]["declared"] is True
+    assert bundle.manifest["compilation"]["lineage"].get("inferred") is not True
+
+    completeness = inspect_bundle(bundle)["completeness"]
+    assert completeness["complete"] is True
+    assert completeness["evidence_level"] == expected_level
+    assert completeness["include_executable"] is keep_binary
+    assert completeness["inferred_lineage"] is False
+    assert completeness["gaps"] == []
+
+    portable = bundle.manifest["compiler"]["command"]
+    assert portable[0:2] == ["weavec", "build"]
+    for flag in _IR_EMIT_FLAGS:
+        assert (flag in portable) is emit_ir
+
+    inspect_json = tmp_path / "inspect.json"
+    analyze_json = tmp_path / "analyze.json"
+    markdown_out = tmp_path / "analyze.md"
+    assert (
+        run_inspect(bundle_path=output, json_out=inspect_json, stage=None, view=None)
+        == 0
+    )
+    assert (
+        run_analyze(
+            bundle_path=output,
+            json_out=analyze_json,
+            markdown_out=markdown_out,
+        )
+        == 0
+    )
+    captured = capsys.readouterr()
+    inspect_payload = json.loads(inspect_json.read_text(encoding="utf-8"))
+    analyze_payload = json.loads(analyze_json.read_text(encoding="utf-8"))
+    markdown = markdown_out.read_text(encoding="utf-8")
+    assert "inspection:" in captured.out
+    assert inspect_payload["completeness"]["evidence_level"] == expected_level
+    assert inspect_payload["completeness"]["include_executable"] is keep_binary
+    assert inspect_payload["completeness"]["inferred_lineage"] is False
+    assert inspect_payload["lineage"]["declared"] is True
+    assert inspect_payload["lineage"]["inferred"] is False
+    assert analyze_payload["inspection"]["completeness"]["evidence_level"] == (
+        expected_level
+    )
+    assert f"evidence_level: {expected_level}" in markdown
+    assert f"include_executable: {keep_binary}" in markdown
+    assert "inferred_lineage: False" in markdown
+    document = analyze_evidence(bundle)
+    assert document["inspection"]["completeness"]["evidence_level"] == expected_level
+    if expected_level == "lightweight" and keep_binary:
+        native = next(
+            item
+            for item in bundle.manifest["compilation"]["lineage"]["stages"]
+            if item["id"] == "native"
+        )
+        assert "executable" in native["artifacts"]
+        assert native["status"] == "partial"
 
 
 def test_comparison_reports_first_changed_stage_for_wir_edit(

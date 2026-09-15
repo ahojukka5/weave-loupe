@@ -117,6 +117,11 @@ subset, such as capabilities, diagnostics, trace, logs, and any intermediate
 artifacts produced before failure. Ingestion success is independent of the
 retained compiler exit code.
 
+Ingest reconstructs `compilation.retention` from retained artifacts: IR
+presence selects `standard` versus `lightweight`, and a retained binary sets
+`include_executable`. It does not relabel a binary as `--evidence-level full`.
+`full` remains a capture-declared forensic level.
+
 ## Source producer metadata
 
 A source may carry bounded additive metadata:

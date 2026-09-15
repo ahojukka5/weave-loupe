@@ -256,27 +256,10 @@ def completeness_from_lineage(
         if isinstance(item, Mapping)
     }
     expected = list(_EXPECTED_STAGES[evidence_level])
-    if include_executable and "native" not in expected:
-        expected.append("native")
     gaps: list[dict[str, str]] = []
     for stage_id in expected:
         item = stages.get(stage_id)
         status = str(item.get("status")) if isinstance(item, Mapping) else "missing"
-        names = _stage_artifacts(item) if isinstance(item, Mapping) else set()
-        if (
-            include_executable
-            and stage_id == "native"
-            and "executable" not in names
-            and exit_code == 0
-        ):
-            gaps.append(
-                {
-                    "stage": stage_id,
-                    "status": "missing",
-                    "reason": "full retention requested the native executable",
-                }
-            )
-            continue
         if status == "present":
             continue
         if status == "partial" and stage_id == "native" and not include_executable:
@@ -290,6 +273,17 @@ def completeness_from_lineage(
                 "reason": _gap_reason(stage_id, status, exit_code),
             }
         )
+    if include_executable and exit_code == 0:
+        native = stages.get("native")
+        names = _stage_artifacts(native) if isinstance(native, Mapping) else set()
+        if "executable" not in names:
+            gaps.append(
+                {
+                    "stage": "native",
+                    "status": "missing",
+                    "reason": "executable retention requested the native executable",
+                }
+            )
     runtime = stages.get("runtime")
     runtime_status = (
         str(runtime.get("status")) if isinstance(runtime, Mapping) else "unavailable"
@@ -297,6 +291,7 @@ def completeness_from_lineage(
     return {
         "complete": not gaps,
         "evidence_level": evidence_level,
+        "include_executable": include_executable,
         "gaps": gaps,
         "runtime": runtime_status,
         "inferred_lineage": lineage.get("inferred") is True,

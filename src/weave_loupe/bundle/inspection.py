@@ -150,6 +150,7 @@ def render_inspection_text(inspection: Mapping[str, Any]) -> str:
         "Completeness",
         f"  complete: {completeness_map.get('complete')}",
         f"  evidence_level: {completeness_map.get('evidence_level')}",
+        f"  include_executable: {completeness_map.get('include_executable')}",
         f"  inferred_lineage: {completeness_map.get('inferred_lineage')}",
     ]
     gaps = completeness_map.get("gaps")
