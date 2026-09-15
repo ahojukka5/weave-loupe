@@ -11,6 +11,7 @@ from typing import Any, Literal, cast
 
 from weave_loupe.analysis import analyze_bundle
 from weave_loupe.bundle import Bundle
+from weave_loupe.bundle.localization import localize_bundle_comparison
 
 DIFF_FORMAT = "weave-loupe-diff-v2"
 LEGACY_DIFF_FORMAT = "weave-loupe-diff-v1"
@@ -213,6 +214,7 @@ def compare_bundles(
         "manifest": manifest,
         "optimization_remarks": remarks,
         "supplemental": supplemental,
+        "localization": localize_bundle_comparison(before, after),
         "compatibility": {
             "legacy_format": LEGACY_DIFF_FORMAT,
             "legacy_projection": _legacy(left, right),

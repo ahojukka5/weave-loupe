@@ -297,6 +297,12 @@ def _request_from_capture(
     }
     compiler = manifest["compiler"]
     assert isinstance(compiler, dict)
+    compilation = manifest.get("compilation")
+    compilation_identity = {}
+    if isinstance(compilation, dict):
+        raw_identity = compilation.get("identity")
+        if isinstance(raw_identity, dict):
+            compilation_identity = raw_identity
     command = [
         replacements.get(str(argument), str(argument))
         for argument in compiler["command"]
@@ -318,6 +324,18 @@ def _request_from_capture(
             "command": command,
             "exit_code": compiler["exit_code"],
             "execution": compiler["execution"],
+            **{
+                key: compilation_identity[key]
+                for key in (
+                    "compiler_sha256",
+                    "compiler_version",
+                    "git_sha",
+                    "development",
+                    "version_source",
+                    "target",
+                )
+                if key in compilation_identity
+            },
         },
         "sources": [
             {

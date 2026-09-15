@@ -78,10 +78,17 @@ presentation format.
   expected output, and open the generated HTML report.
 - [Bundle format](bundle-format.md) — layout and stability rules for
   `weave-loupe-bundle-v1`.
+- [Inspecting compiler evidence](evidence-inspection.md) — compilation identity,
+  stage lineage, evidence levels, comparison localization, and inspect/analyze.
 
 ## Commands
 
 - `loupe capture` builds one portable evidence bundle.
+- `loupe inspect` shows compilation identity, stage lineage, completeness, and
+  evidence-condition views.
+- `loupe analyze` runs deterministic analysis with explanation paths over the
+  same bundle.
+- `loupe ingest` verifies retained compiler outputs and publishes the same
 - `loupe ingest` verifies retained compiler outputs and publishes the same
   portable bundle format without running the compiler or retained executable.
 - `loupe report` creates deterministic self-contained HTML and optional analysis

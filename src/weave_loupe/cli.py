@@ -8,11 +8,13 @@ import sys
 from pathlib import Path
 
 from weave_loupe.bundle import INGEST_REQUEST_FORMAT
+from weave_loupe.commands.analyze import run_analyze
 from weave_loupe.commands.audit import run_audit
 from weave_loupe.commands.capture import run_capture
 from weave_loupe.commands.compiler_audit import run_compiler_audit
 from weave_loupe.commands.diff import run_diff
 from weave_loupe.commands.ingest import run_ingest
+from weave_loupe.commands.inspect import inspect_view_names, run_inspect
 from weave_loupe.commands.report import run_report
 from weave_loupe.commands.schema import run_schema, run_validate_json
 from weave_loupe.commands.verify_bundle import run_verify_bundle
@@ -42,6 +44,12 @@ def build_parser() -> argparse.ArgumentParser:
     capture.add_argument("--output", "-o", type=Path, required=True)
     capture.add_argument("--weavec", type=Path, default=None)
     capture.add_argument("--include-executable", action="store_true")
+    capture.add_argument(
+        "--evidence-level",
+        choices=("lightweight", "standard", "full"),
+        default="standard",
+        help="lightweight omits IR/native emits; full retains the executable.",
+    )
     _add_identity_arguments(capture)
     capture.add_argument(
         "--compiler-timeout-seconds",
@@ -221,6 +229,32 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    inspect = subparsers.add_parser(
+        "inspect",
+        help="Inspect compilation identity, stage lineage, and evidence views.",
+    )
+    inspect.add_argument("bundle", type=Path)
+    inspect.add_argument("--json-out", type=Path, default=None)
+    inspect.add_argument(
+        "--stage",
+        choices=("source", "wir", "llvm", "optimized_llvm", "native", "runtime"),
+        default=None,
+    )
+    inspect.add_argument(
+        "--view",
+        choices=inspect_view_names(),
+        default=None,
+        help="Project one information condition over the same bundle.",
+    )
+
+    analyze = subparsers.add_parser(
+        "analyze",
+        help="Run deterministic analysis with lineage and explanation paths.",
+    )
+    analyze.add_argument("bundle", type=Path)
+    analyze.add_argument("--json-out", type=Path, default=None)
+    analyze.add_argument("--markdown-out", type=Path, default=None)
+
     schema = subparsers.add_parser(
         "schema",
         help="Print one installed JSON Schema document.",
@@ -336,6 +370,7 @@ def main(argv: list[str] | None = None) -> int:
             compiler_output_bytes=args.compiler_output_bytes,
             audit_root=args.audit_root,
             source_names=args.source_names,
+            evidence_level=args.evidence_level,
         )
     if args.command == "ingest":
         return run_ingest(request=args.request, output=args.output)
@@ -392,6 +427,19 @@ def main(argv: list[str] | None = None) -> int:
             review_artifact_tokens=args.review_artifact_tokens,
             audit_root=args.audit_root,
             source_names=args.source_names,
+        )
+    if args.command == "inspect":
+        return run_inspect(
+            bundle_path=args.bundle,
+            json_out=args.json_out,
+            stage=args.stage,
+            view=args.view,
+        )
+    if args.command == "analyze":
+        return run_analyze(
+            bundle_path=args.bundle,
+            json_out=args.json_out,
+            markdown_out=args.markdown_out,
         )
     if args.command == "schema":
         return run_schema(format_name=args.format_name, output=args.output)

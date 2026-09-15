@@ -139,6 +139,68 @@ _SOURCE_ENTRY = _object(
     },
     additional=True,
 )
+_STAGE = _object(
+    required=("id", "status", "produced_from", "artifacts"),
+    properties={
+        "id": {
+            "enum": [
+                "source",
+                "wir",
+                "llvm",
+                "optimized_llvm",
+                "native",
+                "runtime",
+            ]
+        },
+        "status": {
+            "enum": [
+                "present",
+                "partial",
+                "failed",
+                "missing",
+                "unavailable",
+            ]
+        },
+        "produced_from": {"type": "array", "items": _STRING},
+        "artifacts": {"type": "array", "items": _STRING},
+        "artifact_sha256": {
+            "type": "object",
+            "additionalProperties": _SHA256,
+        },
+        "source_sha256": {"type": "array", "items": _SHA256},
+    },
+)
+_COMPILATION = _object(
+    required=("identity", "retention", "lineage"),
+    properties={
+        "identity": _object(
+            properties={
+                "compiler_sha256": _SHA256,
+                "compiler_version": _NONEMPTY,
+                "git_sha": {"type": ["string", "null"]},
+                "development": {"type": "boolean"},
+                "version_source": _NONEMPTY,
+                "capability_registry_sha256": _SHA256,
+                "target": _NONEMPTY,
+                "note": _STRING,
+            }
+        ),
+        "retention": _object(
+            required=("level", "include_executable"),
+            properties={
+                "level": {"enum": ["lightweight", "standard", "full"]},
+                "include_executable": {"type": "boolean"},
+            },
+        ),
+        "lineage": _object(
+            required=("declared", "stages"),
+            properties={
+                "declared": {"type": "boolean"},
+                "stages": {"type": "array", "items": _STAGE, "minItems": 1},
+            },
+        ),
+    },
+)
 _PROBLEM = _object(
     required=("code", "location", "message"),
     properties={
@@ -444,6 +506,7 @@ def _build_schemas() -> dict[str, dict[str, Any]]:
                         },
                         additional=_FILE_ENTRY,
                     ),
+                    "compilation": _COMPILATION,
                 },
             ),
         ),
@@ -530,6 +593,7 @@ def _build_schemas() -> dict[str, dict[str, Any]]:
                     "manifest": _ANY_OBJECT,
                     "optimization_remarks": _ANY_OBJECT,
                     "supplemental": _ANY_OBJECT,
+                    "localization": _ANY_OBJECT,
                     "compatibility": _object(
                         required=(
                             "legacy_format",
@@ -912,6 +976,7 @@ def _build_examples() -> dict[str, Any]:
             "manifest": {},
             "optimization_remarks": {},
             "supplemental": {},
+            "localization": {},
             "compatibility": {
                 "legacy_format": "weave-loupe-diff-v1",
                 "legacy_projection": diff_v1,

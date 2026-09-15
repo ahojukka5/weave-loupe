@@ -20,8 +20,12 @@ example.loupe/
     └── stderr.txt
 ```
 
-The optional executable is stored only when `capture --include-executable` is
-used.
+The optional executable is stored when `capture --include-executable` or
+`--evidence-level full` is used. `--evidence-level lightweight` omits IR and
+native emits while still retaining diagnostics, trace, and the build manifest.
+
+Historical v1 bundles without `compilation` remain valid. Loupe infers lineage
+from known artifact names and marks that reconstruction as inferred.
 
 ## Manifest guarantees
 
@@ -31,6 +35,8 @@ used.
 - ordered source inputs and copied bundle paths;
 - SHA-256 digest and byte size for every copied source, artifact, and new log
   entry;
+- optional `compilation` identity, retention level, and declared stage lineage
+  (`source → WIR → LLVM → optimized LLVM → native → runtime`);
 - the portable public `weavec build` command shape;
 - compiler exit code;
 - published artifact and log paths.

@@ -7,6 +7,7 @@ import shutil
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 from weave_loupe.bounded_process import (
     ProcessExecutionError,
@@ -22,6 +23,8 @@ from weave_loupe.compiler_capabilities import (
     load_compiler_capabilities,
 )
 from weave_loupe.process_budget import with_user_process_baseline
+
+EvidenceLevel = Literal["lightweight", "standard", "full"]
 
 
 class WeavecError(RuntimeError):
@@ -103,36 +106,51 @@ def resolve_weavec(explicit: Path | None = None) -> Path:
     return Path(found).resolve()
 
 
-def build_command(binary: Path, request: BuildRequest) -> tuple[str, ...]:
+def build_command(
+    binary: Path,
+    request: BuildRequest,
+    *,
+    evidence_level: EvidenceLevel = "standard",
+) -> tuple[str, ...]:
     """Return the stable public command used to capture compiler evidence."""
-    return (
+    command = [
         str(binary),
         "build",
         *(str(source) for source in request.sources),
         "-o",
         str(request.executable),
-        "--emit-wir",
-        str(request.wir),
-        "--emit-llvm",
-        str(request.llvm),
-        "--emit-optimized-llvm",
-        str(request.optimized_llvm),
-        "--emit-assembly",
-        str(request.assembly),
-        "--emit-disassembly",
-        str(request.disassembly),
-        "--optimization-record",
-        str(request.optimization_record),
-        "-O3",
-        "--native",
-        "--diagnostics-json",
-        str(request.diagnostics),
-        "--trace-json",
-        str(request.trace),
-        "--manifest-json",
-        str(request.build_manifest),
-        "--llvm-provenance",
+    ]
+    if evidence_level in {"standard", "full"}:
+        command.extend(
+            [
+                "--emit-wir",
+                str(request.wir),
+                "--emit-llvm",
+                str(request.llvm),
+                "--emit-optimized-llvm",
+                str(request.optimized_llvm),
+                "--emit-assembly",
+                str(request.assembly),
+                "--emit-disassembly",
+                str(request.disassembly),
+                "--optimization-record",
+                str(request.optimization_record),
+                "-O3",
+                "--native",
+                "--llvm-provenance",
+            ]
+        )
+    command.extend(
+        [
+            "--diagnostics-json",
+            str(request.diagnostics),
+            "--trace-json",
+            str(request.trace),
+            "--manifest-json",
+            str(request.build_manifest),
+        ]
     )
+    return tuple(command)
 
 
 def run_build(
@@ -143,6 +161,7 @@ def run_build(
     limits: ProcessLimits | None = None,
     timeout_seconds: float | None = None,
     output_bytes: int | None = None,
+    evidence_level: EvidenceLevel = "standard",
 ) -> BuildResult:
     """Run ``weavec build`` with bounded resources and diagnostic evidence."""
     if not request.sources:
@@ -160,7 +179,7 @@ def run_build(
         capabilities = load_compiler_capabilities(binary, environment=environment)
     except CompilerCapabilityError as exc:
         raise WeavecError(str(exc)) from exc
-    command = build_command(binary, request)
+    command = build_command(binary, request, evidence_level=evidence_level)
     try:
         configured_limits = limits or configured_process_limits(
             "compiler",

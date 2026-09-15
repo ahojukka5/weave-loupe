@@ -39,8 +39,22 @@ def _replace_executable(bundle: Path, body: str) -> None:
     executable.write_text(f"#!/usr/bin/env python3\n{body}\n", encoding="utf-8")
     executable.chmod(0o755)
     data = executable.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
     entry["size"] = len(data)
-    entry["sha256"] = hashlib.sha256(data).hexdigest()
+    entry["sha256"] = digest
+    compilation = manifest.get("compilation")
+    if isinstance(compilation, dict):
+        lineage = compilation.get("lineage")
+        if isinstance(lineage, dict):
+            stages = lineage.get("stages")
+            if isinstance(stages, list):
+                for item in stages:
+                    if isinstance(item, dict) and item.get("id") == "native":
+                        hashes = item.setdefault("artifact_sha256", {})
+                        hashes["executable"] = digest
+                        artifacts = item.setdefault("artifacts", [])
+                        if "executable" not in artifacts:
+                            artifacts.append("executable")
     manifest_path.write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
