@@ -89,7 +89,6 @@ presentation format.
 - `loupe analyze` runs deterministic analysis with explanation paths over the
   same bundle.
 - `loupe ingest` verifies retained compiler outputs and publishes the same
-- `loupe ingest` verifies retained compiler outputs and publishes the same
   portable bundle format without running the compiler or retained executable.
 - `loupe report` creates deterministic self-contained HTML and optional analysis
   JSON with focused WIR, LLVM optimization remark, LLVM, and native sections.

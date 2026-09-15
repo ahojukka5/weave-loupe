@@ -95,6 +95,26 @@ def test_historical_bundle_infers_lineage_without_rewriting_manifest(
         item["id"] == "wir" and item["status"] == "present"
         for item in lineage["stages"]
     )
+    inspect_bundle(inferred)
+    assert "compilation" not in historical
+    assert lineage_for_bundle(inferred)["inferred"] is True
+    assert lineage_for_bundle(inferred)["declared"] is False
+
+
+def test_stored_undeclared_lineage_is_not_promoted() -> None:
+    manifest = {
+        "compilation": {
+            "lineage": {
+                "declared": False,
+                "inferred": True,
+                "stages": [{"id": "source", "status": "present"}],
+            }
+        }
+    }
+    bundle = Bundle(root=Path("."), manifest=manifest)
+    lineage = lineage_for_bundle(bundle)
+    assert lineage["inferred"] is True
+    assert lineage["declared"] is False
 
 
 def test_lightweight_capture_omits_ir_and_records_gaps(
@@ -119,6 +139,28 @@ def test_lightweight_capture_omits_ir_and_records_gaps(
     completeness = inspect_bundle(bundle)["completeness"]
     assert completeness["complete"] is True
     assert completeness["evidence_level"] == "lightweight"
+
+
+def test_full_capture_retains_executable_and_is_complete(
+    tmp_path: Path,
+    source_file: Path,
+    fake_weavec: Path,
+) -> None:
+    output = tmp_path / "full.loupe"
+    capture_bundle(
+        sources=[source_file],
+        output=output,
+        weavec=fake_weavec,
+        evidence_level="full",
+    )
+    bundle = load_bundle(output)
+    retention = bundle.manifest["compilation"]["retention"]
+    assert retention["level"] == "full"
+    assert retention["include_executable"] is True
+    assert bundle.artifact_path("executable") is not None
+    completeness = inspect_bundle(bundle)["completeness"]
+    assert completeness["complete"] is True
+    assert completeness["evidence_level"] == "full"
 
 
 def test_comparison_reports_first_changed_stage_for_wir_edit(
