@@ -21,3 +21,6 @@ weavec/
 # Loupe output
 *.loupe/
 *.loupe.zip
+
+# resolved dependency lockfile: regenerated per environment
+uv.lock
