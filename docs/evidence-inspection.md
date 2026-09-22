@@ -106,5 +106,5 @@ manifest to invent artifacts the old compiler never published.
 6. Open the HTML report if you need the raw artifacts next to the summary.
 
 This is ordinary compiler debugging. The research comparison in
-`ahojukka5/research#332` reuses the same capture, views, and localization; it
+`` reuses the same capture, views, and localization; it
 does not replace this workflow.
