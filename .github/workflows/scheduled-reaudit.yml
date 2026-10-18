@@ -21,7 +21,7 @@ concurrency:
 jobs:
   re-audit:
     name: "generate: audit evidence"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
       WEAVE_LLM_ENDPOINT: ${{ secrets.WEAVE_LLM_ENDPOINT || vars.WEAVE_LLM_ENDPOINT }}
