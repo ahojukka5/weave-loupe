@@ -9,9 +9,8 @@ permissions:
   contents: read
 
 # A newer push or pull-request update makes an in-flight run obsolete. Cancel
-# it instead of letting it run to completion: these jobs land on a shared
-# self-hosted fleet, so a superseded run is holding a slot that current work
-# is queueing for. Grouped per workflow, so unrelated workflows in this
+# it instead of letting it run to completion: superseded public checks waste
+# GitHub-hosted capacity. Group by workflow, so unrelated jobs in this
 # repository never cancel each other.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -20,8 +19,7 @@ concurrency:
 jobs:
   quality:
     name: "test: lint, type-check & pytest"
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
