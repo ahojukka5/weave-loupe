@@ -1,5 +1,11 @@
 # Contributing
 
+[OodiHandbook](https://github.com/ahojukka5/OodiHandbook/blob/v0.1.0/index.qmd)
+is the source of common rules. Follow the repository's explicitly adopted
+immutable release (AUTH-003). Use [reviewed master guidance](https://github.com/ahojukka5/OodiHandbook/blob/master/index.qmd)
+as a voluntary improvement target (AUTH-006). Local instructions provide
+technical details and do not override the Handbook.
+
 Thanks for contributing to weave-loupe. This document describes how we
 collaborate on the project. Start with the commit rules below; more
 guidelines will be added as the project grows.
@@ -60,7 +66,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 Subject (topic) line:
 
 ```text
-<type>[optional scope]: <description>
+<type>(<scope>): <description>
 ```
 
 Common types:
