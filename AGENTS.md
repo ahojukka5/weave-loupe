@@ -1,5 +1,11 @@
 # Agent instructions
 
+[OodiHandbook](https://github.com/ahojukka5/OodiHandbook/blob/v0.1.0/index.qmd)
+is the source of common rules. Follow the repository's explicitly adopted
+immutable release (AUTH-003). Use [reviewed master guidance](https://github.com/ahojukka5/OodiHandbook/blob/master/index.qmd)
+as a voluntary improvement target (AUTH-006). Local instructions provide
+technical details and do not override the Handbook.
+
 This repository regularly receives pull requests authored by autonomous
 coding agents (branches named `agent/*`), and reviewing and merging them is
 itself often done by an agent. This file captures how to do that well here,
